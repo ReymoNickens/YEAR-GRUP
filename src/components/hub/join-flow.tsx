@@ -62,23 +62,33 @@ export function JoinFlow({ slug }: { slug: string }) {
       .catch(() => undefined);
   }, [slug, router]);
 
+  // Restore a half-finished join on this device first, and only then start saving,
+  // so the empty first screen never overwrites the saved progress.
+  const [restored, setRestored] = useState(false);
   useEffect(() => {
-    const raw = localStorage.getItem(storeKey);
-    if (!raw) return;
     try {
-      const saved = JSON.parse(raw) as { step: Step; draft: Draft };
-      // Restoring a half-finished join from this device; localStorage is not readable during render.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setDraft({ ...empty, ...saved.draft });
-      if (order.includes(saved.step)) setStep(saved.step);
+      const raw = localStorage.getItem(storeKey);
+      if (raw) {
+        const saved = JSON.parse(raw) as { step: Step; draft: Draft };
+        // localStorage is not readable during render, so this runs after mount.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setDraft({ ...empty, ...saved.draft });
+        if (order.includes(saved.step)) setStep(saved.step);
+      }
     } catch {
       /* keep empty */
     }
+    setRestored(true);
   }, [storeKey]);
 
   useEffect(() => {
-    localStorage.setItem(storeKey, JSON.stringify({ step, draft }));
-  }, [storeKey, step, draft]);
+    if (!restored) return;
+    try {
+      localStorage.setItem(storeKey, JSON.stringify({ step, draft }));
+    } catch {
+      /* storage unavailable: the join still works, it just will not survive a reload */
+    }
+  }, [restored, storeKey, step, draft]);
 
   const data = loaded.data;
   const programme = data?.programmes.find((p) => p.id === draft.programmeId);
@@ -170,7 +180,9 @@ export function JoinFlow({ slug }: { slug: string }) {
     }
   }
 
-  const index = visible.indexOf(step) + 1;
+  // The counter always includes the phone steps, so it never jumps backwards once the number is verified.
+  const counted = order.filter((s) => !((s === "dorm" || s === "cot") && draft.residence !== "placed"));
+  const index = Math.max(1, counted.indexOf(step) + 1);
   if (claimed) {
     return (
       <Shell slug={slug} nav={false} title={data?.org.name} eyebrow={data?.org.branding.motto}>
@@ -189,13 +201,18 @@ export function JoinFlow({ slug }: { slug: string }) {
   return (
     <Shell slug={slug} nav={false} title={data?.org.name} eyebrow={data?.org.branding.motto}>
       <State loading={loaded.loading} error={loaded.error}>
-        <p className="text-sm text-gold">
-          {index} of {visible.length}
-        </p>
+        <div className="flex items-center gap-3" aria-label={`Step ${index} of ${counted.length}`}>
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+            <div className="h-full rounded-full bg-crimson transition-[width] duration-500 ease-out" style={{ width: `${(index / counted.length) * 100}%` }} />
+          </div>
+          <p className="text-xs text-muted tabular-nums" aria-hidden>
+            {index} of {counted.length}
+          </p>
+        </div>
         {step === "name" && (
           <section className="mt-3 space-y-4">
             <h1 className="font-display text-4xl">What should we call you?</h1>
-            <Field label="Name" value={draft.displayName} onChange={(displayName) => setDraft({ ...draft, displayName })} />
+            <Field label="Name" value={draft.displayName} autoComplete="name" onChange={(displayName) => setDraft({ ...draft, displayName })} />
             <Button onClick={() => go(verified ? "programme" : "phone")} disabled={draft.displayName.trim().length < 2}>
               Continue
             </Button>
@@ -205,7 +222,7 @@ export function JoinFlow({ slug }: { slug: string }) {
           <section className="mt-3 space-y-4">
             <h1 className="font-display text-4xl">Your phone number.</h1>
             <Note>We send one text-message code. If your number is on the year-group list, your place is waiting for you.</Note>
-            <Field label="Phone" value={draft.phone} inputMode="tel" placeholder="024 000 0000" onChange={(phone) => setDraft({ ...draft, phone })} />
+            <Field label="Phone" value={draft.phone} inputMode="tel" autoComplete="tel-national" placeholder="024 000 0000" onChange={(phone) => setDraft({ ...draft, phone })} />
             {error ? <p className="text-sm text-crimson">{error}</p> : null}
             <Button onClick={sendCode} disabled={busy || draft.phone.replace(/\D/g, "").length < 9}>{busy ? "Sending" : "Send the code"}</Button>
           </section>
@@ -215,7 +232,7 @@ export function JoinFlow({ slug }: { slug: string }) {
             <h1 className="font-display text-4xl">Enter the code.</h1>
             <Note>We sent six digits to {masked || "your phone"}. It lasts ten minutes.</Note>
             {devCode ? <Note>Demonstration mode: your code is {devCode}.</Note> : null}
-            <Field label="Code" value={code} inputMode="numeric" placeholder="123456" onChange={(v) => setCode(v.replace(/\D/g, "").slice(0, 6))} />
+            <Field label="Code" value={code} inputMode="numeric" autoComplete="one-time-code" autoFocus placeholder="123456" onChange={(v) => setCode(v.replace(/\D/g, "").slice(0, 6))} />
             {error ? <p className="text-sm text-crimson">{error}</p> : null}
             <Button onClick={checkCode} disabled={busy || code.length < 6}>{busy ? "Checking" : "Verify"}</Button>
             <Button tone="quiet" onClick={() => { setCode(""); go("phone"); }}>Use a different number</Button>
@@ -283,7 +300,7 @@ export function JoinFlow({ slug }: { slug: string }) {
           <section className="mt-3 space-y-4">
             <h1 className="font-display text-4xl">Work, and the city you are in.</h1>
             <Field label="Profession" value={draft.profession} onChange={(profession) => setDraft({ ...draft, profession })} />
-            <Field label="City" value={draft.city} onChange={(city) => setDraft({ ...draft, city })} />
+            <Field label="City" value={draft.city} autoComplete="address-level2" onChange={(city) => setDraft({ ...draft, city })} />
             <Button disabled={!draft.profession.trim() || !draft.city.trim()} onClick={() => go("circles")}>Continue</Button>
           </section>
         )}

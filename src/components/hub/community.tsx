@@ -7,23 +7,73 @@ import { Shell } from "@/components/hub/shell";
 import { Back, Button, Field, Note, SampleTag, State } from "@/components/hub/ui";
 import { useHub } from "@/components/hub/use-hub";
 
+/** Where you sat comes first, in the order the school was lived: year, house, dorm, cot, programme, class. */
+const SCHOOL_ORDER = ["year", "house", "dorm", "cot", "programme", "class"];
+
+type CircleRow = { id: string; name: string; kind: string; visibility: string; purpose: string; joined: boolean; level: string | null; members: number };
+
+function CircleCard({ slug, c, tag }: { slug: string; c: CircleRow; tag?: string }) {
+  return (
+    <li>
+      <Link href={`/o/${slug}/circles/${c.id}`} className="flex items-center justify-between gap-3 rounded-3xl border border-line bg-card p-4 transition active:scale-[0.99]">
+        <span className="min-w-0">
+          <span className="block font-display text-2xl leading-tight">{c.name}</span>
+          <span className="mt-1 block truncate text-sm text-muted">{tag ? `${tag} · ` : ""}{c.purpose}</span>
+        </span>
+        <span className="shrink-0 rounded-full bg-paper px-3 py-1 text-xs text-muted tabular-nums">{c.members} {c.members === 1 ? "member" : "members"}</span>
+      </Link>
+    </li>
+  );
+}
+
 export function CircleIndex({ slug }: { slug: string }) {
-  const { data, error, loading } = useHub(`circles-${slug}`, () => circleList({ data: slug }));
+  const { data, error, loading, reload } = useHub(`circles-${slug}`, () => circleList({ data: slug }));
+  const [browse, setBrowse] = useState(false);
+  const rows = (data ?? []) as CircleRow[];
+  const rank = (c: CircleRow) => (c.level ? SCHOOL_ORDER.indexOf(c.level) : 99);
+  const school = rows.filter((c) => c.joined && c.kind === "derived").sort((a, b) => rank(a) - rank(b));
+  const mine = rows.filter((c) => c.joined && c.kind !== "derived");
+  const open = rows.filter((c) => !c.joined && c.kind === "voluntary").sort((a, b) => b.members - a.members);
+  const elsewhere = rows.filter((c) => !c.joined && c.kind === "derived" && c.level !== "cot").sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
   return (
     <Shell slug={slug}>
       <h1 className="font-display text-4xl">Circles</h1>
-      <Note>House, dorm, cot and class follow where you sat. The others you join.</Note>
-      <State loading={loading} error={error}>
-        <ul className="mt-4 space-y-3">
-          {data?.map((c) => (
-            <li key={c.id}>
-              <Link href={`/o/${slug}/circles/${c.id}`} className="block rounded-3xl border border-line bg-card p-4">
-                <p className="font-display text-2xl">{c.name}</p>
-                <p className="text-sm text-muted">{c.joined ? "Yours" : "Open"} · {c.purpose}</p>
-              </Link>
-            </li>
-          ))}
-        </ul>
+      <Note>House, dorm, cot and class follow where you sat. The others you choose.</Note>
+      <State loading={loading} error={error} onRetry={reload}>
+        <section className="mt-6">
+          <h2 className="text-xs tracking-[0.18em] text-gold uppercase">Where you sat</h2>
+          {school.length ? (
+            <ul className="mt-3 space-y-3">{school.map((c) => <CircleCard key={c.id} slug={slug} c={c} tag={c.level === "year" ? "Everyone" : c.level ? c.level[0].toUpperCase() + c.level.slice(1) : undefined} />)}</ul>
+          ) : (
+            <p className="mt-3 rounded-3xl border border-dashed border-line p-4 text-sm text-muted">Your house, dorm, cot and class open here once your place is confirmed.</p>
+          )}
+        </section>
+        {mine.length ? (
+          <section className="mt-8">
+            <h2 className="text-xs tracking-[0.18em] text-gold uppercase">You chose</h2>
+            <ul className="mt-3 space-y-3">{mine.map((c) => <CircleCard key={c.id} slug={slug} c={c} />)}</ul>
+          </section>
+        ) : null}
+        {open.length ? (
+          <section className="mt-8">
+            <h2 className="text-xs tracking-[0.18em] text-gold uppercase">Join a circle</h2>
+            <ul className="mt-3 space-y-3">{open.map((c) => <CircleCard key={c.id} slug={slug} c={c} />)}</ul>
+          </section>
+        ) : null}
+        {elsewhere.length ? (
+          <section className="mt-8">
+            {browse ? (
+              <>
+                <h2 className="text-xs tracking-[0.18em] text-gold uppercase">Other houses and classes</h2>
+                <ul className="mt-3 space-y-3">{elsewhere.map((c) => <CircleCard key={c.id} slug={slug} c={c} />)}</ul>
+              </>
+            ) : (
+              <button type="button" onClick={() => setBrowse(true)} className="h-12 w-full rounded-full border border-line text-sm text-muted">
+                Browse other houses and classes
+              </button>
+            )}
+          </section>
+        ) : null}
       </State>
     </Shell>
   );

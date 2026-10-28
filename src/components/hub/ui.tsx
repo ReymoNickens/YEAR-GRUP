@@ -113,12 +113,16 @@ export function Field({
   onChange,
   placeholder,
   inputMode,
+  autoComplete,
+  autoFocus,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   placeholder?: string;
   inputMode?: "text" | "tel" | "decimal" | "numeric";
+  autoComplete?: string;
+  autoFocus?: boolean;
 }) {
   return (
     <label className="block">
@@ -126,6 +130,8 @@ export function Field({
       <input
         value={value}
         inputMode={inputMode}
+        autoComplete={autoComplete}
+        autoFocus={autoFocus}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className="h-12 w-full rounded-2xl border border-line bg-card px-4 text-base outline-none transition-colors focus:border-crimson"
@@ -216,11 +222,14 @@ export function Back({ href, label }: { href: string; label: string }) {
   );
 }
 
-export function Bar({ value, max }: { value: number; max: number }) {
-  const pct = max > 0 ? Math.max(4, Math.min(100, Math.round((value / max) * 100))) : 0;
+export function Bar({ value, max, tone = "light", label }: { value: number; max: number; tone?: "light" | "onDark"; label?: string }) {
+  const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
+  const shown = pct > 0 ? Math.max(2, pct) : 0;
+  const track = tone === "onDark" ? "bg-white/20" : "bg-line";
+  const fill = tone === "onDark" ? "bg-gold-soft" : "bg-crimson";
   return (
-    <div className="h-2 overflow-hidden rounded-full bg-line">
-      <div className="h-full rounded-full bg-crimson transition-[width] duration-700 ease-out" style={{ width: `${pct}%` }} />
+    <div role="progressbar" aria-label={label ?? "Progress"} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} className={`h-2 overflow-hidden rounded-full ${track}`}>
+      <div className={`h-full rounded-full ${fill} transition-[width] duration-700 ease-out`} style={{ width: `${shown}%` }} />
     </div>
   );
 }

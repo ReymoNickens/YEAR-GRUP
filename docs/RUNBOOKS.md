@@ -13,10 +13,10 @@ Control room, Money, "Run reconciliation" (also nightly). Unbalanced transaction
 Request it as "paid out another way". The approver attaches the payout reference. The ledger posts only after that second person confirms.
 
 ## Messages are not arriving
-Control room, Communication shows text-message states. `held_budget`: the monthly budget was reached. `dead_letter`: five attempts failed, read `last_error`. Check `SMS_PROVIDER` and key; the job is `/api/cron/outbox` (every 5 minutes).
+Control room, Communication shows text-message states. `held_budget`: the monthly budget was reached. `dead_letter`: five attempts failed, read `last_error`. Check `SMS_PROVIDER` and key; the job is `/api/cron/outbox` (see docs/SETUP.md, step 7, for how often it runs).
 
 ## Add an organisation
-Copy `config/organisations/aggrey-2010.example.json`, edit, run `npm run provision -- <file> --dry-run`, then without the flag against the production `DATABASE_URL`. List the founders' emails first: only those people are seated as officers. It never overwrites an existing organisation.
+Copy `config/organisations/aggrey-2010.example.json`, edit, run `npm run provision -- <file> --dry-run`, then without the flag against the production `DATABASE_URL`. Without direct database access, generate SQL instead with `scripts/provision-sql.ts` and paste it into the Supabase SQL editor. List the founders' emails first: only those people are seated as officers. It never overwrites an existing organisation.
 
 ## A member lost their phone number
 An executive uses "move a number" (needs a fresh code). The member then verifies the new number. Approvals wait 24 hours after a number changes.
@@ -24,5 +24,8 @@ An executive uses "move a number" (needs a fresh code). The member then verifies
 ## Rotate secrets
 Change `PAYSTACK_SECRET_KEY`, `SMS_API_KEY`, `CRON_SECRET`, `HUB_OTP_PEPPER` in the host, redeploy. A new pepper invalidates codes in flight, which expire in ten minutes anyway.
 
+## Weekly ledger copy
+Control room, Money, "Download the ledger". An executive keeps the file somewhere the executives control. Every download is in the audit log.
+
 ## Restore
-Enable point-in-time recovery on the database host and rehearse a restore before launch. After a restore, run reconciliation.
+Enable point-in-time recovery in Supabase (Database → Backups) and rehearse a restore before launch. After a restore, run reconciliation.

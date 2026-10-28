@@ -2,7 +2,7 @@
 
 ## Request scope
 
-`authMiddleware` resolves the signed-in user, then runs the whole server function inside `withScope` (`src/lib/db.ts`):
+Screens call server actions (`src/lib/hub/actions.ts`). Each action runs a server function built with `createServerFn(...).middleware([authMiddleware]).handler(...)` (`src/lib/server-fn.ts`). `authMiddleware` reads the Supabase session (`src/lib/auth/supabase.ts`, signature checked with `getClaims`), then runs the whole function inside `withScope` (`src/lib/db.ts`):
 
 1. begin a transaction,
 2. `set local role hub_app` (not the owner, no BYPASSRLS),
@@ -12,7 +12,7 @@
 
 Errors thrown inside a scope roll everything back. Anything that must survive a refusal (a one-time-code attempt counter) is therefore returned as a result, not thrown.
 
-## Database rules (`migrations/0004`, `0005`)
+## Database rules (`supabase/migrations`)
 
 - Every tenant table has `organisation_id`, a tenant policy, and composite foreign keys to `(organisation_id, id)`.
 - Restrictive policies hide hidden circles (and their posts, events, members) from non-members, keep welfare requests to the member and executives, and keep the audit trail to officers.
@@ -41,4 +41,10 @@ A live payment leaves clearing open until a treasurer confirms the bank settleme
 
 ## Client bundle
 
-Server functions are written as literal `createServerFn(...).handler(...)` chains so the compiler can split the handler out of the browser bundle. Wrapping the chain in a helper silently defeats that and ships SQL to the browser. `npm run check:leaks` fails the build if any server-only marker appears in browser files.
+Server code imports `server-only`, so the build fails if a browser component pulls in the database layer. The screens only ever import `src/lib/hub/api.ts`, which calls the server actions and turns an error envelope back into a thrown message. Thrown messages are passed through only when they are plain member-facing errors; database errors become a calm general message and are logged.
+
+## Supabase
+
+- Sign-in is Supabase Auth with Google. `proxy.ts` keeps the session cookie fresh; it authorises nothing.
+- The app talks to Postgres directly (`DATABASE_URL`, the transaction pooler) as the restricted `hub_app` role. Supabase's REST roles (`anon`, `authenticated`) are refused every table and function (`20261028080300_supabase_lockdown.sql`).
+- `membership.user_id` holds the Supabase Auth user id as text. Email for founders and Paystack comes from the session, or from `auth.users` through the privileged client.

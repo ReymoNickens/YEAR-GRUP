@@ -1,4 +1,5 @@
 "use client";
+import { areaName } from "@/lib/hub/words";
 import Link from "next/link";
 import { useState } from "react";
 import { aiAssist, controlData } from "@/lib/hub/api";
@@ -20,10 +21,10 @@ export function ControlScreen({ slug, area }: { slug: string; area: string }) {
   return (
     <Shell slug={slug}>
       <p className="text-xs tracking-widest text-gold uppercase">Control room</p>
-      <h1 className="font-display text-4xl capitalize">{safe}</h1>
+      <h1 className="font-display text-4xl">{areaName(safe)}</h1>
       <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
         {areas.map((a) => (
-          <Link key={a} href={`/o/${slug}/control/${a}`} className={`flex h-12 shrink-0 items-center rounded-full px-4 ${a === safe ? "bg-crimson text-on-crimson" : "border border-line"}`}>{a}</Link>
+          <Link key={a} href={`/o/${slug}/control/${a}`} className={`flex h-12 shrink-0 items-center rounded-full px-4 ${a === safe ? "bg-crimson text-on-crimson" : "border border-line"}`} aria-current={a === safe ? "page" : undefined}>{areaName(a)}</Link>
         ))}
       </div>
             <div className="mt-4">

@@ -384,7 +384,7 @@ export const registerMember = createServerFn({ method: "POST" }).validator(parse
     displayName: data.displayName, programmeId: data.programmeId, classId: data.classId, residence: data.residence,
     houseId: data.houseId, dormId: data.dormId, cotNumber: data.cotNumber, profession: data.profession, city: data.city, circleIds: data.circleIds,
   };
-  const out = await enrolNewMember(sql, orgRef(org), context.userId, phone.phone, await userEmail(context.userId), form);
+  const out = await enrolNewMember(sql, orgRef(org), context.userId, phone.phone, context.email ?? (await userEmail(context.userId)), form);
   return { already: false, founding: out.founder, claimed: false };
 });
 
@@ -507,16 +507,19 @@ export const circleList = createServerFn({ method: "POST" }).validator(slugOf).m
   const sql = await getSql();
   const { org, member } = await requireMember(sql, slug, context.userId);
   const rows = await sql<Record<string, unknown>>`
-    select c.id, c.name, c.kind, c.visibility, c.purpose,
-      exists(select 1 from circle_member cm where cm.circle_id = c.id and cm.membership_id = ${member.id}) as joined
+    select c.id, c.name, c.kind, c.visibility, c.purpose, sn.level,
+      exists(select 1 from circle_member cm where cm.circle_id = c.id and cm.membership_id = ${member.id}) as joined,
+      (select count(*)::int from circle_member cm where cm.circle_id = c.id) as members
     from circle c
+    left join structure_node sn on sn.id = c.node_id
     where c.organisation_id = ${org.id}
       and (c.visibility <> 'hidden' or exists(select 1 from circle_member cm where cm.circle_id = c.id and cm.membership_id = ${member.id}))
-    order by joined desc, c.kind, c.name
+    order by c.name
   `;
   return rows.map((c) => ({
     id: String(c.id), name: String(c.name), kind: String(c.kind), visibility: String(c.visibility),
-    purpose: String(c.purpose), joined: c.joined === true,
+    purpose: String(c.purpose), joined: c.joined === true, level: str(c.level) ?? (c.kind === "derived" ? "year" : null),
+    members: num(c.members),
   }));
 });
 

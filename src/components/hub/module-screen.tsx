@@ -1,4 +1,5 @@
 "use client";
+import { channelName, deliveryState, messageTitle } from "@/lib/hub/words";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -191,30 +192,49 @@ function Events({ slug, bag, reload }: { slug: string; bag: Record<string, unkno
   );
 }
 
+type Album = { id: string; title: string; year: number; caption: string; motif: string; count: number; photos: { id: string; caption: string; motif: string; dataUrl: string | null }[] };
+
 function Photos({ bag, slug, reload }: { bag: Record<string, unknown>; slug: string; reload: () => void }) {
-  const albums = rows<{ id: string; title: string; year: number; caption: string; motif: string; photos: { id: string; caption: string; motif: string; dataUrl: string | null }[] }>(bag, "albums");
-  const [album, setAlbum] = useState(albums[0]?.id ?? "");
+  const albums = rows<Album>(bag, "albums");
+  const first = String(bag.selected ?? albums[0]?.id ?? "");
+  const [album, setAlbum] = useState(first);
   const [err, setErr] = useState("");
-  const open = albums.find((a) => a.id === album) ?? albums[0];
+  const [busy, setBusy] = useState(false);
+  // The first album arrives with the page; any other album loads on its own when chosen.
+  const other = useHub(`photos-${slug}-${album}`, async () =>
+    album && album !== first ? ((await readModule({ data: { slug, module: "photos", id: album } })) as Record<string, unknown>) : null,
+  );
+  const source = album === first ? albums : rows<Album>(other.data ?? {}, "albums");
+  const open = source.find((a) => a.id === album) ?? albums.find((a) => a.id === album);
   async function onFile(file: File) {
     setErr("");
-    const dataUrl = await compress(file);
+    setBusy(true);
     try {
+      const dataUrl = await compress(file);
       await hubAct({ data: { type: "photo", slug, albumId: open?.id, caption: file.name.replace(/\.[^.]+$/, ""), dataUrl } });
-      reload();
+      if (album === first) reload();
+      else other.reload();
     } catch (e) {
       setErr(e instanceof Error ? e.message : "The photo did not upload.");
+    } finally {
+      setBusy(false);
     }
   }
   return (
     <div className="space-y-4">
-      <Note>Pictures are compressed on this phone before they upload. Faces of the real year group arrive with your own photographs.</Note>
-      <div className="flex gap-3 overflow-x-auto pb-1">
+      <Note>Pictures are made smaller on this phone before they upload, to save your data.</Note>
+      <div className="-mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-1">
         {albums.map((a) => (
-          <button key={a.id} type="button" onClick={() => setAlbum(a.id)} className={`w-40 shrink-0 overflow-hidden rounded-3xl text-left ${album === a.id ? "ring-2 ring-gold" : ""}`}>
+          <button
+            key={a.id}
+            type="button"
+            aria-pressed={album === a.id}
+            onClick={() => setAlbum(a.id)}
+            className={`w-40 shrink-0 snap-start overflow-hidden rounded-3xl border text-left transition ${album === a.id ? "border-crimson ring-2 ring-crimson/30" : "border-line"}`}
+          >
             <Cover motif={a.motif} alt="" className="h-24" />
             <span className="block bg-card px-3 py-2">
-              <span className="block text-xs text-muted">{a.year}</span>
+              <span className="block text-xs text-muted">{a.year} · {a.count} {a.count === 1 ? "photo" : "photos"}</span>
               <span className="font-display text-lg leading-tight">{a.title}</span>
             </span>
           </button>
@@ -224,19 +244,34 @@ function Photos({ bag, slug, reload }: { bag: Record<string, unknown>; slug: str
         <div className="space-y-3">
           <h2 className="font-display text-3xl">{open.title}</h2>
           <p className="text-muted">{open.caption}</p>
-          {open.photos.map((p) => (
-            <figure key={p.id} className="overflow-hidden rounded-3xl border border-line bg-card">
-              {p.dataUrl ? <img src={p.dataUrl} alt="" className="h-52 w-full object-cover" /> : <Cover motif={p.motif} alt="" className="h-52" />}
-              <figcaption className="p-4">{p.caption}</figcaption>
-            </figure>
-          ))}
+          {other.loading && album !== first ? (
+            <div className="grid grid-cols-2 gap-2" aria-busy="true">
+              {[0, 1, 2, 3].map((i) => <div key={i} className="aspect-square animate-pulse rounded-2xl bg-line" />)}
+            </div>
+          ) : open.photos.length === 0 ? (
+            <p className="rounded-3xl border border-dashed border-line p-5 text-sm text-muted">No photos here yet. Add the first one from your own collection.</p>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {open.photos.map((p) => (
+                <figure key={p.id} className="overflow-hidden rounded-2xl border border-line bg-card">
+                  {p.dataUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- compressed data URLs stored with the photo
+                    <img src={p.dataUrl} alt={p.caption} loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
+                  ) : (
+                    <Cover motif={p.motif} alt={p.caption} className="aspect-square" />
+                  )}
+                  <figcaption className="truncate px-3 py-2 text-xs text-muted">{p.caption}</figcaption>
+                </figure>
+              ))}
+            </div>
+          )}
         </div>
       ) : null}
-      <label className="flex h-12 items-center justify-center rounded-full bg-crimson text-on-crimson">
-        Add a photo
-        <input type="file" accept="image/*" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) void onFile(f); }} />
+      <label className={`flex h-12 items-center justify-center rounded-full bg-crimson text-on-crimson ${busy ? "opacity-60" : ""}`}>
+        {busy ? "Uploading…" : "Add a photo"}
+        <input type="file" accept="image/*" className="sr-only" disabled={busy} onChange={(e) => { const f = e.target.files?.[0]; if (f) void onFile(f); }} />
       </label>
-      {err ? <p className="text-sm text-crimson">{err}</p> : null}
+      {err ? <p role="alert" className="text-sm text-crimson">{err}</p> : null}
     </div>
   );
 }
@@ -509,14 +544,26 @@ function Birthdays({ bag }: { bag: Record<string, unknown> }) {
 }
 
 function Inbox({ bag }: { bag: Record<string, unknown> }) {
-  const messages = rows<{ template: string; payload: string; status: string; channel: string }>(bag, "messages");
+  const messages = rows<{ template: string; payload: string; status: string; channel: string; at?: string }>(bag, "messages");
+  const bodyOf = (payload: string) => {
+    try {
+      const p = JSON.parse(payload) as { body?: string };
+      return typeof p.body === "string" ? p.body : "";
+    } catch {
+      return "";
+    }
+  };
   return (
     <ul className="space-y-2">
       {messages.length === 0 ? <Note>Nothing in the inbox yet.</Note> : null}
       {messages.map((m, i) => (
-        <li key={i} className="rounded-2xl border border-line bg-card p-4 text-sm">
-          <p className="text-muted">{m.channel} · {m.status}</p>
-          <p>{m.template}</p>
+        <li key={i} className="rounded-2xl border border-line bg-card p-4">
+          <p className="font-medium">{messageTitle(m.template)}</p>
+          {bodyOf(m.payload) ? <p className="mt-1 text-sm">{bodyOf(m.payload)}</p> : null}
+          <p className="mt-2 text-xs text-muted">
+            {channelName(m.channel)} · {deliveryState(m.status)}
+            {m.at ? ` · ${new Date(m.at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : ""}
+          </p>
         </li>
       ))}
     </ul>

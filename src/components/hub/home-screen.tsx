@@ -40,7 +40,7 @@ export function HomeScreen({ slug }: { slug: string }) {
                   <Money value={data.hero.raised} />
                 </p>
                 <p className="mb-3 text-sm text-gold-soft">of <Money value={data.hero.target} /></p>
-                <Bar value={data.hero.raised} max={data.hero.target} />
+                <Bar value={data.hero.raised} max={data.hero.target} tone="onDark" label="Raised so far" />
                 <Link href={`/o/${slug}/give/${data.hero.id}`} className="mt-5 flex h-12 items-center justify-center rounded-full bg-card text-ink">
                   Give
                 </Link>

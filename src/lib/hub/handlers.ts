@@ -151,23 +151,35 @@ async function readBundle(sql: Sql, slug: string, userId: string, module: string
     };
   }
   if (module === "photos") {
-    const albums = await sql<Record<string, unknown>>`select * from album where organisation_id = ${org.id} order by year`;
-    const photos = await sql<Record<string, unknown>>`
-      select id, album_id, caption, motif, data_url from photo where organisation_id = ${org.id}
+    // Albums are listed with a count; only one album's pictures travel at a time,
+    // at most 24, so the archive stays light on mobile data as it grows.
+    const albums = await sql<Record<string, unknown>>`
+      select a.*, (select count(*)::int from photo p where p.album_id = a.id) as photo_count
+      from album a where a.organisation_id = ${org.id} order by a.year, a.title
     `;
+    const pick = extra.id && albums.some((a) => a.id === extra.id) ? extra.id : albums[0] ? String(albums[0].id) : null;
+    const photos = pick
+      ? await sql<Record<string, unknown>>`
+          select id, caption, motif, data_url from photo
+          where organisation_id = ${org.id} and album_id = ${pick} order by created_at desc limit 24
+        `
+      : [];
     return {
+      selected: pick,
       albums: albums.map((a) => ({
         id: String(a.id),
         title: String(a.title),
         year: num(a.year),
         caption: String(a.caption),
         motif: String(a.motif),
-        photos: photos
-          .filter((p) => p.album_id === a.id)
-          .map((p) => ({ id: String(p.id), caption: String(p.caption), motif: String(p.motif), dataUrl: p.data_url ? String(p.data_url) : null })),
+        count: num(a.photo_count),
+        photos: a.id === pick
+          ? photos.map((p) => ({ id: String(p.id), caption: String(p.caption), motif: String(p.motif), dataUrl: p.data_url ? String(p.data_url) : null }))
+          : [],
       })),
     };
   }
+
   if (module === "polls") {
     const polls = await sql<Record<string, unknown>>`select * from poll where organisation_id = ${org.id}`;
     const options = await sql<Record<string, unknown>>`

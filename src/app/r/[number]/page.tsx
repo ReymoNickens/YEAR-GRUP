@@ -1,4 +1,5 @@
 import { Shell } from "@/components/hub/shell";
+import { PrintButton } from "@/components/hub/print-button";
 import { Money } from "@/components/hub/ui";
 import { publicReceipt } from "@/lib/hub/core";
 
@@ -25,12 +26,18 @@ export default async function Receipt({ params }: { params: Promise<{ number: st
           <p className="mt-2 text-sm text-muted">Issued {data.issuedOn}</p>
           <p className="mt-4 text-sm text-muted">This page shows the receipt number, purpose, amount and date. It does not show who paid.</p>
         </article>
-      ) : (
+      ) : null}
+      {data ? (
+        <div className="mt-4">
+          <PrintButton />
+        </div>
+      ) : null}
+      {!data ? (
         <div className="rounded-3xl border border-line bg-card p-5">
           <h1 className="font-display text-2xl">Receipt not found</h1>
           <p className="mt-2 text-muted">{error}</p>
         </div>
-      )}
+      ) : null}
     </Shell>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import { accountName } from "@/lib/hub/words";
 import { Download } from "lucide-react";
 import { useRef, useState, type ReactNode } from "react";
 import { stepUpConfirm, stepUpStart } from "@/lib/hub/api";
@@ -215,7 +216,7 @@ export function MoneyDesk({ bag, slug, reload }: { bag: Record<string, unknown>;
       {step.note ? <p className="text-sm">{step.note}</p> : null}
       <ul className="grid grid-cols-2 gap-2">
         {Object.entries(accounts).map(([k, v]) => (
-          <li key={k} className="rounded-2xl bg-card p-3"><p className="text-sm text-muted">{k}</p><p className="text-sm tabular-nums">{formatGhs(Math.abs(v))} {v < 0 ? "credit" : "debit"}</p></li>
+          <li key={k} className="rounded-2xl bg-card p-3"><p className="text-sm text-muted">{accountName(k)}</p><p className="text-sm tabular-nums">{formatGhs(Math.abs(v))} {v < 0 ? "credit" : "debit"}</p></li>
         ))}
       </ul>
       <p>Outstanding pledges: {String(bag.outstandingCount)} · <Money value={Number(bag.outstanding ?? 0)} /></p>
