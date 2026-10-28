@@ -147,7 +147,7 @@ function Asks({ slug, bag, reload }: { slug: string; bag: Record<string, unknown
           ))}
           <div className="mt-3 flex gap-2">
             <input value={reply} onChange={(e) => setReply(e.target.value)} className="h-12 flex-1 rounded-2xl border border-line px-3" placeholder="Reply" />
-            <button type="button" className="h-12 rounded-full bg-crimson px-4 text-on-crimson" onClick={async () => { await hubAct({ data: { type: "reply", slug, askId: a.id, body: reply, recommended: false } }); setReply(""); reload(); }}>Send</button>
+            <button type="button" className="btn-primary !w-auto px-4" onClick={async () => { await hubAct({ data: { type: "reply", slug, askId: a.id, body: reply, recommended: false } }); setReply(""); reload(); }}>Send</button>
           </div>
         </article>
       ))}
@@ -176,11 +176,11 @@ function Events({ slug, bag, reload }: { slug: string; bag: Record<string, unkno
           <p className="mt-1">{e.story}</p>
           <p className="mt-2 text-sm">{e.going} going {e.mine ? `· you said ${e.mine}` : ""}</p>
           {e.price && e.purposeId ? (
-            <Link className="mt-3 flex h-12 items-center justify-center rounded-full bg-crimson text-on-crimson" href={`/o/${slug}/give/${e.purposeId}`}>Ticket {formatGhs(e.price)}</Link>
+            <Link className="btn-primary mt-3" href={`/o/${slug}/give/${e.purposeId}`}>Ticket {formatGhs(e.price)}</Link>
           ) : (
             <div className="mt-3 grid grid-cols-3 gap-2">
               {(["going", "maybe", "no"] as const).map((s) => (
-                <button key={s} type="button" className="h-12 rounded-full border border-line" onClick={async () => { await hubAct({ data: { type: "rsvp", slug, eventId: e.id, status: s } }); reload(); }}>{s}</button>
+                <button key={s} type="button" className="btn-quiet" onClick={async () => { await hubAct({ data: { type: "rsvp", slug, eventId: e.id, status: s } }); reload(); }}>{s}</button>
               ))}
             </div>
           )}
@@ -265,7 +265,7 @@ function Photos({ bag, slug, reload }: { bag: Record<string, unknown>; slug: str
           )}
         </div>
       ) : null}
-      <label className={`flex h-12 items-center justify-center rounded-full bg-crimson text-on-crimson ${busy ? "opacity-60" : ""}`}>
+      <label className={`btn-primary ${busy ? "opacity-60" : ""}`}>
         {busy ? "Uploading…" : "Add a photo"}
         <input type="file" accept="image/*" className="sr-only" disabled={busy} onChange={(e) => { const f = e.target.files?.[0]; if (f) void onFile(f); }} />
       </label>

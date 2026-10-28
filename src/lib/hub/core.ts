@@ -716,6 +716,8 @@ async function boards(sql: Sql, org: Org, purposeId: string) {
         name: level === "class" && r.parent_name ? `${String(r.parent_name)} ${String(r.name)}` : String(r.name),
         shown,
         total: shown ? num(r.total) : null,
+        // How many have given is shown even below the threshold ("2 more givers puts us on the board"); amounts are not.
+        givers: num(r.givers),
       };
     });
   };
@@ -757,7 +759,39 @@ export const purposeDetail = createServerFn({ method: "POST" }).validator((input
     select coalesce(sum(case when direction = 'credit' then amount_pesewas else -amount_pesewas end), 0)::int as net
     from ledger_entry where purpose_id = ${data.id} and account = 'fund'
   `;
+  // What moves people to give: how many have, that someone just did, and how their own cot is doing.
+  // Counts and houses only; a giver's name or amount never appears here.
+  const givers = await sql<{ n: number }>`
+    select count(distinct membership_id)::int as n from payment_intent
+    where organisation_id = ${org.id} and purpose_id = ${data.id} and status = 'succeeded'
+  `;
+  const recent = await sql<{ house: string | null; at: string; me: boolean }>`
+    select h.name as house, coalesce(pi.paid_at, pi.created_at)::text as at, (pi.membership_id = ${member.id}) as me
+    from payment_intent pi
+    join membership m on m.id = pi.membership_id
+    left join structure_node h on h.id = m.house_node_id
+    where pi.organisation_id = ${org.id} and pi.purpose_id = ${data.id} and pi.status = 'succeeded'
+    order by coalesce(pi.paid_at, pi.created_at) desc limit 6
+  `;
+  const cot = member.cotNodeId
+    ? await sql<{ mates: number; given: number }>`
+        select count(*)::int as mates,
+          count(*) filter (where exists (
+            select 1 from payment_intent pi where pi.membership_id = m.id and pi.purpose_id = ${data.id} and pi.status = 'succeeded'
+          ))::int as given
+        from membership m where m.organisation_id = ${org.id} and m.cot_node_id = ${member.cotNodeId} and m.status = 'verified'
+      `
+    : [];
+  const mine = await sql<{ total: number }>`
+    select coalesce(sum(gift_pesewas), 0)::int as total from payment_intent
+    where organisation_id = ${org.id} and purpose_id = ${data.id} and membership_id = ${member.id} and status = 'succeeded'
+  `;
   return {
+    givers: num(givers[0]?.n),
+    recent: recent.map((r) => ({ house: r.house, at: String(r.at), me: r.me === true })),
+    cot: cot[0] && member.cotName ? { name: `${member.cotName}, ${member.dormName ?? ""} ${member.houseName ?? ""}`.trim(), mates: num(cot[0].mates), given: num(cot[0].given) } : null,
+    mine: num(mine[0]?.total),
+    myHouseId: member.houseNodeId,
     id: String(rows[0].id), type: String(rows[0].type), title: String(rows[0].title), story: String(rows[0].story),
     target: num(rows[0].target_pesewas), raised: num(raisedRow[0]?.net), hero: rows[0].hero === true,
     gatewayFeeBps: org.gatewayFeeBps, platformFeeBps: org.platformFeeBps, paymentMode: org.paymentMode,
@@ -862,8 +896,11 @@ export const startPayment = createServerFn({ method: "POST" }).validator(parsePa
 
 async function intentView(sql: Sql, orgId: string, intentId: string, memberId: string) {
   const rows = await sql<Record<string, unknown>>`
-    select pi.*, pr.title as purpose_title from payment_intent pi
+    select pi.*, pr.title as purpose_title, m.display_name as payer, m.phone as payer_phone, h.name as house
+    from payment_intent pi
     join purpose pr on pr.id = pi.purpose_id
+    join membership m on m.id = pi.membership_id
+    left join structure_node h on h.id = m.house_node_id
     where pi.id = ${intentId} and pi.organisation_id = ${orgId} and pi.membership_id = ${memberId}
   `;
   const row = rows[0];
@@ -877,6 +914,8 @@ async function intentView(sql: Sql, orgId: string, intentId: string, memberId: s
     platformFee: num(row.platform_fee_pesewas), coverFees: row.cover_fees === true, anonymous: row.anonymous === true,
     provider: String(row.provider), authorizationUrl: str(row.authorization_url),
     receipt: receipt[0]?.number ?? null, voided: receipt[0]?.voided === true,
+    purposeId: String(row.purpose_id), payer: String(row.payer), payerPhone: str(row.payer_phone), house: str(row.house),
+    paidAt: str(row.paid_at), pledged: row.pledge_id != null,
   };
 }
 

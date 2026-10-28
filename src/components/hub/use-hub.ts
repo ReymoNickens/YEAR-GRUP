@@ -2,7 +2,10 @@
 import { useEffect, useRef, useState } from "react";
 import { isNetworkError } from "@/lib/offline-queue";
 
-const PREFIX = "ygh:read:";
+// Saved copies belong to one version of the app: a new deploy may change their shape,
+// so it starts afresh instead of handing a screen data it does not expect.
+const VERSION = process.env.NEXT_PUBLIC_VERCEL_GIT_COMMIT_SHA?.slice(0, 8) ?? process.env.NEXT_PUBLIC_BUILD ?? "dev";
+const PREFIX = `ygh:read:${VERSION}:`;
 const MAX_BYTES = 200_000;
 
 function remember(key: string, data: unknown) {
@@ -15,6 +18,8 @@ function remember(key: string, data: unknown) {
 }
 function recall<T>(key: string): T | null {
   try {
+    // Clear copies saved by older versions, once.
+    for (const k of Object.keys(localStorage)) if (k.startsWith("ygh:read:") && !k.startsWith(PREFIX)) localStorage.removeItem(k);
     const raw = localStorage.getItem(PREFIX + key);
     return raw ? (JSON.parse(raw) as { data: T }).data : null;
   } catch {

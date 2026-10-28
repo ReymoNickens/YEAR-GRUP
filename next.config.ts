@@ -34,6 +34,8 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Ties the device's saved screens to this build (see use-hub.ts).
+  env: { NEXT_PUBLIC_BUILD: process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 8) ?? String(Date.now()) },
   poweredByHeader: false,
   devIndicators: false,
   serverExternalPackages: ["pg"],

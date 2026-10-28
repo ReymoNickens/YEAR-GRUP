@@ -1,6 +1,7 @@
 "use client";
 import { BadgeCheck } from "lucide-react";
 import { roleTitle } from "@/lib/hub/roles";
+import { wholeCedis } from "@/lib/hub/words-money";
 import Link from "next/link";
 import { homeData } from "@/lib/hub/api";
 import { Shell } from "@/components/hub/shell";
@@ -34,33 +35,37 @@ export function HomeScreen({ slug }: { slug: string }) {
             ) : null}
             {data.attention?.kicker === "Your place" ? <DemoConfirm slug={slug} onDone={reload} /> : null}
             {data.notice ? (
-              <Link href={`/o/${slug}/m/inbox`} className="block rounded-3xl border border-line bg-card p-5">
+              <Link href={`/o/${slug}/m/inbox`} className="relative block -rotate-[0.6deg] rounded-sm border border-line bg-[#fffbea] p-5 text-[#1c1a14] shadow-[2px_4px_0_rgb(var(--shadow)/0.12)] dark:bg-[#2a2718] dark:text-ink">
+                <span aria-hidden className="absolute -top-2 left-1/2 size-4 -translate-x-1/2 rounded-full bg-stamp shadow-[0_2px_0_rgb(0_0_0/0.25)]" />
                 <p className="flex items-center gap-1.5 text-xs tracking-widest text-gold uppercase">
                   <BadgeCheck className="size-4" aria-hidden />
                   From the {data.notice.role ? roleTitle(data.notice.role).toLowerCase() : "executive"} · to {data.notice.audience}
                 </p>
-                <p className="mt-2 text-lg leading-snug">{data.notice.body}</p>
+                <p className="note-hand mt-2 text-xl leading-snug">{data.notice.body}</p>
                 <p className="mt-3 text-sm text-muted">{data.notice.from}{data.notice.role ? `, ${roleTitle(data.notice.role)}` : ""} · verified sender</p>
               </Link>
             ) : null}
             {data.hero ? (
-              <section className="overflow-hidden rounded-3xl bg-crimson text-on-crimson">
-                <Cover motif="field" alt="" className="h-48" />
-                <div className="p-5">
-                <p className="text-xs tracking-widest uppercase text-gold-soft">The appeal</p>
-                <h1 className="mt-2 font-display text-4xl">{data.hero.title}</h1>
-                <p className="mt-3">{data.hero.story}</p>
-                <p className="mt-5 font-display text-3xl tabular-nums">
-                  <Money value={data.hero.raised} />
-                </p>
-                <p className="mb-3 text-sm text-gold-soft">
-                  of <Money value={data.hero.target} />
-                  {data.hero.target > 0 ? ` · we are ${Math.floor((data.hero.raised / data.hero.target) * 100)}% there` : ""}
-                </p>
-                <Bar value={data.hero.raised} max={data.hero.target} tone="onDark" label="Raised so far" />
-                <Link href={`/o/${slug}/give/${data.hero.id}`} className="mt-5 flex h-12 items-center justify-center rounded-full bg-card text-ink">
-                  Give
-                </Link>
+              <section className="overflow-hidden rounded-lg bg-crimson text-on-crimson">
+                <div className="relative">
+                  <Cover motif="class" alt="" className="h-44" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-crimson via-crimson/30 to-transparent" />
+                  <div className="absolute inset-x-5 bottom-3">
+                    <p className="text-xs tracking-[0.2em] text-gold-soft uppercase">The appeal</p>
+                    <h1 className="mt-1 font-display text-4xl uppercase leading-[0.92]">{data.hero.title}</h1>
+                  </div>
+                </div>
+                <div className="p-5 pt-3">
+                  <p className="text-on-crimson/85">{data.hero.story}</p>
+                  <p className="stencil mt-5 text-4xl tabular-nums">{wholeCedis(data.hero.raised)}</p>
+                  <p className="mb-3 text-sm text-gold-soft">
+                    of {wholeCedis(data.hero.target)}
+                    {data.hero.target > 0 ? ` · we are ${Math.floor((data.hero.raised / data.hero.target) * 100)}% there` : ""}
+                  </p>
+                  <Bar value={data.hero.raised} max={data.hero.target} tone="onDark" label="Raised so far" />
+                  <Link href={`/o/${slug}/give/${data.hero.id}`} className="mt-5 flex h-13 min-h-12 items-center justify-center rounded-lg bg-paper font-display text-xl font-extrabold tracking-wide text-ink uppercase">
+                    See the appeal and give
+                  </Link>
                 </div>
               </section>
             ) : null}

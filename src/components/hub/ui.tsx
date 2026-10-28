@@ -91,17 +91,8 @@ export function Button({
   disabled?: boolean;
   tone?: "primary" | "quiet";
 }) {
-  const look =
-    tone === "primary"
-      ? "bg-crimson text-on-crimson"
-      : "bg-card text-ink border border-line";
   return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className={`flex h-12 w-full items-center justify-center rounded-full px-5 text-base font-medium transition disabled:opacity-50 ${look}`}
-    >
+    <button type={type} onClick={onClick} disabled={disabled} className={tone === "primary" ? "btn-primary" : "btn-quiet"}>
       {children}
     </button>
   );

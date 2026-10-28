@@ -1,12 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Outfit } from "next/font/google";
+import { Big_Shoulders, Big_Shoulders_Stencil, Instrument_Sans, Newsreader } from "next/font/google";
 import { DemoRibbon } from "@/components/demo-ribbon";
 import { OfflineSync } from "@/components/offline-sync";
 import { demoMode } from "@/lib/hub/util";
 import "./globals.css";
 
-const display = Fraunces({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-fraunces", display: "swap" });
-const sans = Outfit({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-outfit", display: "swap" });
+// Condensed jersey type for headings, chop-box stencil for names and stamps,
+// an italic serif for the human touches, and a plain sans for reading.
+const heading = Big_Shoulders({ subsets: ["latin"], weight: ["700", "800", "900"], variable: "--font-heading", display: "swap" });
+const stencil = Big_Shoulders_Stencil({ subsets: ["latin"], weight: ["700", "800"], variable: "--font-stencil-face", display: "swap" });
+const note = Newsreader({ subsets: ["latin"], style: ["italic"], weight: ["400", "500"], variable: "--font-note-face", display: "swap" });
+const body = Instrument_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-body", display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "Year Group Hub", template: "%s · Year Group Hub" },
@@ -22,14 +26,14 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F3EEE6" },
-    { media: "(prefers-color-scheme: dark)", color: "#12100E" },
+    { media: "(prefers-color-scheme: light)", color: "#F1EEE5" },
+    { media: "(prefers-color-scheme: dark)", color: "#121815" },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable}`} data-demo={demoMode() ? "" : undefined}>
+    <html lang="en" className={`${heading.variable} ${stencil.variable} ${note.variable} ${body.variable}`} data-demo={demoMode() ? "" : undefined}>
       <body>
         <DemoRibbon />
         <OfflineSync />

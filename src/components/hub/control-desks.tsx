@@ -164,13 +164,13 @@ export function People({ bag, slug, reload }: { bag: Record<string, unknown>; sl
                 ) : null}
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   {reviewable ? (
-                    <button type="button" className="h-12 rounded-full bg-crimson text-on-crimson" onClick={() => act(() => hubAct({ data: { type: "import_review", slug, importId: row.id, to: "approved", notDuplicate: notDup[row.id] === true } }), "Approved. An unclaimed place is waiting.")}>Approve</button>
+                    <button type="button" className="btn-primary" onClick={() => act(() => hubAct({ data: { type: "import_review", slug, importId: row.id, to: "approved", notDuplicate: notDup[row.id] === true } }), "Approved. An unclaimed place is waiting.")}>Approve</button>
                   ) : null}
                   {row.status === "approved" ? (
-                    <button type="button" className="h-12 rounded-full bg-crimson text-on-crimson" onClick={() => act(() => hubAct({ data: { type: "import_review", slug, importId: row.id, to: "invited" } }), "Invitation queued.")}>Invite by text</button>
+                    <button type="button" className="btn-primary" onClick={() => act(() => hubAct({ data: { type: "import_review", slug, importId: row.id, to: "invited" } }), "Invitation queued.")}>Invite by text</button>
                   ) : null}
                   {reviewable || row.status === "approved" ? (
-                    <button type="button" className="h-12 rounded-full border border-line" onClick={() => act(() => hubAct({ data: { type: "import_review", slug, importId: row.id, to: "needs_review" } }), "Sent back for review.")}>Send back</button>
+                    <button type="button" className="btn-quiet" onClick={() => act(() => hubAct({ data: { type: "import_review", slug, importId: row.id, to: "needs_review" } }), "Sent back for review.")}>Send back</button>
                   ) : null}
                 </div>
               </article>
@@ -310,7 +310,7 @@ export function MoneyDesk({ bag, slug, reload }: { bag: Record<string, unknown>;
               <h3 className="font-display text-2xl">{e.memo}</h3>
               <p className="tabular-nums"><Money value={e.amount} /></p>
               {["submitted", "partially_approved"].includes(e.status) && !e.mine && canApprove ? (
-                <button type="button" className="mt-3 flex h-12 w-full items-center justify-center rounded-full bg-crimson text-on-crimson" onClick={() => go("expense", "expense", { expenseId: e.id }, "Your approval is recorded.")}>Approve</button>
+                <button type="button" className="btn-primary mt-3" onClick={() => go("expense", "expense", { expenseId: e.id }, "Your approval is recorded.")}>Approve</button>
               ) : null}
               {e.status === "approved" && isTreasurer ? (
                 <div className="mt-2 space-y-2">
@@ -353,8 +353,8 @@ export function MoneyDesk({ bag, slug, reload }: { bag: Record<string, unknown>;
                 <div className="mt-2 space-y-2">
                   {r.method === "manual" ? <Field label="Payout reference" value={manualRef[r.id] ?? ""} onChange={(v) => setManualRef({ ...manualRef, [r.id]: v })} /> : null}
                   <div className="grid grid-cols-2 gap-2">
-                    <button type="button" className="h-12 rounded-full bg-crimson text-on-crimson" onClick={() => go("refund", "refund", { refundId: r.id, decision: "approved", manualReference: manualRef[r.id] }, "Refund approved and posted.")}>Approve</button>
-                    <button type="button" className="h-12 rounded-full border border-line" onClick={() => go("refund", "refund", { refundId: r.id, decision: "rejected" }, "Refund declined.")}>Decline</button>
+                    <button type="button" className="btn-primary" onClick={() => go("refund", "refund", { refundId: r.id, decision: "approved", manualReference: manualRef[r.id] }, "Refund approved and posted.")}>Approve</button>
+                    <button type="button" className="btn-quiet" onClick={() => go("refund", "refund", { refundId: r.id, decision: "rejected" }, "Refund declined.")}>Decline</button>
                   </div>
                 </div>
               ) : null}

@@ -1,4 +1,4 @@
-import { PayScreen } from "@/components/hub/give-flow";
+import { PayScreen } from "@/components/hub/give-checkout";
 
 export default async function Page({ params }: { params: Promise<{ slug: string; intentId: string }> }) {
   const { slug, intentId } = await params;

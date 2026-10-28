@@ -1,28 +1,40 @@
 @import "tailwindcss";
 
 :root {
-  --paper: #f3eee6;
-  --card: #fffcf8;
-  --ink: #1c1412;
-  --muted: #6e625a;
-  --line: #e4d9cc;
+  /* The exercise book: off-white page, blue-black ink, blue rules, a red margin. */
+  --paper: #f1eee5;
+  --card: #fbfaf5;
+  --ink: #16181d;
+  --muted: #5d6270;
+  --line: #d9d3c3;
+  --rule: #c9d5e1;
+  --margin: #cf4a3b;
   --crimson: #7a1c2e;
-  --on-crimson: #fff8f4;
-  --gold: #6f5424;
-  --gold-soft: #f3e6c8;
+  --on-crimson: #fbf7ef;
+  --gold: #8a671c;
+  --gold-soft: #efe2bc;
+  --stamp: #b4302a;
+  --paid: #2c6a4c;
+  --shadow: 22 24 29;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #12100e;
-    --card: #1d1916;
-    --ink: #f6f1ea;
-    --muted: #c0b3a8;
-    --line: #3a322c;
-    --crimson: #9a2740;
-    --on-crimson: #fff8f4;
-    --gold: #e0c27a;
-    --gold-soft: #3a2e18;
+    /* The blackboard: chalk on green-black. */
+    --paper: #121815;
+    --card: #19211d;
+    --ink: #eceee7;
+    --muted: #a2aaa3;
+    --line: #2d3832;
+    --rule: #22302a;
+    --margin: #d8695a;
+    --crimson: #c4475f;
+    --on-crimson: #fff8f2;
+    --gold: #dcb75c;
+    --gold-soft: #39331f;
+    --stamp: #e06a5d;
+    --paid: #6cc49a;
+    --shadow: 0 0 0;
   }
 }
 
@@ -32,12 +44,22 @@
   --color-ink: var(--ink);
   --color-muted: var(--muted);
   --color-line: var(--line);
+  --color-rule: var(--rule);
+  --color-margin: var(--margin);
   --color-crimson: var(--crimson);
   --color-on-crimson: var(--on-crimson);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
-  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+  --color-stamp: var(--stamp);
+  --color-paid: var(--paid);
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-heading), "Arial Narrow", sans-serif;
+  --font-stencil: var(--font-stencil-face), var(--font-heading), sans-serif;
+  --font-note: var(--font-note-face), Georgia, serif;
+  /* Crisp paper corners instead of soft bubbles. */
+  --radius-3xl: 0.625rem;
+  --radius-2xl: 0.5rem;
+  --radius-xl: 0.5rem;
 }
 
 @layer base {
@@ -49,10 +71,11 @@
     font-size: 16px;
     line-height: 1.5;
   }
-  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.005em; line-height: 1; text-wrap: balance; }
   p { text-wrap: pretty; }
   button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
-  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+  ::selection { background: var(--gold-soft); }
   input, textarea { font: inherit; color: inherit; }
 }
 
@@ -93,3 +116,67 @@
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
 }
+
+/* ── The school, as a design language ─────────────────────────────── */
+
+/* Headings set in the display face are heavy and condensed, like a sports-day jersey. */
+.font-display { font-weight: 800; letter-spacing: -0.005em; line-height: 1.02; }
+
+/* Chop-box stencil: names, stamps, receipt numbers. */
+.stencil { font-family: var(--font-stencil); font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* A note in a human hand: italic serif for quotes, captions and kind words. */
+.note-hand { font-family: var(--font-note); font-style: italic; font-weight: 400; letter-spacing: 0; }
+
+/* Paper grain, barely there, so flat colour does not look printed by a machine. */
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60; opacity: 0.045; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (prefers-color-scheme: dark) { body::before { mix-blend-mode: screen; opacity: 0.035; } }
+
+/* Cards are slips of paper: a hairline edge and a short, hard shadow. */
+.border-line.bg-card, .slip {
+  box-shadow: 0 1px 0 rgb(var(--shadow) / 0.04), 3px 3px 0 rgb(var(--shadow) / 0.06);
+}
+
+/* Exercise-book ruling with the red margin, for things members write. */
+.ruled {
+  background-color: var(--card);
+  background-image:
+    linear-gradient(90deg, transparent 2.1rem, var(--margin) 2.1rem, var(--margin) calc(2.1rem + 1px), transparent calc(2.1rem + 1px)),
+    repeating-linear-gradient(180deg, transparent 0, transparent calc(1.75rem - 1px), var(--rule) calc(1.75rem - 1px), var(--rule) 1.75rem);
+  line-height: 1.75rem;
+  padding-left: 2.75rem !important;
+}
+
+/* A rubber stamp, slightly crooked and slightly worn. */
+.stamp {
+  display: inline-block; padding: 0.35rem 0.6rem 0.25rem; border: 2.5px solid currentColor; border-radius: 4px;
+  font-family: var(--font-stencil); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; line-height: 1;
+  color: var(--stamp); transform: rotate(-4deg); opacity: 0.9;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='1'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='1 1 1 0.55'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='1'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='1 1 1 0.55'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.stamp-paid { color: var(--paid); }
+
+/* Perforation: the tear line on a receipt book. */
+.perf { height: 12px; background: radial-gradient(circle at 6px 6px, var(--paper) 3.5px, transparent 4px) 0 0 / 14px 12px repeat-x; }
+
+/* Primary buttons: solid, square-shouldered, set in the display face. */
+.btn-primary {
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 3.25rem; width: 100%;
+  padding: 0 1.25rem; border-radius: 0.5rem; background: var(--crimson); color: var(--on-crimson);
+  font-family: var(--font-display); font-weight: 800; font-size: 1.2rem; letter-spacing: 0.04em; text-transform: uppercase;
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--crimson) 60%, black);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.15s ease;
+}
+.btn-primary:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+.btn-primary:disabled { opacity: 0.45; }
+.btn-quiet {
+  display: flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 3rem; width: 100%;
+  padding: 0 1.25rem; border-radius: 0.5rem; border: 1.5px solid var(--ink); background: transparent; color: var(--ink);
+  font-weight: 600; transition: background 0.15s ease, opacity 0.15s ease;
+}
+.btn-quiet:active:not(:disabled) { background: var(--gold-soft); }
+.btn-quiet:disabled { opacity: 0.45; }
