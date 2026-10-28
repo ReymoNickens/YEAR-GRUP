@@ -2,6 +2,24 @@
 
 Update this at the end of every session.
 
+## 28 Oct 2026 (night): full UI redesign
+
+The executives' first reaction to the preview was that it looked amateur and the crest was wrong.
+Rebuilt every screen on a new design system, borrowing each pattern from where it is done best:
+Memories (poster type, square edges, ruled lists, one signature object), GoFundMe (the appeal page),
+Cash App (the amount keypad), Apple Pay (the check slip and the success tick), Monzo (home at a
+glance), Linear and Stripe (sidebar, dashboard, tables).
+
+- Type: Instrument Serif for what we say, Geist for what you do, Geist Mono for numbers on paper.
+- Colour: the crest's red and black on warm paper; full dark mode.
+- Desktop: a real sidebar and two-column pages (appeal with a sticky give panel), not a stretched phone.
+- The receipt is the signature piece: receipt-book paper, perforations, handwritten lines, rubber stamp.
+- Motto corrected to **Dwin Hwe Kan**. The crest comes from the organisation's branding
+  (`public/orgs/mfantsipim-2007/crest.png`); until the file is in the repo a shield in the crest's
+  colours stands in. **Waiting on the owner to upload the official crest file.**
+- Home shows what you have given and how many have given to the appeal (new fields in `homeData`).
+- Fees are not covered by default: the member chooses on the check slip.
+
 ## 28 Oct 2026 (later): executive demo is live
 
 **Live:** https://year-grup.vercel.app/demo (Vercel project `year-grup`, `HUB_DEMO=1`).
