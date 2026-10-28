@@ -2,6 +2,25 @@
 
 Update this at the end of every session.
 
+## 28 Oct 2026 (later): executive demo is live
+
+**Live:** https://year-grup.vercel.app/demo (Vercel project `year-grup`, `HUB_DEMO=1`).
+
+- The demo database sets itself up on first visit from `supabase/manual/setup-demo.sql`
+  (40 fictional members, 171 ledger lines, 4 migrations recorded).
+- Checked live: landing page, entering as Kwame (his home opens; membership linked and phone
+  verified in the database). No new runtime errors since the last deploy.
+- Fixed on the way: `scripts/setup-sql.mjs` creates `supabase_migrations.schema_migrations` when a
+  project has none.
+
+**Owner to do after the preview**
+- Change the Supabase database password (it was shared in chat), then update `DATABASE_URL` in Vercel.
+- Delete the older preview-only `DATABASE_URL` entry in Vercel.
+- Turn Vercel deployment protection back on once the executives have seen it.
+
+**Next (after executives approve):** real setup with `setup-supabase.sql`, Google OAuth client,
+SMS provider, live Paystack keys.
+
 ## 28 Oct 2026: moved to Next.js + Supabase
 
 Started from the Grok build (`year-group-hub-v2.zip`, reviewed at 74/100) and kept its business
