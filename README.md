@@ -6,6 +6,7 @@ the next year group or association is a configuration file, not new code.
 
 **Stack:** Next.js 16 on Vercel · Supabase (Postgres + Google sign-in) · Paystack · Arkesel/mNotify SMS
 
+- **Executive preview:** [`docs/DEMO.md`](docs/DEMO.md)
 - **Going live:** [`docs/SETUP.md`](docs/SETUP.md) (database, Google sign-in, Vercel, SMS, Paystack)
 - **Where the build is:** [`docs/PROGRESS.md`](docs/PROGRESS.md)
 - **How it works:** [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) · **When things go wrong:** [`docs/RUNBOOKS.md`](docs/RUNBOOKS.md)
