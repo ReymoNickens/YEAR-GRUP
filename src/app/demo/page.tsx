@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { Cover, Crest } from "@/components/hub/ui";
 import { PERSONAS, demoSlug } from "@/lib/demo";
 import { getSystemSql } from "@/lib/db";
+import { ensureDemoDatabase } from "@/lib/demo-bootstrap";
 import { demoMode } from "@/lib/hub/util";
 
 export const metadata = { title: "Executive preview" };
@@ -24,12 +25,19 @@ const TRY = [
 /** The front page of the executive demo: what this is, who you can be, and what to try. */
 export default async function DemoHome() {
   if (!demoMode()) notFound();
-  const sql = await getSystemSql();
-  const slug = demoSlug();
-  const rows = await sql<{ name: string; branding: Record<string, string> }>`
-    select name, branding from organisation where listed and (${slug} = '' or slug = ${slug}) order by created_at limit 1
-  `;
-  const org = rows[0];
+  let org: { name: string; branding: Record<string, string> } | undefined;
+  try {
+    await ensureDemoDatabase();
+    const sql = await getSystemSql();
+    const slug = demoSlug();
+    const rows = await sql<{ name: string; branding: Record<string, string> }>`
+      select name, branding from organisation where listed and (${slug} = '' or slug = ${slug}) order by created_at limit 1
+    `;
+    org = rows[0];
+  } catch (e) {
+    console.error("[demo] database not reachable", e);
+    return <NotConnected />;
+  }
   const name = org?.branding?.shortName ?? org?.name ?? "Year Group Hub";
   const motto = org?.branding?.motto ?? "";
   return (
@@ -104,6 +112,24 @@ export default async function DemoHome() {
 
         <p className="mt-8 text-center text-sm text-muted">
           A preview, not the finished hub. Your comments decide what we build next.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/** Shown instead of a crash while the preview's database is not connected yet. */
+function NotConnected() {
+  return (
+    <div className="min-h-dvh bg-paper px-5 pt-16 text-ink">
+      <div className="mx-auto max-w-lg">
+        <Crest />
+        <h1 className="mt-6 font-display text-5xl uppercase">Almost ready</h1>
+        <p className="mt-4 text-lg">The preview is built, but it cannot reach its database yet.</p>
+        <p className="mt-3 text-muted">
+          In Vercel, the project needs a <code className="rounded bg-card px-1">DATABASE_URL</code> setting: the Supabase
+          connection string (Connect → Transaction pooler) with the database password filled in. Then redeploy. The demo
+          data loads itself on the first visit.
         </p>
       </div>
     </div>

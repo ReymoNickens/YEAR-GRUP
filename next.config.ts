@@ -39,6 +39,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   devIndicators: false,
   serverExternalPackages: ["pg"],
+  // The executive preview loads this file into an empty database (src/lib/demo-bootstrap.ts).
+  outputFileTracingIncludes: { "/**": ["./supabase/manual/setup-demo.sql"] },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

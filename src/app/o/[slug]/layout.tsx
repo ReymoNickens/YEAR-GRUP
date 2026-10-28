@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { OrgProvider } from "@/components/hub/org-context";
 import { currentUser } from "@/lib/auth/supabase";
 import { getSystemSql } from "@/lib/db";
+import { ensureDemoDatabase } from "@/lib/demo-bootstrap";
 import { demoMode } from "@/lib/hub/util";
 
 /**
@@ -17,6 +18,7 @@ export default async function OrgLayout({ children, params }: { children: React.
     const path = (await headers()).get("x-hub-path") ?? `/o/${slug}`;
     redirect(`/login?next=${encodeURIComponent(path)}`);
   }
+  await ensureDemoDatabase();
   const sql = await getSystemSql();
   const rows = await sql<{ name: string; branding: Record<string, string> }>`select name, branding from organisation where slug = ${slug}`;
   if (!rows[0]) notFound();

@@ -29,13 +29,15 @@ Every figure comes from the real ledger rules; the money is not real.
 
 ## Setting it up (once)
 
-1. **Database.** Supabase → project **year-grup** → **SQL Editor** → paste
-   [`supabase/manual/setup-demo.sql`](../supabase/manual/setup-demo.sql) → **Run**.
-   (Schema plus the fictional cohort. For the real hub later, the database is reset and
-   `setup-supabase.sql` is used instead: see `docs/SETUP.md`.)
-2. **Connection.** Supabase → **Connect** → **Transaction pooler**: copy the string, put the
-   database password in it, and add it in Vercel → project **year-grup** → Settings →
-   Environment Variables as `DATABASE_URL` (Production and Preview). Redeploy.
+One step. In Supabase → project **year-grup** → **Connect** → **Transaction pooler**, copy the
+connection string and put the database password in it (forgotten it? Project Settings → Database →
+Reset database password). In Vercel → project **year-grup** → Settings → Environment Variables, add it
+as `DATABASE_URL` (Production and Preview), then Deployments → Redeploy.
+
+The first visit loads the demo data into the empty database by itself
+(`src/lib/demo-bootstrap.ts`, demo mode only). To load it by hand instead, paste
+[`supabase/manual/setup-demo.sql`](../supabase/manual/setup-demo.sql) into the SQL Editor.
+For the real hub later, the database is reset and `setup-supabase.sql` is used: see `docs/SETUP.md`.
 
 Already set on Vercel: `HUB_DEMO=1`, `DEMO_SECRET`, `CRON_SECRET`, `HUB_OTP_PEPPER`, the Supabase URL and key.
 

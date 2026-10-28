@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { DEMO_COOKIE, PERSONAS, demoCookieFor, demoSlug, demoUserId } from "@/lib/demo";
 import { getSystemSql } from "@/lib/db";
+import { ensureDemoDatabase } from "@/lib/demo-bootstrap";
 import { demoMode } from "@/lib/hub/util";
 
 /** /demo/enter?as=kwame: become that person for this browser, then open their first screen. */
@@ -10,6 +11,7 @@ export async function GET(request: NextRequest) {
   const persona = PERSONAS.find((p) => p.key === key);
   const value = persona ? demoCookieFor(persona.key) : null;
   if (!persona || !value) return NextResponse.redirect(new URL("/demo", request.url));
+  await ensureDemoDatabase();
   if (persona.memberId) {
     // Tie the fictional classmate to this persona's login (once; a real account is never taken over).
     const sql = await getSystemSql();
