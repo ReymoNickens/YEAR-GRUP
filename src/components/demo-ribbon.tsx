@@ -6,14 +6,18 @@ import { demoMode } from "@/lib/hub/util";
 export async function DemoRibbon() {
   if (!demoMode()) return null;
   const who = readDemoCookie((await cookies()).get(DEMO_COOKIE)?.value);
+  const name = who ? (who.persona.memberId ? who.persona.name.replace(/ “.*”/, "") : "a new member") : "";
   return (
-    <div className="bg-ink text-paper print:hidden">
-      <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-5 pt-[max(0.5rem,env(safe-area-inset-top))] pb-2 text-xs">
-        <span className="min-w-0 truncate">
-          <span className="mr-2 rounded-full bg-gold-soft px-2 py-0.5 font-medium text-gold">Preview</span>
-          {who ? <>You are <span className="font-medium">{who.persona.memberId ? who.persona.name.replace(/ “.*”/, "") : "a new member"}</span></> : "Made-up classmates, test money"}
+    <div className="relative z-40 bg-[#111] text-[#f3f1ec] print:hidden">
+      <div className="mx-auto flex min-h-11 items-center justify-between gap-3 px-5 pt-[env(safe-area-inset-top)] text-[13px] lg:px-8">
+        <span className="flex min-w-0 items-center gap-2.5">
+          <span className="font-mono text-[10.5px] font-medium tracking-[0.16em] text-[#ff6b78] uppercase">Preview</span>
+          <span className="h-3 w-px bg-white/25" aria-hidden />
+          <span className="truncate text-white/80">
+            {who ? <>You are <span className="font-medium text-white">{name}</span>{who.persona.memberId ? <span className="hidden sm:inline"> · {who.persona.role.toLowerCase()}</span> : null}</> : "Made-up classmates, test money"}
+          </span>
         </span>
-        <a href={who ? "/demo/leave" : "/demo"} className="shrink-0 rounded-full border border-paper/30 px-3 py-1">
+        <a href={who ? "/demo/leave" : "/demo"} className="inline-flex min-h-11 shrink-0 items-center text-[13px] font-medium text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">
           {who ? "Switch person" : "Start"}
         </a>
       </div>

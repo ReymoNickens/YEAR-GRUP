@@ -469,6 +469,17 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
   } else if (event[0]) {
     attention = { kicker: "Coming up", title: String(event[0].title), body: `${String(event[0].place)}. Say if you are coming.`, href: `event:${String(event[0].id)}` };
   }
+  // What you have given (gateway-confirmed only), and how many have given to the appeal.
+  const mine = await sql<{ total: number; n: number }>`
+    select coalesce(sum(gift_pesewas), 0)::int as total, count(*)::int as n from payment_intent
+    where organisation_id = ${org.id} and membership_id = ${member.id} and status = 'succeeded'
+  `;
+  const heroGivers = hero
+    ? await sql<{ n: number }>`
+        select count(distinct membership_id)::int as n from payment_intent
+        where organisation_id = ${org.id} and purpose_id = ${String(hero.id)} and status = 'succeeded'
+      `
+    : [];
   // The latest announcement that reached this member, signed with the sender's name and title.
   const notice = await sql<Record<string, unknown>>`
     select a.body, a.audience, a.created_at::text as created_at, m.display_name, m.nickname,
@@ -490,7 +501,8 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
           from: String(notice[0].display_name), role: str(notice[0].role),
         }
       : null,
-    hero: hero ? { id: String(hero.id), title: String(hero.title), story: String(hero.story), target: num(hero.target_pesewas), raised } : null,
+    hero: hero ? { id: String(hero.id), title: String(hero.title), story: String(hero.story), target: num(hero.target_pesewas), raised, givers: num(heroGivers[0]?.n) } : null,
+    given: { total: num(mine[0]?.total), count: num(mine[0]?.n) },
     circles: circles.map((c) => ({ id: String(c.id), name: String(c.name), kind: String(c.kind), purpose: String(c.purpose) })),
     feed: feed.map((p) => ({
       id: String(p.id),

@@ -100,7 +100,7 @@ emit(`-- Fictional sample cohort for an empty school. Not real old boys.`);
 emit(`insert into organisation (id, slug, name, type, terminology, branding, verification_rule, min_givers, enabled_modules, payment_mode, gateway_fee_bps, platform_fee_bps, reverse_platform_fee_on_refund, expense_two_approver_pesewas, listed) values (
   ${q(ORG)}, 'mfantsipim-2007', 'Mfantsipim 2007', 'school_year',
   ${jq({ member: "old boy", members: "old boys", house: "House", dorm: "Dorm", cot: "Cot", programme: "Programme", class: "Class", year: "Year group" })},
-  ${jq({ motto: "Dwen Hwe Kan", shortName: "Mfantsipim 2007", place: "Cape Coast", founded: "1876", paper: "#F3EEE6", ink: "#1C1412", crimson: "#7A1C2E", gold: "#6F5424" })},
+  ${jq({ motto: "Dwin Hwe Kan", crest: "/orgs/mfantsipim-2007/crest.png", shortName: "Mfantsipim 2007", place: "Cape Coast", founded: "1876", paper: "#F3EEE6", ink: "#1C1412", crimson: "#7A1C2E", gold: "#6F5424" })},
   'two_cot_peers_or_executive', 5,
   ${jq(["people", "structure", "circles", "money", "events", "directory", "governance", "welfare", "store", "impact", "photos", "asks", "polls", "trivia", "mentoring", "capsules", "elections"])},
   'test', 195, 100, false, 200000, true
@@ -351,7 +351,7 @@ emit(`insert into product (id, organisation_id, name, blurb, price_pesewas, stoc
 const trivia = [
   ["Mfantsipim stands in which town?", ["Cape Coast", "Kumasi", "Accra", "Takoradi"], 0],
   ["Which year was the school founded?", ["1876", "1901", "1927", "1854"], 0],
-  ["Dwen Hwe Kan means?", ["Think and look ahead", "Forward ever", "Knowledge is power", "Unity is strength"], 0],
+  ["Dwin Hwe Kan means?", ["Think and look ahead", "Forward ever", "Knowledge is power", "Unity is strength"], 0],
   ["Old boys call it?", ["The School", "The College", "The Yard", "The Academy"], 0],
   ["It is remembered as the first secondary school in?", ["Ghana", "Nigeria", "Sierra Leone", "Liberia"], 0],
 ];

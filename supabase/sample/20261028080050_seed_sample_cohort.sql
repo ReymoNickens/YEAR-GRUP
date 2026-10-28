@@ -2,7 +2,7 @@
 insert into organisation (id, slug, name, type, terminology, branding, verification_rule, min_givers, enabled_modules, payment_mode, gateway_fee_bps, platform_fee_bps, reverse_platform_fee_on_refund, expense_two_approver_pesewas, listed) values (
   'org_2007', 'mfantsipim-2007', 'Mfantsipim 2007', 'school_year',
   '{"member":"old boy","members":"old boys","house":"House","dorm":"Dorm","cot":"Cot","programme":"Programme","class":"Class","year":"Year group"}'::jsonb,
-  '{"motto":"Dwen Hwe Kan","shortName":"Mfantsipim 2007","place":"Cape Coast","founded":"1876","paper":"#F3EEE6","ink":"#1C1412","crimson":"#7A1C2E","gold":"#6F5424"}'::jsonb,
+  '{"motto":"Dwin Hwe Kan","crest":"/orgs/mfantsipim-2007/crest.png","shortName":"Mfantsipim 2007","place":"Cape Coast","founded":"1876","paper":"#F3EEE6","ink":"#1C1412","crimson":"#7A1C2E","gold":"#6F5424"}'::jsonb,
   'two_cot_peers_or_executive', 5,
   '["people","structure","circles","money","events","directory","governance","welfare","store","impact","photos","asks","polls","trivia","mentoring","capsules","elections"]'::jsonb,
   'test', 195, 100, false, 200000, true
@@ -1497,7 +1497,7 @@ insert into product (id, organisation_id, name, blurb, price_pesewas, stock, mot
   ('prd_tie', 'org_2007', 'Crest tie', 'For the dinner. A year-group mark, not the school arms.', 8000, 60, 'tie');
 insert into trivia_question (id, organisation_id, prompt, choices, answer_index, sort) values ('tq_1', 'org_2007', 'Mfantsipim stands in which town?', '["Cape Coast","Kumasi","Accra","Takoradi"]'::jsonb, 0, 1);
 insert into trivia_question (id, organisation_id, prompt, choices, answer_index, sort) values ('tq_2', 'org_2007', 'Which year was the school founded?', '["1876","1901","1927","1854"]'::jsonb, 0, 2);
-insert into trivia_question (id, organisation_id, prompt, choices, answer_index, sort) values ('tq_3', 'org_2007', 'Dwen Hwe Kan means?', '["Think and look ahead","Forward ever","Knowledge is power","Unity is strength"]'::jsonb, 0, 3);
+insert into trivia_question (id, organisation_id, prompt, choices, answer_index, sort) values ('tq_3', 'org_2007', 'Dwin Hwe Kan means?', '["Think and look ahead","Forward ever","Knowledge is power","Unity is strength"]'::jsonb, 0, 3);
 insert into trivia_question (id, organisation_id, prompt, choices, answer_index, sort) values ('tq_4', 'org_2007', 'Old boys call it?', '["The School","The College","The Yard","The Academy"]'::jsonb, 0, 4);
 insert into trivia_question (id, organisation_id, prompt, choices, answer_index, sort) values ('tq_5', 'org_2007', 'It is remembered as the first secondary school in?', '["Ghana","Nigeria","Sierra Leone","Liberia"]'::jsonb, 0, 5);
 insert into trivia_answer (question_id, membership_id, choice, correct) values ('tq_1', 'mem_01', 0, true);
