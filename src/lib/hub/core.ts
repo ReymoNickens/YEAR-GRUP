@@ -1,5 +1,5 @@
-import { createServerFn } from "@tanstack/react-start";
-import { authMiddleware } from "@/lib/auth/middleware";
+import "server-only";
+import { authMiddleware, createServerFn } from "@/lib/server-fn";
 import { getSql, getSystemSql, setTenant, withScope, type Sql } from "@/lib/db";
 import { audit, track } from "@/lib/hub/audit";
 import { syncDerived as syncDerivedFor } from "@/lib/hub/circles";
@@ -309,11 +309,11 @@ function parseRegister(input: unknown): RegisterBody {
 
 const smsDeps = () => ({ sms: createSmsProvider(), exposeCode: devFlag("HUB_DEV_OTP") });
 
-/** The auth tables are private to the request role, so email is read with the system client. */
+/** Supabase Auth is private to the request role, so the email is read with the system client. */
 async function userEmail(userId: string): Promise<string | null> {
   try {
     const sys = await getSystemSql();
-    const r = await sys<{ email: string | null }>`select email from "user" where id = ${userId}`;
+    const r = await sys<{ email: string | null }>`select email from auth.users where id::text = ${userId}`;
     return r[0]?.email ?? null;
   } catch {
     return null;

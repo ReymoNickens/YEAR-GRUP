@@ -1,6 +1,8 @@
-import { ArrowLeft } from "lucide-react";
-import type { ReactNode } from "react";
-import { GROK_PROVIDERS, signIn } from "@/lib/auth/client";
+"use client";
+import { ArrowLeft, RotateCw } from "lucide-react";
+import Link from "next/link";
+import { useState, type ReactNode } from "react";
+import { signInWithGoogle } from "@/lib/auth/client";
 import { formatGhs } from "@/lib/hub/money";
 
 const covers: Record<string, string> = {
@@ -16,23 +18,48 @@ const covers: Record<string, string> = {
 
 export function Cover({ motif, alt, className = "h-40" }: { motif?: string; alt: string; className?: string }) {
   const src = covers[motif ?? ""] ?? "/media/campus.jpg";
-  return <img src={src} alt={alt} className={`w-full object-cover ${className}`} />;
+  // eslint-disable-next-line @next/next/no-img-element -- small local photos; next/image would add a server round trip on 3G
+  return <img src={src} alt={alt} loading="lazy" decoding="async" className={`w-full bg-line object-cover ${className}`} />;
 }
 
-export function YearSignIn() {
+/** Google sign-in, styled to Google's own button guidance so members recognise it. */
+export function YearSignIn({ next = "/" }: { next?: string }) {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
   return (
-    <div className="space-y-3">
-      {GROK_PROVIDERS.map((p) => (
-        <button
-          key={p.providerId}
-          type="button"
-          onClick={() => signIn(p.providerId, { callbackURL: "/" })}
-          className="flex h-12 w-full items-center justify-center rounded-full bg-crimson px-5 text-on-crimson"
-        >
-          Continue with {p.label}
-        </button>
-      ))}
+    <div>
+      <button
+        type="button"
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          setError("");
+          try {
+            await signInWithGoogle(next);
+          } catch {
+            setBusy(false);
+            setError("Google did not answer. Check your connection and try again.");
+          }
+        }}
+        className="flex h-14 w-full items-center justify-center gap-3 rounded-full border border-line bg-white px-5 text-base font-medium text-[#1f1f1f] shadow-sm transition active:scale-[0.99] disabled:opacity-60"
+      >
+        <GoogleMark />
+        {busy ? "Opening Google…" : "Continue with Google"}
+      </button>
+      {error ? <p role="alert" className="mt-3 text-sm text-crimson">{error}</p> : null}
+      <p className="mt-4 text-center text-xs text-muted">We only read your name and email from Google. Nothing is posted.</p>
     </div>
+  );
+}
+
+function GoogleMark() {
+  return (
+    <svg viewBox="0 0 48 48" className="size-5" aria-hidden="true">
+      <path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.6 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z" />
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z" />
+      <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z" />
+      <path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.6-.4-3.9z" />
+    </svg>
   );
 }
 
@@ -101,7 +128,7 @@ export function Field({
         inputMode={inputMode}
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
-        className="h-12 w-full rounded-2xl border border-line bg-card px-4 outline-none"
+        className="h-12 w-full rounded-2xl border border-line bg-card px-4 text-base outline-none transition-colors focus:border-crimson"
       />
     </label>
   );
@@ -143,11 +170,13 @@ export function State({
   error,
   empty,
   children,
+  onRetry,
 }: {
   loading?: boolean;
   error?: string;
   empty?: string | null;
   children: ReactNode;
+  onRetry?: () => void;
 }) {
   if (loading) {
     return (
@@ -163,6 +192,14 @@ export function State({
       <div className="rounded-3xl border border-line bg-card p-5">
         <h2 className="font-display text-2xl">That did not go through</h2>
         <p className="mt-2 text-muted">{error}</p>
+        <button
+          type="button"
+          onClick={onRetry ?? (() => window.location.reload())}
+          className="mt-4 inline-flex h-12 items-center gap-2 rounded-full border border-line px-5 text-sm font-medium"
+        >
+          <RotateCw className="size-4" />
+          Try again
+        </button>
       </div>
     );
   }
@@ -172,10 +209,10 @@ export function State({
 
 export function Back({ href, label }: { href: string; label: string }) {
   return (
-    <a href={href} className="mb-4 inline-flex h-12 items-center gap-2 text-sm text-muted">
+    <Link href={href} className="mb-4 inline-flex h-12 items-center gap-2 text-sm text-muted">
       <ArrowLeft className="size-5" />
       {label}
-    </a>
+    </Link>
   );
 }
 
@@ -183,7 +220,7 @@ export function Bar({ value, max }: { value: number; max: number }) {
   const pct = max > 0 ? Math.max(4, Math.min(100, Math.round((value / max) * 100))) : 0;
   return (
     <div className="h-2 overflow-hidden rounded-full bg-line">
-      <div className="h-full rounded-full bg-crimson" style={{ width: `${pct}%` }} />
+      <div className="h-full rounded-full bg-crimson transition-[width] duration-700 ease-out" style={{ width: `${pct}%` }} />
     </div>
   );
 }

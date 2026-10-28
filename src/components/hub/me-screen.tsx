@@ -1,5 +1,8 @@
+"use client";
+import Link from "next/link";
 import { useState } from "react";
-import { UserButton } from "@/lib/auth/gates";
+import { signOut } from "@/lib/auth/client";
+import { roleTitle } from "@/lib/hub/roles";
 import { myReceipts, orgEntry, peersWaiting, phoneStart, phoneVerify } from "@/lib/hub/api";
 import { hubAct } from "@/lib/hub/act";
 import { Shell } from "@/components/hub/shell";
@@ -114,9 +117,11 @@ export function MeScreen({ slug }: { slug: string }) {
               <div>
                 <h1 className="font-display text-4xl">{m.nickname || m.displayName}</h1>
                 <p className="text-muted">{m.displayName}</p>
-                <p className="mt-2 text-sm">{entry.data?.roles.join(" · ") || "Member"}</p>
+                <p className="mt-2 text-sm">{entry.data?.roles.map(roleTitle).join(" · ") || "Member"}</p>
               </div>
-              <UserButton />
+              <button type="button" onClick={() => void signOut()} className="h-10 shrink-0 rounded-full border border-line px-4 text-sm text-muted">
+                Sign out
+              </button>
             </div>
             {entry.data?.roles.includes("organisation_admin") ? (
               <Note>You hold the officer seats this year group listed you for. Sample officers on the roll are not logins.</Note>
@@ -166,11 +171,11 @@ export function MeScreen({ slug }: { slug: string }) {
               {msg ? <p className="text-sm text-muted">{msg}</p> : null}
             </div>
             {entry.data?.control ? (
-              <a href={`/o/${slug}/control/people`} className="flex h-14 items-center rounded-3xl bg-crimson px-4 text-on-crimson">Control room</a>
+              <Link href={`/o/${slug}/control/people`} className="flex h-14 items-center rounded-3xl bg-crimson px-4 text-on-crimson">Control room</Link>
             ) : null}
             <ul className="divide-y divide-line rounded-3xl border border-line bg-card">
               {links.map(([id, label]) => (
-                <li key={id}><a className="flex h-12 items-center px-4" href={`/o/${slug}/m/${id}`}>{label}</a></li>
+                <li key={id}><Link className="flex h-12 items-center px-4" href={`/o/${slug}/m/${id}`}>{label}</Link></li>
               ))}
             </ul>
             <section>
@@ -178,10 +183,10 @@ export function MeScreen({ slug }: { slug: string }) {
               <ul className="mt-2 space-y-2">
                 {receipts.data?.map((r) => (
                   <li key={r.number}>
-                    <a href={`/r/${r.number}`} className="flex items-center justify-between text-sm">
+                    <Link href={`/r/${r.number}`} className="flex items-center justify-between text-sm">
                       <span>{r.number} {r.voided ? "· void" : ""}</span>
                       <Money value={r.amount} />
-                    </a>
+                    </Link>
                   </li>
                 ))}
                 {receipts.data && receipts.data.length === 0 ? <Note>No receipts yet.</Note> : null}

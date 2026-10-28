@@ -1,5 +1,7 @@
+"use client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useRouter } from "next/navigation";
 import { purposeDetail, purposeList, startPayment } from "@/lib/hub/api";
 import { planCollection, parseCedisToPesewas } from "@/lib/hub/money";
 import { Shell } from "@/components/hub/shell";
@@ -15,13 +17,13 @@ export function GiveList({ slug }: { slug: string }) {
         <Note>The screen asks. Only a verified gateway event marks a gift as paid. This hub is in test mode, so nothing here is real money.</Note>
         <div className="mt-5 space-y-3">
           {data?.purposes.filter((p) => p.type !== "other").map((p) => (
-            <a key={p.id} href={`/o/${slug}/give/${p.id}`} className="block rounded-3xl border border-line bg-card p-4">
+            <Link key={p.id} href={`/o/${slug}/give/${p.id}`} className="block rounded-3xl border border-line bg-card p-4">
               <p className="text-xs tracking-widest text-gold uppercase">{p.type}</p>
               <h2 className="font-display text-2xl">{p.title}</h2>
               {p.target > 0 ? (
                 <p className="mt-2 text-sm text-muted"><Money value={p.raised} /> of <Money value={p.target} /></p>
               ) : null}
-            </a>
+            </Link>
           ))}
         </div>
       </State>
@@ -30,7 +32,7 @@ export function GiveList({ slug }: { slug: string }) {
 }
 
 export function GivePurpose({ slug, purposeId }: { slug: string; purposeId: string }) {
-  const nav = useNavigate();
+  const router = useRouter();
   const { data, error, loading } = useHub(`p-${purposeId}`, () => purposeDetail({ data: { slug, id: purposeId } }));
   const [step, setStep] = useState<"amount" | "review">("amount");
   const [amount, setAmount] = useState("");
@@ -64,7 +66,7 @@ export function GivePurpose({ slug, purposeId }: { slug: string; purposeId: stri
         window.location.href = res.authorizationUrl; // the live gateway's own page
         return;
       }
-      await nav({ to: "/o/$slug/pay/$intentId", params: { slug, intentId: res.intentId } });
+      router.push(`/o/${slug}/pay/${res.intentId}`);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "The payment did not start.");
       setBusy(false);
@@ -227,14 +229,14 @@ export function PayScreen({ slug, intentId }: { slug: string; intentId: string }
             {current.status === "succeeded" ? (
               <div className="rounded-3xl border border-line bg-card p-4">
                 <p>The gateway confirmed it. Thank you.</p>
-                {current.receipt ? <a className="mt-2 inline-block text-crimson" href={`/r/${current.receipt}`}>Receipt {current.receipt}</a> : null}
+                {current.receipt ? <Link className="mt-2 inline-block text-crimson" href={`/r/${current.receipt}`}>Receipt {current.receipt}</Link> : null}
               </div>
             ) : null}
             {current.status === "failed" || current.status === "abandoned" ? (
               <p className="text-sm text-muted">This payment did not go through and nothing was taken. You can start again from Give.</p>
             ) : null}
             {err ? <p className="text-sm text-crimson">{err}</p> : null}
-            <a href={`/o/${slug}/home`} className="inline-flex h-12 items-center text-sm text-muted">Home</a>
+            <Link href={`/o/${slug}/home`} className="inline-flex h-12 items-center text-sm text-muted">Home</Link>
           </section>
         ) : null}
       </State>

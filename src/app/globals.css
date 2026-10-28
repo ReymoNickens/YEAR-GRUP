@@ -36,8 +36,8 @@
   --color-on-crimson: var(--on-crimson);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
-  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Fraunces", ui-serif, Georgia, serif;
+  --font-sans: var(--font-outfit), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
 }
 
 @layer base {

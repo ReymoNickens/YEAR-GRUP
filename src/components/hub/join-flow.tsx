@@ -1,5 +1,6 @@
+"use client";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useRouter } from "next/navigation";
 import { phoneStart, phoneStatus, phoneVerify, registerMember, structure } from "@/lib/hub/api";
 import { Shell } from "@/components/hub/shell";
 import { Button, Choice, Field, Note, State } from "@/components/hub/ui";
@@ -38,7 +39,7 @@ const empty: Draft = {
 };
 
 export function JoinFlow({ slug }: { slug: string }) {
-  const nav = useNavigate();
+  const router = useRouter();
   const storeKey = `ygh-join-${slug}`;
   const [step, setStep] = useState<Step>("name");
   const [draft, setDraft] = useState<Draft>(empty);
@@ -54,18 +55,20 @@ export function JoinFlow({ slug }: { slug: string }) {
   useEffect(() => {
     phoneStatus({ data: slug })
       .then((s) => {
-        if (s.member) void nav({ to: "/o/$slug/home", params: { slug } });
+        if (s.member) router.push(`/o/${slug}/home`);
         setVerified(s.verified);
         setMasked(s.masked ?? "");
       })
       .catch(() => undefined);
-  }, [slug, nav]);
+  }, [slug, router]);
 
   useEffect(() => {
     const raw = localStorage.getItem(storeKey);
     if (!raw) return;
     try {
       const saved = JSON.parse(raw) as { step: Step; draft: Draft };
+      // Restoring a half-finished join from this device; localStorage is not readable during render.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDraft({ ...empty, ...saved.draft });
       if (order.includes(saved.step)) setStep(saved.step);
     } catch {
@@ -160,7 +163,7 @@ export function JoinFlow({ slug }: { slug: string }) {
         },
       });
       localStorage.removeItem(storeKey);
-      await nav({ to: "/o/$slug/home", params: { slug } });
+      router.push(`/o/${slug}/home`);
     } catch (e) {
       setError(e instanceof Error ? e.message : "We could not save your place.");
       setBusy(false);
@@ -178,7 +181,7 @@ export function JoinFlow({ slug }: { slug: string }) {
               ? "Your number matched the list, and you are confirmed. Welcome in."
               : "Your number matched the list. Two of your cot mates, or an executive, now confirm it is you. You will hear when they have."}
           </Note>
-          <Button onClick={() => nav({ to: "/o/$slug/home", params: { slug } })}>Go to the home screen</Button>
+          <Button onClick={() => router.push(`/o/${slug}/home`)}>Go to the home screen</Button>
         </section>
       </Shell>
     );

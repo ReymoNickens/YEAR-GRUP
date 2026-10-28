@@ -1,5 +1,7 @@
+"use client";
+import Link from "next/link";
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useRouter } from "next/navigation";
 import { aiAssist, readModule } from "@/lib/hub/api";
 import { hubAct } from "@/lib/hub/act";
 import { formatGhs } from "@/lib/hub/money";
@@ -175,7 +177,7 @@ function Events({ slug, bag, reload }: { slug: string; bag: Record<string, unkno
           <p className="mt-1">{e.story}</p>
           <p className="mt-2 text-sm">{e.going} going {e.mine ? `· you said ${e.mine}` : ""}</p>
           {e.price && e.purposeId ? (
-            <a className="mt-3 flex h-12 items-center justify-center rounded-full bg-crimson text-on-crimson" href={`/o/${slug}/give/${e.purposeId}`}>Ticket {formatGhs(e.price)}</a>
+            <Link className="mt-3 flex h-12 items-center justify-center rounded-full bg-crimson text-on-crimson" href={`/o/${slug}/give/${e.purposeId}`}>Ticket {formatGhs(e.price)}</Link>
           ) : (
             <div className="mt-3 grid grid-cols-3 gap-2">
               {(["going", "maybe", "no"] as const).map((s) => (
@@ -437,7 +439,7 @@ function Impact({ bag }: { bag: Record<string, unknown> }) {
 }
 
 function Store({ slug, bag }: { slug: string; bag: Record<string, unknown> }) {
-  const nav = useNavigate();
+  const router = useRouter();
   const products = rows<{ id: string; name: string; blurb: string; price: number; stock: number; motif: string }>(bag, "products");
   const [err, setErr] = useState("");
   return (
@@ -454,7 +456,7 @@ function Store({ slug, bag }: { slug: string; bag: Record<string, unknown> }) {
                 setErr("");
                 try {
                   const res = await hubAct({ data: { type: "buy", slug, productId: p.id } }) as { intentId?: string };
-                  if (res.intentId) await nav({ to: "/o/$slug/pay/$intentId", params: { slug, intentId: res.intentId } });
+                  if (res.intentId) router.push(`/o/${slug}/pay/${res.intentId}`);
                 } catch (e) {
                   setErr(e instanceof Error ? e.message : "Could not start that order.");
                 }

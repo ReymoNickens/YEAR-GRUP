@@ -1,3 +1,5 @@
+"use client";
+import { Download } from "lucide-react";
 import { useRef, useState, type ReactNode } from "react";
 import { stepUpConfirm, stepUpStart } from "@/lib/hub/api";
 import { hubAct } from "@/lib/hub/act";
@@ -19,7 +21,8 @@ function useStepUp(slug: string, testMode: boolean) {
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
   const retry = useRef<null | (() => Promise<void>)>(null);
-  const phrase = useRef("");
+  const phrase = useRef(""); // read by the retry closure, so it must not go stale
+  const [phraseText, setPhraseText] = useState("");
 
   async function run(action: string, fn: (phrase?: string) => Promise<void>) {
     retry.current = () => fn(phrase.current || undefined);
@@ -83,7 +86,7 @@ function useStepUp(slug: string, testMode: boolean) {
         </>
       )}
       {testMode ? (
-        <Field label="Demonstration only: type CONFIRM instead" value={phrase.current} onChange={(v) => { phrase.current = v; setNote(""); }} />
+        <Field label="Demonstration only: type CONFIRM instead" value={phraseText} onChange={(v) => { phrase.current = v; setPhraseText(v); setNote(""); }} />
       ) : null}
       <button type="button" className="h-10 text-sm text-muted" onClick={() => { setPending(null); setSent(null); }}>Cancel</button>
     </div>
@@ -217,6 +220,15 @@ export function MoneyDesk({ bag, slug, reload }: { bag: Record<string, unknown>;
       </ul>
       <p>Outstanding pledges: {String(bag.outstandingCount)} · <Money value={Number(bag.outstanding ?? 0)} /></p>
       <p className="text-sm text-muted">{bag.seeNames ? "You can see names." : "Anonymous names stay with the treasurer. You are not the treasurer."}</p>
+      <a
+        href={`/api/o/${slug}/ledger`}
+        download
+        className="flex h-12 items-center justify-center gap-2 rounded-full border border-line bg-card px-5 text-sm font-medium"
+      >
+        <Download className="size-4" />
+        Download the ledger (spreadsheet)
+      </a>
+      <Note>Keep your own copy each week. Every download is written to the audit log.</Note>
 
       {isTreasurer && unsettled.n > 0 ? (
         <div className="space-y-2 rounded-3xl border border-line bg-card p-4">

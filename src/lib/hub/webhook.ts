@@ -1,7 +1,7 @@
 import type { Sql } from "../scope-core.ts";
 import { audit } from "./audit.ts";
 import { failIntent, settleIntent, type PayOrg } from "./payments.ts";
-import { parseEvent, verifySignature } from "./paystack.ts";
+import { parseEvent, verifySignature, type VerifiedTransaction } from "./paystack.ts";
 import { num } from "./util.ts";
 
 export type WebhookDeps = {
@@ -12,6 +12,11 @@ export type WebhookDeps = {
   system: Sql;
   /** Run `fn` as a request scoped to one organisation (row level security applies). */
   scoped: <T>(orgId: string, fn: (sql: Sql) => Promise<T>) => Promise<T>;
+  /**
+   * Ask Paystack directly about the transaction (brief section 8: verify the
+   * signature, then confirm with the gateway's API). Production always passes it.
+   */
+  confirm?: (reference: string) => Promise<VerifiedTransaction>;
 };
 
 export type WebhookResult = { status: number; body: string };
@@ -47,6 +52,23 @@ export async function handlePaystackWebhook(d: WebhookDeps): Promise<WebhookResu
 
   try {
     if (event.event === "charge.success") {
+      if (d.confirm) {
+        // A network failure here throws and is answered 5xx, so Paystack sends the event again.
+        const v = await d.confirm(event.reference);
+        const problem =
+          v.reference !== event.reference ? "the gateway confirmed a different reference"
+            : v.status !== "success" ? `the gateway reports the payment as ${v.status}`
+            : v.currency !== "GHS" ? `the gateway reports currency ${v.currency}`
+            : event.amount != null && v.amount !== event.amount ? "the gateway amount does not match the event"
+            : null;
+        if (problem) {
+          await d.scoped(intent.organisation_id, (sql) =>
+            audit(sql, intent.organisation_id, null, "webhook_rejected", `${event.event} for ${event.reference}: ${problem}`),
+          );
+          return { status: 200, body: "Not confirmed by the gateway. Logged." };
+        }
+        event.amount = v.amount;
+      }
       const out = await d.scoped(intent.organisation_id, async (sql) =>
         settleIntent(sql, await org(sql), intent.id, { ...base, amount: event.amount, paidAt: new Date().toISOString() }),
       );

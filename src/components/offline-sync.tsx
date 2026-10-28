@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useState } from "react";
 import { hubAct as serverAct } from "@/lib/hub/api";
 import { dismissFailed, failed, flush, onQueueChange, queued } from "@/lib/offline-queue";
@@ -12,7 +13,7 @@ export function OfflineSync() {
   const [lost, setLost] = useState<{ type: string; message: string }[]>([]);
 
   useEffect(() => {
-    if (import.meta.env.PROD && "serviceWorker" in navigator) {
+    if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").catch(() => undefined);
     }
     const refresh = () => { setWaiting(queued().length); setLost(failed()); };
@@ -23,6 +24,8 @@ export function OfflineSync() {
     };
     const up = () => { setOnline(true); void send(); };
     const down = () => setOnline(false);
+    // navigator is only readable after mount.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setOnline(navigator.onLine !== false);
     refresh();
     window.addEventListener("online", up);

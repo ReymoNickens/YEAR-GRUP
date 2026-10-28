@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+
+/** process.env with NODE_ENV writable, so a test can pretend to be production. */
+const env = process.env as Record<string, string | undefined>;
 import { after, before, describe, it } from "node:test";
 import { bindPhone, primaryPhone, requestCode, verifyCode, MAX_ATTEMPTS } from "./otp.ts";
 import { confirmStepUp, requestStepUp, requireStepUp } from "./stepup.ts";
@@ -137,11 +140,11 @@ describe("step-up for money and roles", () => {
       process.env.HUB_ALLOW_TEST_STEPUP = "1";
       assert.equal(await db.scoped(as("x", m1), (sql) => requireStepUp(sql, ctx, "refund", "CONFIRM")), "test_phrase");
       await assert.rejects(() => db.scoped(as("x", m1), (sql) => requireStepUp(sql, ctx, "refund", "confirm")), /fresh/);
-      process.env.NODE_ENV = "production";
+      env.NODE_ENV = "production";
       await assert.rejects(() => db.scoped(as("x", m1), (sql) => requireStepUp(sql, ctx, "refund", "CONFIRM")), /fresh/);
     } finally {
       if (was.s === undefined) delete process.env.HUB_ALLOW_TEST_STEPUP; else process.env.HUB_ALLOW_TEST_STEPUP = was.s;
-      if (was.n === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = was.n;
+      if (was.n === undefined) delete env.NODE_ENV; else env.NODE_ENV = was.n;
     }
   });
 });

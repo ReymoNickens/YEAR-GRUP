@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { useState } from "react";
 import { aiAssist, controlData } from "@/lib/hub/api";
 import { hubAct } from "@/lib/hub/act";
@@ -21,7 +23,7 @@ export function ControlScreen({ slug, area }: { slug: string; area: string }) {
       <h1 className="font-display text-4xl capitalize">{safe}</h1>
       <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
         {areas.map((a) => (
-          <a key={a} href={`/o/${slug}/control/${a}`} className={`flex h-12 shrink-0 items-center rounded-full px-4 ${a === safe ? "bg-crimson text-on-crimson" : "border border-line"}`}>{a}</a>
+          <Link key={a} href={`/o/${slug}/control/${a}`} className={`flex h-12 shrink-0 items-center rounded-full px-4 ${a === safe ? "bg-crimson text-on-crimson" : "border border-line"}`}>{a}</Link>
         ))}
       </div>
             <div className="mt-4">
@@ -140,7 +142,7 @@ function Reports({ bag, slug }: { bag: Record<string, unknown>; slug: string }) 
       {usage.map((u) => <p key={u.name} className="flex justify-between"><span>{u.name.replaceAll("_", " ")}</span><span className="tabular-nums">{u.n}</span></p>)}
       <h2 className="font-display text-2xl">Funds</h2>
       {funds.map((f) => <p key={f.title} className="flex justify-between gap-3"><span>{f.title}</span><Money value={f.net} /></p>)}
-      <a className="text-sm text-crimson" href={`/o/${slug}/m/impact`}>Open the school page</a>
+      <Link className="text-sm text-crimson" href={`/o/${slug}/m/impact`}>Open the school page</Link>
     </div>
   );
 }

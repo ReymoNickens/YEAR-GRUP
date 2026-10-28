@@ -1,4 +1,5 @@
-import { Link } from "@tanstack/react-router";
+"use client";
+import Link from "next/link";
 import { homeData } from "@/lib/hub/api";
 import { Shell } from "@/components/hub/shell";
 import { Bar, Cover, Money, Note, SampleTag, State } from "@/components/hub/ui";
@@ -22,11 +23,11 @@ export function HomeScreen({ slug }: { slug: string }) {
               Classmates marked Sample are fictional, so the school is not empty. They leave when the real list is imported.
             </p>
             {data.attention ? (
-              <a href={attentionHref(slug, data.attention.href)} className="block rounded-3xl border border-line bg-card p-5">
+              <Link href={attentionHref(slug, data.attention.href)} className="block rounded-3xl border border-line bg-card p-5">
                 <p className="text-xs tracking-widest text-gold uppercase">{data.attention.kicker}</p>
                 <h2 className="mt-1 font-display text-3xl">{data.attention.title}</h2>
                 <p className="mt-2 text-muted">{data.attention.body}</p>
-              </a>
+              </Link>
             ) : null}
             {data.hero ? (
               <section className="overflow-hidden rounded-3xl bg-crimson text-on-crimson">
@@ -40,7 +41,7 @@ export function HomeScreen({ slug }: { slug: string }) {
                 </p>
                 <p className="mb-3 text-sm text-gold-soft">of <Money value={data.hero.target} /></p>
                 <Bar value={data.hero.raised} max={data.hero.target} />
-                <Link to="/o/$slug/give/$purposeId" params={{ slug, purposeId: data.hero.id }} className="mt-5 flex h-12 items-center justify-center rounded-full bg-card text-ink">
+                <Link href={`/o/${slug}/give/${data.hero.id}`} className="mt-5 flex h-12 items-center justify-center rounded-full bg-card text-ink">
                   Give
                 </Link>
                 </div>
@@ -50,7 +51,7 @@ export function HomeScreen({ slug }: { slug: string }) {
               <h2 className="font-display text-2xl">My circles</h2>
               <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
                 {data.circles.map((c) => (
-                  <Link key={c.id} to="/o/$slug/circles/$circleId" params={{ slug, circleId: c.id }} className="min-w-40 rounded-3xl border border-line bg-card p-4">
+                  <Link key={c.id} href={`/o/${slug}/circles/${c.id}`} className="min-w-40 rounded-3xl border border-line bg-card p-4">
                     <p className="font-display text-xl leading-tight">{c.name}</p>
                     <p className="mt-2 text-sm text-muted">{c.kind === "derived" ? "From your placement" : "You joined"}</p>
                   </Link>
@@ -60,7 +61,7 @@ export function HomeScreen({ slug }: { slug: string }) {
             <section className="space-y-3">
               <div className="flex items-baseline justify-between">
                 <h2 className="font-display text-2xl">Latest</h2>
-                <Link to="/o/$slug/feed" params={{ slug }} className="text-sm text-crimson">All of it</Link>
+                <Link href={`/o/${slug}/feed`} className="text-sm text-crimson">All of it</Link>
               </div>
               {data.feed.length === 0 ? <Note>Your circles are quiet. The first note can be yours.</Note> : null}
               {data.feed.map((p) => (

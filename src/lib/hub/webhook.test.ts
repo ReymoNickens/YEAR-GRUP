@@ -47,6 +47,31 @@ describe("paystack webhook", () => {
     assert.equal(await lines(i.id), 0); // nothing moved
   });
 
+  it("confirms with the gateway's API before posting anything", async () => {
+    const ok = (reference: string, amount: number) => async () => ({ status: "success", amount, reference, paidAt: null, currency: "GHS" });
+
+    // Signed, but the gateway says the charge never succeeded: nothing moves.
+    const a = await liveIntent();
+    const failed = await post(body("charge.success", 31, a.reference, a.charge), { confirm: async () => ({ status: "failed", amount: a.charge, reference: a.reference, paidAt: null, currency: "GHS" }) });
+    assert.deepEqual([failed.status, await lines(a.id)], [200, 0]);
+    const logged = await db.system.query<{ n: number }>("select count(*)::int as n from audit_log where action='webhook_rejected' and detail like $1", [`%${a.reference}%`]);
+    assert.equal(logged[0].n, 1);
+
+    // The gateway took a different amount than the event claims: nothing moves.
+    const b = await liveIntent();
+    const short = await post(body("charge.success", 32, b.reference, b.charge), { confirm: ok(b.reference, b.charge - 100) });
+    assert.deepEqual([short.status, await lines(b.id)], [200, 0]);
+
+    // The gateway cannot be reached: answer 5xx so Paystack retries, and post nothing.
+    const c = await liveIntent();
+    const down = await post(body("charge.success", 33, c.reference, c.charge), { confirm: async () => { throw new Error("fetch failed"); } });
+    assert.deepEqual([down.status, await lines(c.id)], [500, 0]);
+
+    // Confirmed: applied.
+    const good = await post(body("charge.success", 34, c.reference, c.charge), { confirm: ok(c.reference, c.charge) });
+    assert.deepEqual([good.status, good.body, await lines(c.id)], [200, "Applied.", 4]);
+  });
+
   it("applies a genuine payment once and answers a replay without posting twice", async () => {
     const i = await liveIntent();
     const raw = body("charge.success", 11, i.reference, i.charge);

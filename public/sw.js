@@ -2,7 +2,7 @@
  * It caches only static, fingerprinted files and one offline page. It never
  * caches pages or API responses, because those can hold a signed-in person's data
  * and would go stale. */
-const VERSION = "v2";
+const VERSION = "v3";
 const STATIC = `ygh-static-${VERSION}`;
 const SHELL = ["/offline.html", "/favicon.svg"];
 
@@ -24,7 +24,7 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== self.location.origin) return;
 
   // Fingerprinted build files never change: cache first.
-  if (url.pathname.startsWith("/assets/") || url.pathname.startsWith("/media/")) {
+  if (url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/media/")) {
     event.respondWith(
       caches.match(req).then((hit) => hit || fetch(req).then((res) => {
         if (res.ok) { const copy = res.clone(); caches.open(STATIC).then((c) => c.put(req, copy)); }

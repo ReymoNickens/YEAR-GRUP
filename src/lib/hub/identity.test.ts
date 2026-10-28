@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+
+/** process.env with NODE_ENV writable, so a test can pretend to be production. */
+const env = process.env as Record<string, string | undefined>;
 import { after, before, describe, it } from "node:test";
 import { claimPlace, confirmClaim, enrolNewMember, founderStatus, type EnrolForm, type OrgRef } from "./claims.ts";
 import { canMove, importCsv, parseCsv, reviewRow, similarity, toRows } from "./importer.ts";
@@ -170,11 +173,11 @@ describe("enrolling someone who is not on the list", () => {
       assert.equal(await db.scoped({ userId: "x", orgId: "org_f" }, (sql) => founderStatus(sql, "org_f", null)), false);
       process.env.HUB_DEV_FOUNDER = "1";
       assert.equal(await db.scoped({ userId: "x", orgId: "org_f" }, (sql) => founderStatus(sql, "org_f", null)), true);
-      process.env.NODE_ENV = "production";
+      env.NODE_ENV = "production";
       assert.equal(await db.scoped({ userId: "x", orgId: "org_f" }, (sql) => founderStatus(sql, "org_f", null)), false);
     } finally {
       if (was.f === undefined) delete process.env.HUB_DEV_FOUNDER; else process.env.HUB_DEV_FOUNDER = was.f;
-      if (was.n === undefined) delete process.env.NODE_ENV; else process.env.NODE_ENV = was.n;
+      if (was.n === undefined) delete env.NODE_ENV; else env.NODE_ENV = was.n;
     }
   });
 });

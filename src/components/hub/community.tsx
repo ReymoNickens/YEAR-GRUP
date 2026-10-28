@@ -1,3 +1,5 @@
+"use client";
+import Link from "next/link";
 import { useState } from "react";
 import { circleDetail, circleList, peoplePage, personDetail } from "@/lib/hub/api";
 import { hubAct } from "@/lib/hub/act";
@@ -15,10 +17,10 @@ export function CircleIndex({ slug }: { slug: string }) {
         <ul className="mt-4 space-y-3">
           {data?.map((c) => (
             <li key={c.id}>
-              <a href={`/o/${slug}/circles/${c.id}`} className="block rounded-3xl border border-line bg-card p-4">
+              <Link href={`/o/${slug}/circles/${c.id}`} className="block rounded-3xl border border-line bg-card p-4">
                 <p className="font-display text-2xl">{c.name}</p>
                 <p className="text-sm text-muted">{c.joined ? "Yours" : "Open"} · {c.purpose}</p>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
@@ -66,10 +68,10 @@ export function CirclePage({ slug, circleId }: { slug: string; circleId: string 
             ) : null}
             {!data.joined && data.kind === "voluntary" ? <Button onClick={join}>Join</Button> : null}
             {data.events.map((e) => (
-              <a key={e.id} href={`/o/${slug}/m/events`} className="block rounded-3xl border border-line bg-card p-4">
+              <Link key={e.id} href={`/o/${slug}/m/events`} className="block rounded-3xl border border-line bg-card p-4">
                 <p className="text-sm text-muted">{e.place}</p>
                 <p className="font-display text-2xl">{e.title}</p>
-              </a>
+              </Link>
             ))}
             {data.canPost ? (
               <div className="space-y-3">
@@ -88,10 +90,10 @@ export function CirclePage({ slug, circleId }: { slug: string; circleId: string 
             <ul className="space-y-2">
               {data.members.map((m) => (
                 <li key={m.id}>
-                  <a href={`/o/${slug}/people/${m.id}`} className="flex items-center justify-between rounded-2xl bg-card px-4 py-3">
+                  <Link href={`/o/${slug}/people/${m.id}`} className="flex items-center justify-between rounded-2xl bg-card px-4 py-3">
                     <span>{m.name}</span>
                     {m.sample ? <SampleTag /> : null}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -116,10 +118,10 @@ export function PeopleIndex({ slug }: { slug: string }) {
         <ul className="mt-4 space-y-3">
           {data?.people.map((p) => (
             <li key={p.id}>
-              <a href={`/o/${slug}/people/${p.id}`} className="block rounded-3xl border border-line bg-card p-4">
+              <Link href={`/o/${slug}/people/${p.id}`} className="block rounded-3xl border border-line bg-card p-4">
                 <span className="flex items-center gap-2 font-display text-2xl">{p.name} {p.sample ? <SampleTag /> : null}</span>
                 <span className="text-sm text-muted">{p.full} · {[p.profession, p.city, p.house].filter(Boolean).join(" · ")}</span>
-              </a>
+              </Link>
             </li>
           ))}
         </ul>
@@ -146,7 +148,7 @@ export function PersonPage({ slug, memberId }: { slug: string; memberId: string 
             {p.phone ? <p className="text-sm">Phone {p.phone}</p> : <Note>Phone numbers stay with the executives, unless this is you.</Note>}
             <ul className="flex flex-wrap gap-2">
               {data?.circles.map((c) => (
-                <li key={c.id}><a className="inline-flex h-10 items-center rounded-full border border-line px-3 text-sm" href={`/o/${slug}/circles/${c.id}`}>{c.name}</a></li>
+                <li key={c.id}><Link className="inline-flex h-10 items-center rounded-full border border-line px-3 text-sm" href={`/o/${slug}/circles/${c.id}`}>{c.name}</Link></li>
               ))}
             </ul>
           </div>

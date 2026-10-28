@@ -1,3 +1,4 @@
+"use client";
 import { useEffect, useRef, useState } from "react";
 import { isNetworkError } from "@/lib/offline-queue";
 
@@ -23,12 +24,17 @@ function recall<T>(key: string): T | null {
 
 /**
  * Load a screen's data. Each good result is kept on the device (cleared at
- * sign-out), so with no connection a screen the member has seen before still
- * opens with what they last saw. Only reads are kept, never anything that moves money.
+ * sign-out). A screen the member has seen before opens at once with what they
+ * last saw, marked as refreshing, and the fresh copy replaces it when it lands.
+ * On a slow or dropped connection that saved copy stays. Only reads are kept,
+ * never anything that moves money.
  */
 export function useHub<T>(key: string, load: () => Promise<T>) {
   const loadRef = useRef(load);
-  loadRef.current = load;
+  useEffect(() => {
+    loadRef.current = load;
+  });
+  const [tick, setTick] = useState(0);
   const [state, setState] = useState<{ data: T | null; error: string; loading: boolean; stale: boolean }>({
     data: null,
     error: "",
@@ -37,7 +43,9 @@ export function useHub<T>(key: string, load: () => Promise<T>) {
   });
   useEffect(() => {
     let live = true;
-    setState({ data: null, error: "", loading: true, stale: false });
+    const saved = recall<T>(key);
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- show the saved copy before the network answers
+    setState(saved ? { data: saved, error: "", loading: false, stale: true } : { data: null, error: "", loading: true, stale: false });
     loadRef.current()
       .then((data) => {
         if (!live) return;
@@ -46,19 +54,14 @@ export function useHub<T>(key: string, load: () => Promise<T>) {
       })
       .catch((e: unknown) => {
         if (!live) return;
-        const saved = isNetworkError(e) || (typeof navigator !== "undefined" && navigator.onLine === false) ? recall<T>(key) : null;
-        if (saved) return setState({ data: saved, error: "", loading: false, stale: true });
+        const offline = isNetworkError(e) || (typeof navigator !== "undefined" && navigator.onLine === false);
+        if (offline && saved) return setState({ data: saved, error: "", loading: false, stale: true });
         const message = e instanceof Error ? e.message : "Something went wrong. Try again.";
-        setState({
-          data: null,
-          error: message === "Unauthorized" ? "Reload the page to pick up your session." : message,
-          loading: false,
-          stale: false,
-        });
+        setState({ data: null, error: message, loading: false, stale: false });
       });
     return () => {
       live = false;
     };
-  }, [key]);
-  return state;
+  }, [key, tick]);
+  return { ...state, reload: () => setTick((n) => n + 1) };
 }
