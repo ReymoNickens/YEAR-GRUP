@@ -1,0 +1,219 @@
+{
+  "slug": "mfantsipim-2007",
+  "name": "Mfantsipim 2007",
+  "type": "school_year",
+  "receiptPrefix": "MF2007",
+  "terminology": {
+    "member": "old boy",
+    "members": "old boys",
+    "house": "House",
+    "dorm": "Dorm",
+    "cot": "Cot",
+    "programme": "Programme",
+    "class": "Class",
+    "year": "Year group"
+  },
+  "branding": {
+    "motto": "Dwen Hwe Kan",
+    "shortName": "Mfantsipim 2007",
+    "place": "Cape Coast",
+    "founded": "1876",
+    "paper": "#F3EEE6",
+    "ink": "#1C1412",
+    "crimson": "#7A1C2E",
+    "gold": "#6F5424"
+  },
+  "verificationRule": "two_cot_peers_or_executive",
+  "minGivers": 5,
+  "gatewayFeeBps": 195,
+  "platformFeeBps": 100,
+  "reversePlatformFeeOnRefund": false,
+  "twoApproverPesewas": 200000,
+  "enabledModules": [
+    "people",
+    "structure",
+    "circles",
+    "money",
+    "events",
+    "directory",
+    "governance",
+    "welfare",
+    "store",
+    "impact",
+    "photos",
+    "asks",
+    "polls",
+    "trivia",
+    "mentoring",
+    "capsules",
+    "elections"
+  ],
+  "structure": {
+    "dimensions": [
+      {
+        "key": "residence",
+        "name": "Residence",
+        "levels": [
+          "house",
+          "dorm",
+          "cot"
+        ],
+        "nodes": [
+          {
+            "name": "Balmer-Acquaah",
+            "children": [
+              {
+                "name": "Upper",
+                "cots": 8
+              },
+              {
+                "name": "Lower",
+                "cots": 8
+              }
+            ]
+          },
+          {
+            "name": "Freeman-Aggrey",
+            "children": [
+              {
+                "name": "Upper",
+                "cots": 8
+              },
+              {
+                "name": "Lower",
+                "cots": 8
+              }
+            ]
+          },
+          {
+            "name": "Lockhart-Schweitzer",
+            "children": [
+              {
+                "name": "Upper",
+                "cots": 8
+              },
+              {
+                "name": "Lower",
+                "cots": 8
+              }
+            ]
+          },
+          {
+            "name": "Pickard-Parker",
+            "children": [
+              {
+                "name": "Upper",
+                "cots": 8
+              },
+              {
+                "name": "Lower",
+                "cots": 8
+              }
+            ]
+          },
+          {
+            "name": "Sarbah-Picot",
+            "children": [
+              {
+                "name": "Upper",
+                "cots": 8
+              },
+              {
+                "name": "Lower",
+                "cots": 8
+              }
+            ]
+          },
+          {
+            "name": "Bartels-Sneath",
+            "children": [
+              {
+                "name": "Upper",
+                "cots": 8
+              },
+              {
+                "name": "Middle",
+                "cots": 8
+              },
+              {
+                "name": "Lower",
+                "cots": 8
+              },
+              {
+                "name": "Extension",
+                "cots": 8
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "academic",
+        "name": "Academic",
+        "levels": [
+          "programme",
+          "class"
+        ],
+        "nodes": [
+          {
+            "name": "Science",
+            "children": [
+              {
+                "name": "S1"
+              },
+              {
+                "name": "S2"
+              },
+              {
+                "name": "S3"
+              },
+              {
+                "name": "S4"
+              },
+              {
+                "name": "S5"
+              }
+            ]
+          },
+          {
+            "name": "Visual Arts",
+            "children": [
+              {
+                "name": "V1"
+              },
+              {
+                "name": "V2"
+              },
+              {
+                "name": "V3"
+              }
+            ]
+          },
+          {
+            "name": "General Arts",
+            "children": [
+              {
+                "name": "A1"
+              },
+              {
+                "name": "A2"
+              },
+              {
+                "name": "A3"
+              },
+              {
+                "name": "A4"
+              },
+              {
+                "name": "A5"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "voluntaryCircles": [],
+  "purposes": [],
+  "founders": []
+}

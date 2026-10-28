@@ -1,0 +1,124 @@
+{
+  "slug": "aggrey-2010",
+  "name": "Aggrey Memorial 2010",
+  "type": "school_year",
+  "receiptPrefix": "AG2010",
+  "terminology": {
+    "member": "alumnus",
+    "members": "alumni",
+    "house": "Hall",
+    "dorm": "Floor",
+    "cot": "Bed",
+    "programme": "Stream",
+    "class": "Form",
+    "year": "Year group"
+  },
+  "branding": {
+    "motto": "Excelsior",
+    "shortName": "Aggrey 2010",
+    "place": "Cape Coast",
+    "paper": "#F4F1EA",
+    "ink": "#14201A",
+    "crimson": "#1F5C3F",
+    "gold": "#7A5A12"
+  },
+  "verificationRule": "executive_approval",
+  "gatewayFeeBps": 195,
+  "platformFeeBps": 120,
+  "enabledModules": [
+    "people",
+    "structure",
+    "circles",
+    "money",
+    "events",
+    "directory"
+  ],
+  "structure": {
+    "dimensions": [
+      {
+        "key": "residence",
+        "name": "Residence",
+        "levels": [
+          "house",
+          "dorm",
+          "cot"
+        ],
+        "nodes": [
+          {
+            "name": "Fraser-Hall",
+            "aliases": [
+              "Fraser"
+            ],
+            "children": [
+              {
+                "name": "North",
+                "cots": 6
+              },
+              {
+                "name": "South",
+                "cots": 6
+              }
+            ]
+          },
+          {
+            "name": "Kwegyir Hall",
+            "children": [
+              {
+                "name": "Main",
+                "cots": 10
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "key": "academic",
+        "name": "Academic",
+        "levels": [
+          "programme",
+          "class"
+        ],
+        "nodes": [
+          {
+            "name": "Science",
+            "children": [
+              {
+                "name": "S1"
+              },
+              {
+                "name": "S2"
+              }
+            ]
+          },
+          {
+            "name": "Business",
+            "children": [
+              {
+                "name": "B1"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "voluntaryCircles": [
+    {
+      "name": "Engineers",
+      "purpose": "Builders and makers.",
+      "visibility": "open"
+    }
+  ],
+  "purposes": [
+    {
+      "type": "campaign",
+      "title": "The 2010 scholarship",
+      "story": "Fees for one student each year.",
+      "targetPesewas": 5000000,
+      "hero": true
+    }
+  ],
+  "founders": [
+    "Chair@Example.com"
+  ]
+}

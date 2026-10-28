@@ -1,0 +1,82 @@
+@import "tailwindcss";
+
+:root {
+  --paper: #f3eee6;
+  --card: #fffcf8;
+  --ink: #1c1412;
+  --muted: #6e625a;
+  --line: #e4d9cc;
+  --crimson: #7a1c2e;
+  --on-crimson: #fff8f4;
+  --gold: #6f5424;
+  --gold-soft: #f3e6c8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #12100e;
+    --card: #1d1916;
+    --ink: #f6f1ea;
+    --muted: #c0b3a8;
+    --line: #3a322c;
+    --crimson: #9a2740;
+    --on-crimson: #fff8f4;
+    --gold: #e0c27a;
+    --gold-soft: #3a2e18;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-crimson: var(--crimson);
+  --color-on-crimson: var(--on-crimson);
+  --color-gold: var(--gold);
+  --color-gold-soft: var(--gold-soft);
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+}
+
+@layer base {
+  html { -webkit-font-smoothing: antialiased; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; }
+  p { text-wrap: pretty; }
+  button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  input, textarea { font: inherit; color: inherit; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.motif {
+  background:
+    linear-gradient(160deg, color-mix(in srgb, var(--crimson) 88%, black), color-mix(in srgb, var(--gold) 55%, var(--crimson)));
+  color: var(--on-crimson);
+}
+.motif-field { background: linear-gradient(165deg, #4e101c 0%, #7a1c2e 55%, #6f5424 100%); }
+.motif-cape { background: linear-gradient(180deg, #1c1412 0%, #7a1c2e 70%, #c4b08a 100%); }
+.motif-class { background: linear-gradient(145deg, #7a1c2e, #1c1412 80%); }
+.motif-dorm { background: linear-gradient(200deg, #6f5424, #7a1c2e 60%, #1c1412); }
+.motif-chapel { background: linear-gradient(180deg, #f3e6c8, #7a1c2e 45%, #4e101c); }
+.motif-jersey { background: repeating-linear-gradient(90deg, #7a1c2e 0 18px, #6f5424 18px 22px, #7a1c2e 22px 40px); }
+.motif-hoodie { background: linear-gradient(160deg, #1c1412, #3a322c 40%, #7a1c2e); }
+.motif-tie { background: linear-gradient(180deg, #7a1c2e, #f3e6c8 92%); }
+
+@media (prefers-color-scheme: dark) {
+  .motif-chapel, .motif-tie { color: #1c1412; }
+}
