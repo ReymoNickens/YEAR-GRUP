@@ -37,6 +37,9 @@ export function GivePurpose({ slug, purposeId }: { slug: string; purposeId: stri
   const today = inBits ? pledgeParts(gift)[0] : gift;
   const quote = data && today > 0 ? planCollection({ gift: today, gatewayBps: data.gatewayFeeBps, platformBps: data.platformFeeBps, coverFees: cover }) : null;
 
+  // Dues have their own statement page.
+  useEffect(() => { if (data?.type === "dues") router.replace(`/o/${slug}/dues`); }, [data?.type, router, slug]);
+
   // Each step starts at the top, as a new screen would.
   useEffect(() => { window.scrollTo({ top: 0 }); }, [step]);
 

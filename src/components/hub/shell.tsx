@@ -1,5 +1,5 @@
 "use client";
-import { BookUser, CalendarDays, Heart, House, Images, Mail, Store, UserRound, UsersRound, Vote } from "lucide-react";
+import { BookUser, CalendarCheck, CalendarDays, Heart, House, Images, Mail, Store, UserRound, UsersRound, Vote } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -15,6 +15,7 @@ const tabs = [
 ] as const;
 
 const more = [
+  { suffix: "/dues", label: "My dues", icon: CalendarCheck },
   { suffix: "/m/events", label: "Events", icon: CalendarDays },
   { suffix: "/m/photos", label: "Photos", icon: Images },
   { suffix: "/m/polls", label: "Polls", icon: Vote },

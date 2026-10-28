@@ -1,6 +1,6 @@
 "use client";
 import {
-  ArrowRight, Cake, CalendarDays, Handshake, HeartHandshake, Hourglass, Images, Landmark, LayoutDashboard, Lightbulb,
+  ArrowRight, Cake, CalendarCheck, CalendarDays, Handshake, HeartHandshake, Hourglass, Images, Landmark, LayoutDashboard, Lightbulb,
   ListChecks, Mail, MessageCircleQuestion, Newspaper, School, ShoppingBag, Sparkles, Store, Vote,
 } from "lucide-react";
 import Link from "next/link";
@@ -142,6 +142,15 @@ export function MeScreen({ slug }: { slug: string }) {
                   <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
                 </Link>
               ) : null}
+
+              <Link href={`/o/${slug}/dues`} className="group mt-8 flex items-center gap-4 border border-line bg-card px-5 py-4 hover:border-ink">
+                <CalendarCheck className="size-5 shrink-0" strokeWidth={1.75} />
+                <span className="min-w-0 flex-1">
+                  <span className="block text-[15px] font-semibold">My dues</span>
+                  <span className="block text-sm text-muted">What is due, what you have paid, and receipts</span>
+                </span>
+                <ArrowRight className="size-5 text-muted transition-transform group-hover:translate-x-0.5" />
+              </Link>
 
               {pending.length > 0 ? (
                 <Section title="Waiting for you" className="mt-10">

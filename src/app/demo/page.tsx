@@ -17,8 +17,8 @@ const PROMISES = [
 
 const TRY = [
   ["Join as a new old boy", "and find your cot."],
-  ["Give ₵200 to the library as Kwame,", "and watch the total and the house cup move."],
-  ["Approve the reunion cards expense", "as the treasurer, then download the ledger."],
+  ["Pay your 2026 dues as Kwame,", "then give ₵200 to the library and watch the house cup move."],
+  ["See who has paid their dues", "as the treasurer, then approve the reunion cards expense."],
   ["Send an announcement to one house", "as an executive."],
   ["Open Photos, Polls and Businesses", "from the sidebar or the Me tab."],
 ];
@@ -130,7 +130,7 @@ export default async function DemoHome() {
             </ul>
 
             <div className="mt-12">
-              <div className="rule-top pt-3"><h2 className="display-sm">Five things to try</h2></div>
+              <div className="rule-top pt-3"><h2 className="display-sm">Things to try</h2></div>
               <ol className="mt-3 ruled-list">
                 {TRY.map(([a, b], i) => (
                   <li key={a} className="grid grid-cols-[2.5rem_1fr] py-3.5 text-[15px] leading-snug">

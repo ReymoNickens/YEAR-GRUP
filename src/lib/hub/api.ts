@@ -10,6 +10,7 @@ export const aiAssist = unwrap(actions.aiAssist);
 export const circleDetail = unwrap(actions.circleDetail);
 export const circleList = unwrap(actions.circleList);
 export const controlData = unwrap(actions.controlData);
+export const duesData = unwrap(actions.duesData);
 export const feedData = unwrap(actions.feedData);
 export const homeData = unwrap(actions.homeData);
 export const hubAct = unwrap(actions.hubAct);

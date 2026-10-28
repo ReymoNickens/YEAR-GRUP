@@ -33,6 +33,10 @@ export async function controlData(input?: In): Promise<Envelope<Awaited<ReturnTy
   return envelope(() => handlers.controlData(input));
 }
 
+export async function duesData(input?: In): Promise<Envelope<Awaited<ReturnType<typeof core.duesData>>>> {
+  return envelope(() => core.duesData(input));
+}
+
 export async function feedData(input?: In): Promise<Envelope<Awaited<ReturnType<typeof core.feedData>>>> {
   return envelope(() => core.feedData(input));
 }

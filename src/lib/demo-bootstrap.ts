@@ -1,5 +1,5 @@
 import "server-only";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { getSystemSql } from "@/lib/db";
 import { demoMode } from "@/lib/hub/util";
@@ -17,7 +17,7 @@ export function ensureDemoDatabase(): Promise<void> {
   g.__demoReady__ ??= (async () => {
     const sql = await getSystemSql();
     const have = await sql<{ t: string | null }>`select to_regclass('public.organisation')::text as t`;
-    if (have[0]?.t) return;
+    if (have[0]?.t) return catchUp();
     const file = await readFile(join(process.cwd(), "supabase", "manual", "setup-demo.sql"), "utf8");
     // The file opens its own transaction; take a lock inside it so two cold starts do not both load it.
     const script = file.replace(/^begin;$/m, "begin;\nselect pg_advisory_xact_lock(727007);");
@@ -32,4 +32,33 @@ export function ensureDemoDatabase(): Promise<void> {
     throw e;
   });
   return g.__demoReady__;
+}
+
+/**
+ * A preview loaded before a newer migration existed: run the migrations it has not
+ * seen, with the sample rows that came with them, once, and record each one in
+ * Supabase's history. Every migration is written to be safe to run again.
+ */
+async function catchUp() {
+  const sql = await getSystemSql();
+  const root = join(process.cwd(), "supabase");
+  const migrations = (await readdir(join(root, "migrations"))).filter((f) => /^\d{14}_.*\.sql$/.test(f)).sort();
+  const done = new Set(
+    (await sql<{ version: string }>`select version from supabase_migrations.schema_migrations`).map((r) => String(r.version)),
+  );
+  const pending = migrations.filter((f) => !done.has(f.slice(0, 14)));
+  if (!pending.length) return;
+  const since = pending[0].slice(0, 14);
+  const samples = (await readdir(join(root, "sample"))).filter((f) => /^\d{14}_.*\.sql$/.test(f) && f.slice(0, 14) > since);
+  const files = [...pending.map((f) => ({ f, dir: "migrations" })), ...samples.map((f) => ({ f, dir: "sample" }))].sort((a, b) => a.f.localeCompare(b.f));
+  const parts = ["begin;", "select pg_advisory_xact_lock(727007);"];
+  for (const { f, dir } of files) {
+    parts.push(await readFile(join(root, dir, f), "utf8"));
+    if (dir === "migrations") {
+      const [version, ...name] = f.replace(/\.sql$/, "").split("_");
+      parts.push(`insert into supabase_migrations.schema_migrations (version, name) values ('${version}', '${name.join("_")}') on conflict do nothing;`);
+    }
+  }
+  parts.push("commit;");
+  await sql.query(parts.join("\n"));
 }

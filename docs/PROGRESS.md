@@ -2,6 +2,27 @@
 
 Update this at the end of every session.
 
+## 29 Oct 2026: member dues
+
+Each member now has **My dues** (`/o/<slug>/dues`): what is due now, every year (or month) with what
+was paid towards it, a two-tap way to pay, and their dues receipts. Linked from Home (a "Dues due"
+nudge, a dues summary and a shortcut), the sidebar, Give and Me.
+
+- `dues_plan` table (migration `20261029090000_dues_plan.sql`): a rate per year or per month from a
+  date. A new rate is a new row from a later date; rows are history (update and delete refused).
+- What a member has paid is never stored: it is read from the ledger (fund credits on their dues
+  payments, less refunds). `src/lib/hub/dues.ts` turns rates + paid into a statement, applying
+  payments to the oldest period first (tested in `dues.test.ts`).
+- Money desk has a **Dues** tab: paid up X of N, collected, still owed, who is behind (names, house,
+  amount), a link to send a reminder, and setting the rate (treasurer or executive, with a fresh
+  text-message code).
+- Dues receipts read "being year group dues", and the share button becomes "Remind your cot".
+- Sample cohort: GH₵ 240 a year from 2025, 22 sample dues payments (`scripts/gen-dues-sample.mjs`).
+- The demo database now catches up on migrations it has not run (`catchUp` in
+  `src/lib/demo-bootstrap.ts`), so the live preview picked this up without a paste.
+- For the real Supabase project, `supabase/manual/setup-supabase.sql` is regenerated and includes
+  the new table. No dues rate is set there: the treasurer sets it from the money desk.
+
 ## 28 Oct 2026 (night): full UI redesign
 
 The executives' first reaction to the preview was that it looked amateur and the crest was wrong.

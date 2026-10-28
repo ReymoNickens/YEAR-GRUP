@@ -5,7 +5,7 @@ import { useRef, useState, type ReactNode } from "react";
 import { stepUpConfirm, stepUpStart } from "@/lib/hub/api";
 import { hubAct } from "@/lib/hub/act";
 import { formatGhs, parseCedisToPesewas } from "@/lib/hub/money";
-import { Button, Field, Money, Note, Pill } from "@/components/hub/ui";
+import { Button, Callout, Field, Money, Note, Pill } from "@/components/hub/ui";
 
 type Reload = () => void;
 const FRESH = /fresh text-message code/i;
@@ -208,7 +208,7 @@ export function MoneyDesk({ bag, slug, reload }: { bag: Record<string, unknown>;
   const [form, setForm] = useState({ payment: "", amount: "", reason: "", method: "gateway", expenseMemo: "", expenseAmount: "", bankRef: "" });
   const [manualRef, setManualRef] = useState<Record<string, string>>({});
   const [payRef, setPayRef] = useState<Record<string, string>>({});
-  const [tab, setTab] = useState<"overview" | "expenses" | "refunds" | "ledger">("overview");
+  const [tab, setTab] = useState<"overview" | "dues" | "expenses" | "refunds" | "ledger">("overview");
 
   const go = (action: string, type: string, body: Record<string, unknown>, done: string) =>
     step.run(action, async (phrase) => {
@@ -221,6 +221,7 @@ export function MoneyDesk({ bag, slug, reload }: { bag: Record<string, unknown>;
   const waitingRefunds = refunds.filter((r) => r.status === "awaiting_approval").length;
   const tabs = [
     { key: "overview", label: "Overview" },
+    { key: "dues", label: "Dues" },
     { key: "expenses", label: "Expenses", count: waitingExpenses },
     { key: "refunds", label: "Refunds", count: waitingRefunds },
     { key: "ledger", label: "Ledger" },
@@ -310,6 +311,8 @@ export function MoneyDesk({ bag, slug, reload }: { bag: Record<string, unknown>;
           ) : null}
         </div>
       ) : null}
+
+      {tab === "dues" ? <DuesDesk slug={slug} dues={bag.dues as DuesBox} run={go} /> : null}
 
       {tab === "expenses" ? (
         <div className="mt-6 space-y-6">
@@ -437,6 +440,111 @@ export function MoneyDesk({ bag, slug, reload }: { bag: Record<string, unknown>;
             </tbody>
           </table>
         </div>
+      ) : null}
+    </div>
+  );
+}
+
+type DuesBox = {
+  plan: { rate: number; period: "year" | "month"; since: string; latestFrom: string } | null;
+  members: { id: string; name: string; full: string; house: string | null; paid: number; outstanding: number; state: "paid" | "part" | "due" }[];
+  paidUp: number;
+  collected: number;
+  outstanding: number;
+  canSet: boolean;
+};
+
+/** Who is paid up and who is behind, the total collected, and the rate. */
+function DuesDesk({ slug, dues, run }: { slug: string; dues: DuesBox; run: (action: string, type: string, body: Record<string, unknown>, done: string) => void }) {
+  const [filter, setFilter] = useState<"behind" | "paid" | "all">("behind");
+  const [rate, setRate] = useState("");
+  const [period, setPeriod] = useState<"year" | "month">(dues?.plan?.period ?? "year");
+  const year = new Date().getFullYear();
+  const month = new Date().toISOString().slice(0, 7);
+  const [from, setFrom] = useState(dues?.plan ? `${year + 1}-01-01` : `${year}-01-01`);
+  if (!dues) return null;
+  const total = dues.members.length;
+  const shown = dues.members.filter((m) => filter === "all" || (filter === "paid" ? m.state === "paid" : m.state !== "paid"));
+  const pct = total ? Math.round((dues.paidUp / total) * 100) : 0;
+  const startChoices = (period === "year"
+    ? [[`${year}-01-01`, `From January ${year}`], [`${year + 1}-01-01`, `From January ${year + 1}`]]
+    : [[`${month}-01`, "From this month"], [`${new Date(year, new Date().getMonth() + 1, 1).toISOString().slice(0, 7)}-01`, "From next month"]]
+  ).filter(([d]) => !dues.plan || d > dues.plan.latestFrom);
+
+  return (
+    <div className="mt-6 space-y-8">
+      {dues.plan ? (
+        <>
+          <div>
+            <p className="kicker">Paid up</p>
+            <p className="figure mt-3 text-[3rem]">{dues.paidUp} <span className="text-muted">of {total}</span></p>
+            <div className="mt-4 h-2 bg-sunk"><div className="h-full bg-paid transition-[width] duration-700" style={{ width: `${pct}%` }} /></div>
+            <p className="mt-2 text-[13px] text-muted">{pct}% of confirmed members · dues are {formatGhs(dues.plan.rate)} a {dues.plan.period}, since {new Date(dues.plan.since).getFullYear()}</p>
+          </div>
+          <dl className="grid grid-cols-2 border-t border-l border-line">
+            <div className="border-r border-b border-line p-4"><dt className="text-[13px] text-muted">Collected</dt><dd className="figure mt-2 text-[1.25rem] text-paid sm:text-[1.5rem]">{formatGhs(dues.collected)}</dd></div>
+            <div className="border-r border-b border-line p-4"><dt className="text-[13px] text-muted">Still owed</dt><dd className="figure mt-2 text-[1.25rem] text-crimson sm:text-[1.5rem]">{formatGhs(dues.outstanding)}</dd></div>
+          </dl>
+
+          <div>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div role="tablist" aria-label="Show" className="flex border border-line-2">
+                {([["behind", `Behind · ${total - dues.paidUp}`], ["paid", `Paid up · ${dues.paidUp}`], ["all", "Everyone"]] as const).map(([k, label]) => (
+                  <button key={k} role="tab" type="button" aria-selected={filter === k} onClick={() => setFilter(k)} className={`h-10 px-3.5 text-sm transition-colors ${filter === k ? "bg-ink font-medium text-paper" : "bg-card text-ink-2 hover:bg-sunk/60"}`}>{label}</button>
+                ))}
+              </div>
+              {filter === "behind" && total - dues.paidUp > 0 ? (
+                <a href={`/o/${slug}/control/communication`} className="text-sm font-medium text-crimson-ink underline underline-offset-4">Send a reminder</a>
+              ) : null}
+            </div>
+            <ul className="mt-3 ruled-list border-y border-line">
+              {shown.map((m) => (
+                <li key={m.id} className="flex items-center gap-3 py-3">
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[15px] font-medium">{m.name}</span>
+                    <span className="block truncate text-[13px] text-muted">{m.full}{m.house ? ` · ${m.house}` : ""}</span>
+                  </span>
+                  <span className="shrink-0 text-right">
+                    <span className={`block text-[15px] font-semibold tabular-nums ${m.state === "paid" ? "text-paid" : ""}`}>{m.state === "paid" ? formatGhs(m.paid) : formatGhs(m.outstanding)}</span>
+                    <span className="block text-[11px] text-muted">{m.state === "paid" ? "paid" : m.state === "part" ? "still owed, part paid" : "owed"}</span>
+                  </span>
+                </li>
+              ))}
+              {shown.length === 0 ? <li className="py-5 text-muted">{filter === "behind" ? "Everyone is paid up." : "No one yet."}</li> : null}
+            </ul>
+          </div>
+        </>
+      ) : (
+        <Callout>No dues are set yet. Set a rate below and every member will see what they owe.</Callout>
+      )}
+
+      {dues.canSet ? (
+        <details className="group border border-line bg-card" open={!dues.plan}>
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between px-5 text-[15px] font-medium">
+            {dues.plan ? "Change the dues rate" : "Set the dues"} <Plus className="size-4 transition-transform group-open:rotate-45" />
+          </summary>
+          <div className="space-y-4 border-t border-line p-5">
+            <Note>{dues.plan ? "A new rate applies from the date you choose. Earlier periods keep the rate members were asked at the time." : "Members owe the rate for every period from the start date, up to today."}</Note>
+            <Field label="Amount, GH₵" value={rate} inputMode="decimal" onChange={setRate} placeholder={dues.plan ? String(dues.plan.rate / 100) : "240"} />
+            {!dues.plan ? (
+              <div className="grid grid-cols-2 border border-line-2" role="radiogroup" aria-label="How often">
+                {(["year", "month"] as const).map((k) => (
+                  <button key={k} type="button" role="radio" aria-checked={period === k} onClick={() => { setPeriod(k); setFrom(k === "year" ? `${year}-01-01` : `${month}-01`); }} className={`h-11 text-sm ${period === k ? "bg-ink font-medium text-paper" : "bg-card"}`}>{k === "year" ? "A year" : "A month"}</button>
+                ))}
+              </div>
+            ) : null}
+            <label className="block">
+              <span className="mb-2 block text-[13px] font-medium text-ink-2">Starts</span>
+              <select className="input" value={from} onChange={(e) => setFrom(e.target.value)}>
+                {!dues.plan && period === "year" ? <option value={`${year - 1}-01-01`}>From January {year - 1}</option> : null}
+                {startChoices.map(([d, label]) => <option key={d} value={d}>{label}</option>)}
+              </select>
+            </label>
+            <Button disabled={!parseCedisToPesewas(rate)} onClick={() => run("dues", "dues_plan", { amountPesewas: parseCedisToPesewas(rate), period, startsOn: from }, "The dues rate is set. Members see it now.")}>
+              {dues.plan ? "Set the new rate" : "Set the dues"}
+            </Button>
+          </div>
+        </details>
       ) : null}
     </div>
   );

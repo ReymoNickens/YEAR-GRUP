@@ -228,8 +228,11 @@ function ReceiptBook({ slug, v }: { slug: string; v: View }) {
   const houses = (d?.boards?.houses ?? []).filter((h) => h.shown).sort((a, b) => (b.total ?? 0) - (a.total ?? 0));
   const rank = d?.myHouseId ? houses.findIndex((h) => h.id === d.myHouseId) + 1 : 0;
   const pct = d && d.target > 0 ? Math.floor((d.raised / d.target) * 100) : null;
-  const link = typeof window !== "undefined" ? `${window.location.origin}/o/${slug}/give/${v.purposeId}` : "";
-  const share = `I have just given to ${v.title} for ${org?.name ?? "our year group"}.${pct != null ? ` We are ${pct}% of the way there.` : ""} Join me: ${link}`;
+  const dues = v.kind === "dues";
+  const link = typeof window !== "undefined" ? `${window.location.origin}/o/${slug}/${dues ? "dues" : `give/${v.purposeId}`}` : "";
+  const share = dues
+    ? `I have just paid my ${org?.name ?? "year group"} dues. Two taps and the receipt comes back. Yours: ${link}`
+    : `I have just given to ${v.title} for ${org?.name ?? "our year group"}.${pct != null ? ` We are ${pct}% of the way there.` : ""} Join me: ${link}`;
   const paidOn = v.paidAt ? new Date(v.paidAt).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : "Today";
   const first = org?.me?.nickname || v.payer.split(" ")[0];
   const arrives = v.coverFees ? v.gift : v.charge - v.gatewayFee - v.platformFee;
@@ -243,7 +246,7 @@ function ReceiptBook({ slug, v }: { slug: string; v: View }) {
         </svg>
         <p className="kicker mt-6">Confirmed by the gateway</p>
         <h1 className="display-lg mt-3">Thank you, <span className="serif-italic">{v.anonymous ? "old boy" : first}</span>.</h1>
-        <p className="mt-3 text-[15px] text-muted"><Money value={arrives} /> is on its way to {v.title.replace(/^The /, "the ")}.</p>
+        <p className="mt-3 text-[15px] text-muted">{v.kind === "dues" ? <><Money value={v.gift} /> is counted towards your dues.</> : <><Money value={arrives} /> is on its way to {v.title.replace(/^The /, "the ")}.</>}</p>
       </div>
 
       <article className="receipt rise rise-2 mt-9" aria-label={`Receipt number ${v.receipt}`}>
@@ -266,7 +269,7 @@ function ReceiptBook({ slug, v }: { slug: string; v: View }) {
           <div className="ruled mt-6 text-[15px]">
             <p>Received from <span className="font-display text-[1.35rem] italic">{v.anonymous ? "an old boy (anonymous)" : v.payer}</span></p>
             <p>the sum of <span className="font-display text-[1.35rem] italic">{cedisInWords(v.gift)}</span></p>
-            <p>being <span className="font-display text-[1.35rem] italic">{v.pledged ? `the first part of a pledge to ${v.title}` : `a gift to ${v.title}`}</span></p>
+            <p>being <span className="font-display text-[1.35rem] italic">{v.kind === "dues" ? "year group dues" : v.pledged ? `the first part of a pledge to ${v.title}` : `a gift to ${v.title}`}</span></p>
             <p>on <span className="font-display text-[1.35rem] italic">{paidOn}</span></p>
           </div>
 
@@ -287,7 +290,12 @@ function ReceiptBook({ slug, v }: { slug: string; v: View }) {
         <div className="perf rotate-180" aria-hidden />
       </article>
 
-      {d ? (
+      {dues ? (
+        <Link href={`/o/${slug}/dues`} className="rise rise-3 mt-9 flex items-center justify-between gap-3 border-y border-line py-4 text-[15px] font-medium hover:bg-sunk/40">
+          See your dues, year by year <span aria-hidden>→</span>
+        </Link>
+      ) : null}
+      {d && !dues ? (
         <div className="rise rise-3 mt-9 grid grid-cols-3 divide-x divide-line border-y border-line">
           {pct != null ? <Impact big={`${pct}%`} text="of the goal" /> : null}
           {rank > 0 ? <Impact big={`#${rank}`} text={`${v.house ?? "Your house"}`} /> : null}
@@ -297,7 +305,7 @@ function ReceiptBook({ slug, v }: { slug: string; v: View }) {
 
       <div className="mt-8 space-y-2.5">
         <a className="btn btn-block bg-[#1fa855] text-white hover:bg-[#178a45]" href={`https://wa.me/?text=${encodeURIComponent(share)}`} target="_blank" rel="noopener noreferrer">
-          <Share2 className="size-[18px]" /> Tell your cot on WhatsApp
+          <Share2 className="size-[18px]" /> {dues ? "Remind your cot on WhatsApp" : "Tell your cot on WhatsApp"}
         </a>
         <div className="grid grid-cols-2 gap-2.5">
           <Link href={`/r/${v.receipt}`} className="btn btn-quiet">Save receipt</Link>

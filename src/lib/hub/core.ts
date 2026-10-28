@@ -4,6 +4,7 @@ import { getSql, getSystemSql, setTenant, withScope, type Sql } from "@/lib/db";
 import { audit, track } from "@/lib/hub/audit";
 import { syncDerived as syncDerivedFor } from "@/lib/hub/circles";
 import { claimPlace, enrolNewMember, type EnrolForm } from "@/lib/hub/claims";
+import { duesStatement, type DuesPlan } from "@/lib/hub/dues";
 import { planCollection } from "@/lib/hub/money";
 import { bindPhone, primaryPhone, requestCode, verifyCode } from "@/lib/hub/otp";
 import { failIntent, settleIntent as settleIntentCore, type PayOrg } from "@/lib/hub/payments";
@@ -457,11 +458,22 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
   const refunds = isOfficer(roles)
     ? await sql<{ n: number }>`select count(*)::int as n from refund where organisation_id = ${org.id} and status = 'awaiting_approval'`
     : [];
+  const duesPlan = await duesPlans(sql, org.id);
+  const duesPaid = (await duesPaidBy(sql, org.id, member.id)).get(member.id) ?? 0;
+  const dues = duesPlan.plans.length ? duesStatement(duesPlan.plans, duesPaid, todayInAccra()) : null;
   let attention: { kicker: string; title: string; body: string; href: string } | null = null;
   if (member.status !== "verified") {
     attention = { kicker: "Your place", title: "Waiting on confirmation", body: "Two verified cot mates, or an executive who is not you, confirm a claim.", href: "me" };
   } else if (due[0]) {
     attention = { kicker: "Instalment", title: String(due[0].title), body: `A part is due ${String(due[0].due_on)}.`, href: "give" };
+  } else if (dues && dues.outstanding > 0) {
+    const behind = dues.periods.filter((p) => p.state !== "paid").map((p) => p.label);
+    attention = {
+      kicker: "Dues",
+      title: `${(dues.outstanding / 100).toLocaleString("en-GH", { style: "currency", currency: "GHS", maximumFractionDigits: 0 })} due`,
+      body: `For ${behind.join(" and ")}. Two taps to pay, and the receipt comes straight back.`,
+      href: "dues",
+    };
   } else if (num(expense[0]?.n) > 0) {
     attention = { kicker: "Approval", title: "An expense is waiting", body: "It does not move until someone other than the requester approves it.", href: "control" };
   } else if (num(refunds[0]?.n) > 0) {
@@ -503,6 +515,7 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
       : null,
     hero: hero ? { id: String(hero.id), title: String(hero.title), story: String(hero.story), target: num(hero.target_pesewas), raised, givers: num(heroGivers[0]?.n) } : null,
     given: { total: num(mine[0]?.total), count: num(mine[0]?.n) },
+    dues: dues ? { outstanding: dues.outstanding, rate: dues.rate, period: dues.period, ahead: dues.ahead, current: dues.periods.find((p) => p.current) ?? null } : null,
     circles: circles.map((c) => ({ id: String(c.id), name: String(c.name), kind: String(c.kind), purpose: String(c.purpose) })),
     feed: feed.map((p) => ({
       id: String(p.id),
@@ -908,7 +921,7 @@ export const startPayment = createServerFn({ method: "POST" }).validator(parsePa
 
 async function intentView(sql: Sql, orgId: string, intentId: string, memberId: string) {
   const rows = await sql<Record<string, unknown>>`
-    select pi.*, pr.title as purpose_title, m.display_name as payer, m.phone as payer_phone, h.name as house
+    select pi.*, pr.title as purpose_title, pr.type as purpose_type, m.display_name as payer, m.phone as payer_phone, h.name as house
     from payment_intent pi
     join purpose pr on pr.id = pi.purpose_id
     join membership m on m.id = pi.membership_id
@@ -927,7 +940,7 @@ async function intentView(sql: Sql, orgId: string, intentId: string, memberId: s
     provider: String(row.provider), authorizationUrl: str(row.authorization_url),
     receipt: receipt[0]?.number ?? null, voided: receipt[0]?.voided === true,
     purposeId: String(row.purpose_id), payer: String(row.payer), payerPhone: str(row.payer_phone), house: str(row.house),
-    paidAt: str(row.paid_at), pledged: row.pledge_id != null,
+    paidAt: str(row.paid_at), pledged: row.pledge_id != null, kind: String(row.purpose_type),
   };
 }
 
@@ -1011,6 +1024,69 @@ export const publicReceipt = createServerFn({ method: "POST" })
       };
     }),
   );
+
+/** The year group's dues rates, oldest first, and the purpose dues are paid into. */
+export async function duesPlans(sql: Sql, orgId: string) {
+  const rows = await sql<{ amount_pesewas: number; period: string; starts_on: string; purpose_id: string }>`
+    select amount_pesewas, period, starts_on::text as starts_on, purpose_id from dues_plan
+    where organisation_id = ${orgId} order by starts_on
+  `;
+  const plans: DuesPlan[] = rows.map((r) => ({ amount: num(r.amount_pesewas), period: r.period === "month" ? "month" : "year", startsOn: String(r.starts_on) }));
+  return { plans, purposeId: rows.length ? String(rows[rows.length - 1].purpose_id) : null };
+}
+
+/** What each member has paid towards dues: gateway-confirmed fund credits less refunds, from the ledger. */
+export async function duesPaidBy(sql: Sql, orgId: string, memberId?: string) {
+  const rows = await sql.query<{ membership_id: string; net: number }>(
+    `select pi.membership_id,
+       coalesce(sum(case when le.direction = 'credit' then le.amount_pesewas else -le.amount_pesewas end), 0)::int as net
+     from payment_intent pi
+     join purpose pr on pr.id = pi.purpose_id and pr.type = 'dues'
+     join ledger_entry le on le.intent_id = pi.id and le.account = 'fund'
+     where pi.organisation_id = $1 and pi.status = 'succeeded' ${memberId ? "and pi.membership_id = $2" : ""}
+     group by pi.membership_id`,
+    memberId ? [orgId, memberId] : [orgId],
+  );
+  return new Map(rows.map((r) => [String(r.membership_id), Math.max(0, num(r.net))]));
+}
+
+export function todayInAccra() {
+  // Ghana keeps GMT all year, so the UTC date is the local date.
+  return new Date().toISOString().slice(0, 10);
+}
+
+/** My dues: the rate, every period owed, what is paid and what is left, and my dues payments. */
+export const duesData = createServerFn({ method: "POST" }).validator(slugOf).middleware([authMiddleware]).handler(async ({ data: slug, context }) => {
+  const sql = await getSql();
+  const { org, member } = await requireMember(sql, slug, context.userId);
+  const { plans, purposeId } = await duesPlans(sql, org.id);
+  const paid = (await duesPaidBy(sql, org.id, member.id)).get(member.id) ?? 0;
+  const statement = duesStatement(plans, paid, todayInAccra());
+  const purpose = purposeId
+    ? await sql<{ id: string; title: string; story: string; status: string }>`select id, title, story, status from purpose where id = ${purposeId} and organisation_id = ${org.id}`
+    : [];
+  const history = await sql<Record<string, unknown>>`
+    select pi.id, pi.gift_pesewas, pi.charge_pesewas, coalesce(pi.paid_at, pi.created_at)::text as at, r.number
+    from payment_intent pi
+    join purpose pr on pr.id = pi.purpose_id and pr.type = 'dues'
+    left join receipt r on r.intent_id = pi.id and r.refund_of is null
+    where pi.organisation_id = ${org.id} and pi.membership_id = ${member.id} and pi.status = 'succeeded'
+    order by coalesce(pi.paid_at, pi.created_at) desc limit 24
+  `;
+  await track(sql, org.id, member.id, "money", "dues_viewed", "");
+  return {
+    open: purpose[0]?.status === "open" && plans.length > 0,
+    purposeId: purpose[0]?.id ?? null,
+    title: purpose[0]?.title ?? "Dues",
+    story: purpose[0]?.story ?? "",
+    verified: member.status === "verified",
+    gatewayFeeBps: org.gatewayFeeBps,
+    platformFeeBps: org.platformFeeBps,
+    since: plans[0]?.startsOn ?? null,
+    statement,
+    history: history.map((h) => ({ id: String(h.id), amount: num(h.gift_pesewas), charge: num(h.charge_pesewas), at: String(h.at), receipt: str(h.number) })),
+  };
+});
 
 export const myReceipts = createServerFn({ method: "POST" }).validator(slugOf).middleware([authMiddleware]).handler(async ({ data: slug, context }) => {
   const sql = await getSql();

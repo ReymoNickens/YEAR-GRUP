@@ -47,11 +47,13 @@ export function GiveList({ slug }: { slug: string }) {
             <ul className="ruled-list">
               {rest.map((p) => (
                 <li key={p.id}>
-                  <Link href={`/o/${slug}/give/${p.id}`} className="group flex items-center gap-4 py-5 hover:bg-sunk/40">
+                  <Link href={p.type === "dues" ? `/o/${slug}/dues` : `/o/${slug}/give/${p.id}`} className="group flex items-center gap-4 py-5 hover:bg-sunk/40">
                     <span className="min-w-0 flex-1">
                       <span className="kicker block">{KIND[p.type] ?? p.type}</span>
                       <span className="mt-2 block font-display text-[1.75rem] leading-[1.02] tracking-[-0.01em]">{p.title}</span>
-                      {p.target > 0 ? (
+                      {p.type === "dues" ? (
+                        <span className="mt-1.5 block text-[13px] text-muted">See what you owe, what you have paid, and pay what is due.</span>
+                      ) : p.target > 0 ? (
                         <span className="mt-3 block">
                           <Bar value={p.raised} max={p.target} label={`${p.title}: raised so far`} height={4} />
                           <span className="mt-2 block text-[13px] text-muted tabular-nums">{wholeCedis(p.raised)} of {wholeCedis(p.target)}</span>

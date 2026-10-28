@@ -5,7 +5,7 @@ import { devFlag, fail, nid } from "./util.ts";
 
 export const STEP_UP_TTL_SECONDS = 300;
 /** Money, roles and settings: every action that needs a fresh code. */
-export const STEP_UP_ACTIONS = ["expense", "expense_pay", "refund", "refund_request", "settlement", "role", "phone_recover"] as const;
+export const STEP_UP_ACTIONS = ["expense", "expense_pay", "refund", "refund_request", "settlement", "role", "phone_recover", "dues"] as const;
 export type StepUpAction = (typeof STEP_UP_ACTIONS)[number];
 
 type Ctx = { userId: string; orgId: string; memberId: string };

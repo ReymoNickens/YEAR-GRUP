@@ -1,5 +1,5 @@
 "use client";
-import { ArrowRight, ArrowUpRight, CalendarDays, Heart, Images, Mail, Share2 } from "lucide-react";
+import { ArrowRight, ArrowUpRight, CalendarCheck, CalendarDays, Heart, Images, Share2 } from "lucide-react";
 import Link from "next/link";
 import { homeData } from "@/lib/hub/api";
 import { roleTitle } from "@/lib/hub/roles";
@@ -15,6 +15,7 @@ function attentionHref(slug: string, href: string) {
   if (href === "control") return `/o/${slug}/control/money`;
   if (href === "give") return `/o/${slug}/give`;
   if (href === "me") return `/o/${slug}/me`;
+  if (href === "dues") return `/o/${slug}/dues`;
   return `/o/${slug}/m/events`;
 }
 
@@ -68,6 +69,7 @@ function HomeBody({ slug, data, reload }: { slug: string; data: Home; reload: ()
         <QuickActions slug={slug} />
 
         <div className="lg:hidden">
+          {data.dues ? <YourDues slug={slug} dues={data.dues} /> : null}
           <YourGiving slug={slug} given={data.given} />
           {data.notice ? <Notice slug={slug} notice={data.notice} /> : null}
         </div>
@@ -97,6 +99,7 @@ function HomeBody({ slug, data, reload }: { slug: string; data: Home; reload: ()
 
       <aside className="hidden lg:block">
         <div className="sticky top-12 space-y-0">
+          {data.dues ? <YourDues slug={slug} dues={data.dues} /> : null}
           <YourGiving slug={slug} given={data.given} />
           {data.notice ? <Notice slug={slug} notice={data.notice} /> : null}
           <MyCircles slug={slug} circles={data.circles} />
@@ -149,10 +152,10 @@ function AppealPoster({ slug, hero, org }: { slug: string; hero: NonNullable<Hom
 }
 
 const QUICK = [
+  { href: "dues", label: "Dues", icon: CalendarCheck },
   { href: "give", label: "Give", icon: Heart },
   { href: "m/events", label: "Events", icon: CalendarDays },
   { href: "m/photos", label: "Photos", icon: Images },
-  { href: "m/inbox", label: "Messages", icon: Mail },
 ] as const;
 
 function QuickActions({ slug }: { slug: string }) {
@@ -165,6 +168,23 @@ function QuickActions({ slug }: { slug: string }) {
         </Link>
       ))}
     </nav>
+  );
+}
+
+/** Dues at a glance: what is due now, or paid up; one tap to the statement and to pay. */
+function YourDues({ slug, dues }: { slug: string; dues: NonNullable<Home["dues"]> }) {
+  const due = dues.outstanding > 0;
+  return (
+    <Section title="Your dues" action={<SectionLink href={`/o/${slug}/dues`}>Statement</SectionLink>} className="mt-12 lg:mt-0 lg:mb-12">
+      <Link href={`/o/${slug}/dues`} className={`group mt-1 flex items-center gap-4 border-l-[3px] py-3 pl-4 transition-colors hover:bg-sunk/40 ${due ? "border-crimson" : "border-paid"}`}>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[13px] text-muted">{due ? "Due now" : "All paid up"}</span>
+          <span className="figure mt-1 block text-[2rem]">{due ? wholeCedis(dues.outstanding) : dues.current?.label ?? "Thank you"}</span>
+          <span className="mt-1 block text-[13px] text-muted">{wholeCedis(dues.rate)} {dues.period === "month" ? "a month" : "a year"}{!due && dues.ahead > 0 ? ` · ${wholeCedis(dues.ahead)} paid ahead` : ""}</span>
+        </span>
+        <span className={`btn btn-sm shrink-0 ${due ? "btn-red" : "btn-quiet"}`}>{due ? "Pay" : "View"}</span>
+      </Link>
+    </Section>
   );
 }
 

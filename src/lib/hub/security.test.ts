@@ -162,6 +162,15 @@ describe("tenant isolation enforced by the database", () => {
     const none = await db.scoped(as("u", null, null), (sql) => sql<{ id: string }>`select id from membership`);
     assert.equal(none.length, 0); // no organisation set, nothing visible
   });
+  it("dues rates stay inside the organisation, and are history that cannot be edited", async () => {
+    await db.system.query("insert into purpose(id,organisation_id,type,title,story,target_pesewas,status,hero) values('x_dues','org_x','dues','Dues','',0,'open',false) on conflict do nothing");
+    await db.system.query("insert into dues_plan(id,organisation_id,purpose_id,amount_pesewas,period,starts_on) values('x_dp','org_x','x_dues',5000,'year','2025-01-01') on conflict do nothing");
+    const seen = await db.scoped(as("u", m1), (sql) => sql<{ id: string }>`select id from dues_plan`);
+    assert.ok(seen.length > 0 && seen.every((r) => r.id !== "x_dp")); // own plan visible, the other tenant's not
+    await assert.rejects(() => db.scoped(as("u", m1), (sql) => sql`insert into dues_plan(id,organisation_id,purpose_id,amount_pesewas,period,starts_on) values('evil_dp','org_x','x_dues',1,'year','2030-01-01')`), /row-level security/);
+    await assert.rejects(() => db.scoped(as("u", m1), (sql) => sql`update dues_plan set amount_pesewas = 1 where organisation_id = ${ORG}`), /history/);
+    await assert.rejects(() => db.scoped(as("u", m1), (sql) => sql`delete from dues_plan where organisation_id = ${ORG}`), /history/);
+  });
   it("hidden circles, their posts and their members are invisible to outsiders", async () => {
     await db.system.query("insert into circle(id,organisation_id,kind,visibility,name,purpose,slug) values('hid','org_2007','voluntary','hidden','Quiet','','quiet')");
     await db.system.query("insert into circle_member(organisation_id,circle_id,membership_id,source) values('org_2007','hid',$1,'joined')", [m1]);

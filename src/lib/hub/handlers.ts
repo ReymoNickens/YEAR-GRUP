@@ -10,6 +10,8 @@ import {
   audit,
   beginGateway,
   canOpenControl,
+  duesPlans,
+  duesPaidBy,
   fail,
   isOfficer,
   isTreasurer,
@@ -21,8 +23,10 @@ import {
   scopeOf,
   slugOf,
   str,
+  todayInAccra,
   track,
 } from "@/lib/hub/core";
+import { duesStatement } from "@/lib/hub/dues";
 import { enqueue } from "@/lib/hub/outbox";
 import { approveRefund, confirmSettlement, recordExpensePayout, rejectRefund, requestRefund } from "@/lib/hub/payments";
 import { createRefund, verifyTransaction } from "@/lib/hub/paystack";
@@ -38,6 +42,7 @@ export {
   abandonIntent,
   circleDetail,
   circleList,
+  duesData,
   feedData,
   homeData,
   intentState,
@@ -821,6 +826,39 @@ export const hubAct = createServerFn({ method: "POST" }).validator((input: unkno
     return { ok: true };
   }
 
+  if (type === "dues_plan") {
+    if (!(isTreasurer(roles) || roles.some((r) => r.role === "organisation_admin" || r.role === "executive"))) fail("Dues are set by the treasurer or an executive.");
+    const amount = num(data.amountPesewas);
+    const period = data.period === "month" ? "month" : "year";
+    const startsOn = String(data.startsOn ?? "");
+    if (!Number.isInteger(amount) || amount < 100) fail("Enter the dues amount.");
+    if (amount > 10_000_000) fail("That is more than a year group would ask in dues.");
+    if (!/^\d{4}-\d{2}-01$/.test(startsOn)) fail("Choose when the new rate starts.");
+    if (period === "year" && !startsOn.endsWith("-01-01")) fail("A yearly rate starts on 1 January.");
+    const existing = await duesPlans(sql, org.id);
+    const last = existing.plans[existing.plans.length - 1];
+    if (last) {
+      // A new rate applies from now on; the past keeps the rate members were asked at the time.
+      const nowStart = period === "year" ? `${todayInAccra().slice(0, 4)}-01-01` : `${todayInAccra().slice(0, 7)}-01`;
+      if (startsOn < nowStart) fail("A new rate can start this period or later, not in the past.");
+      if (startsOn <= last.startsOn) fail("A rate already starts then. Choose a later start.");
+      if (last.period !== period) fail("Keep the same period as the current rate.");
+    }
+    await stepUp("dues");
+    let purposeId = existing.purposeId;
+    if (!purposeId) {
+      const open = await sql<{ id: string }>`select id from purpose where organisation_id = ${org.id} and type = 'dues' and status = 'open' order by id limit 1`;
+      purposeId = open[0]?.id ?? nid("pur");
+      if (!open[0]) {
+        await sql`insert into purpose (id, organisation_id, type, title, story, target_pesewas, status, hero) values (${purposeId}, ${org.id}, 'dues', 'Year group dues', 'What keeps the year group able to meet, write and show up.', 0, 'open', false)`;
+      }
+    }
+    const id = nid("dp");
+    await sql`insert into dues_plan (id, organisation_id, purpose_id, amount_pesewas, period, starts_on, created_by) values (${id}, ${org.id}, ${purposeId}, ${amount}, ${period}, ${startsOn}, ${member.id})`;
+    await audit(sql, org.id, member.id, "dues_plan_set", `${amount} pesewas a ${period} from ${startsOn}`);
+    return { ok: true, id };
+  }
+
   if (type === "expense_submit") {
     if (!officer) fail("Expenses are raised by an officer.");
     const amount = num(data.amountPesewas);
@@ -1071,6 +1109,33 @@ export const controlData = createServerFn({ method: "POST" }).validator((input: 
       select count(*)::int as n, coalesce(sum(charge_pesewas - gateway_fee_pesewas - platform_fee_pesewas), 0)::int as net
       from payment_intent where organisation_id = ${org.id} and status = 'succeeded' and provider <> 'test' and settled_at is null
     `;
+    // Dues: every confirmed member's standing, so officers can see who is paid up and who to remind.
+    const duesPlan = await duesPlans(sql, org.id);
+    const duesPaid = await duesPaidBy(sql, org.id);
+    const roll = await sql<Record<string, unknown>>`
+      select m.id, m.nickname, m.display_name, h.name as house from membership m
+      left join structure_node h on h.id = m.house_node_id
+      where m.organisation_id = ${org.id} and m.status = 'verified' order by m.display_name
+    `;
+    const today = todayInAccra();
+    const duesRows = duesPlan.plans.length
+      ? roll.map((m) => {
+          const st = duesStatement(duesPlan.plans, duesPaid.get(String(m.id)) ?? 0, today);
+          return {
+            id: String(m.id), name: String(m.nickname || m.display_name), full: String(m.display_name), house: str(m.house),
+            paid: st.paid, outstanding: st.outstanding, state: st.outstanding === 0 ? "paid" : st.paid > 0 ? "part" : "due",
+          };
+        })
+      : [];
+    const latest = duesPlan.plans[duesPlan.plans.length - 1];
+    const duesBox = {
+      plan: latest ? { rate: latest.amount, period: latest.period, since: duesPlan.plans[0].startsOn, latestFrom: latest.startsOn } : null,
+      members: duesRows,
+      paidUp: duesRows.filter((r) => r.state === "paid").length,
+      collected: duesRows.reduce((n, r) => n + r.paid, 0),
+      outstanding: duesRows.reduce((n, r) => n + r.outstanding, 0),
+      canSet: isTreasurer(roles) || roles.some((r) => r.role === "organisation_admin" || r.role === "executive"),
+    };
     return {
       area,
       paymentMode: org.paymentMode,
@@ -1089,6 +1154,7 @@ export const controlData = createServerFn({ method: "POST" }).validator((input: 
       outstanding: num(pledges[0]?.total),
       twoApprover: org.twoApprover,
       seeNames,
+      dues: duesBox,
       expenses: expenses.map((e) => ({
         id: String(e.id),
         amount: num(e.amount_pesewas),
