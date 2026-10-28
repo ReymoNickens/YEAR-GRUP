@@ -1,9 +1,12 @@
 "use client";
+import { BadgeCheck } from "lucide-react";
+import { roleTitle } from "@/lib/hub/roles";
 import Link from "next/link";
 import { homeData } from "@/lib/hub/api";
 import { Shell } from "@/components/hub/shell";
 import { Bar, Cover, Money, Note, SampleTag, State } from "@/components/hub/ui";
 import { useHub } from "@/components/hub/use-hub";
+import { DemoConfirm } from "@/components/hub/demo-confirm";
 
 function attentionHref(slug: string, href: string) {
   if (href === "control") return `/o/${slug}/control/money`;
@@ -13,13 +16,13 @@ function attentionHref(slug: string, href: string) {
 }
 
 export function HomeScreen({ slug }: { slug: string }) {
-  const { data, error, loading } = useHub(`home-${slug}`, () => homeData({ data: slug }));
+  const { data, error, loading, reload } = useHub(`home-${slug}`, () => homeData({ data: slug }));
   return (
     <Shell slug={slug} title={data?.org.name} eyebrow={data?.org.branding.motto}>
       <State loading={loading} error={error}>
         {data ? (
           <div className="space-y-6">
-            <p className="rounded-2xl bg-gold-soft px-4 py-3 text-sm text-gold">
+            <p className="demo-hide rounded-2xl bg-gold-soft px-4 py-3 text-sm text-gold">
               Classmates marked Sample are fictional, so the school is not empty. They leave when the real list is imported.
             </p>
             {data.attention ? (
@@ -27,6 +30,17 @@ export function HomeScreen({ slug }: { slug: string }) {
                 <p className="text-xs tracking-widest text-gold uppercase">{data.attention.kicker}</p>
                 <h2 className="mt-1 font-display text-3xl">{data.attention.title}</h2>
                 <p className="mt-2 text-muted">{data.attention.body}</p>
+              </Link>
+            ) : null}
+            {data.attention?.kicker === "Your place" ? <DemoConfirm slug={slug} onDone={reload} /> : null}
+            {data.notice ? (
+              <Link href={`/o/${slug}/m/inbox`} className="block rounded-3xl border border-line bg-card p-5">
+                <p className="flex items-center gap-1.5 text-xs tracking-widest text-gold uppercase">
+                  <BadgeCheck className="size-4" aria-hidden />
+                  From the {data.notice.role ? roleTitle(data.notice.role).toLowerCase() : "executive"} · to {data.notice.audience}
+                </p>
+                <p className="mt-2 text-lg leading-snug">{data.notice.body}</p>
+                <p className="mt-3 text-sm text-muted">{data.notice.from}{data.notice.role ? `, ${roleTitle(data.notice.role)}` : ""} · verified sender</p>
               </Link>
             ) : null}
             {data.hero ? (
@@ -39,7 +53,10 @@ export function HomeScreen({ slug }: { slug: string }) {
                 <p className="mt-5 font-display text-3xl tabular-nums">
                   <Money value={data.hero.raised} />
                 </p>
-                <p className="mb-3 text-sm text-gold-soft">of <Money value={data.hero.target} /></p>
+                <p className="mb-3 text-sm text-gold-soft">
+                  of <Money value={data.hero.target} />
+                  {data.hero.target > 0 ? ` · we are ${Math.floor((data.hero.raised / data.hero.target) * 100)}% there` : ""}
+                </p>
                 <Bar value={data.hero.raised} max={data.hero.target} tone="onDark" label="Raised so far" />
                 <Link href={`/o/${slug}/give/${data.hero.id}`} className="mt-5 flex h-12 items-center justify-center rounded-full bg-card text-ink">
                   Give

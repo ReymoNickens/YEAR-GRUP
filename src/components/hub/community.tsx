@@ -6,6 +6,7 @@ import { hubAct } from "@/lib/hub/act";
 import { Shell } from "@/components/hub/shell";
 import { Back, Button, Field, Note, SampleTag, State } from "@/components/hub/ui";
 import { useHub } from "@/components/hub/use-hub";
+import { memberState } from "@/lib/hub/words";
 
 /** Where you sat comes first, in the order the school was lived: year, house, dorm, cot, programme, class. */
 const SCHOOL_ORDER = ["year", "house", "dorm", "cot", "programme", "class"];
@@ -190,7 +191,10 @@ export function PersonPage({ slug, memberId }: { slug: string; memberId: string 
       <State loading={loading} error={error}>
         {p ? (
           <div className="space-y-4">
-            <p className="text-sm text-gold">{p.sample ? "Sample classmate. Not a real old boy." : p.status}</p>
+            <p className="text-sm text-gold">
+              {p.sample ? <span className="demo-hide">Sample classmate. Not a real old boy. </span> : null}
+              <span className={p.sample ? "hidden [[data-demo]_&]:inline" : ""}>{memberState(p.status)}</span>
+            </p>
             <h1 className="font-display text-4xl">{p.nickname || p.displayName}</h1>
             <p className="text-muted">{p.displayName}</p>
             <p>{[p.profession, p.city, p.houseName, p.className].filter(Boolean).join(" · ")}</p>

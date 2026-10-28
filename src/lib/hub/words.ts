@@ -52,3 +52,27 @@ export const channelName = (code: string) => CHANNELS[code] ?? fallback(code);
 export const deliveryState = (code: string) => DELIVERY[code] ?? fallback(code);
 export const accountName = (code: string) => ACCOUNTS[code] ?? fallback(code);
 export const areaName = (code: string) => AREAS[code] ?? fallback(code);
+
+const MEMBER_STATES: Record<string, string> = {
+  verified: "Confirmed member",
+  claimed: "Waiting on confirmation",
+  approved: "On the list, not yet joined",
+  invited: "Invited",
+};
+export const memberState = (code: string) => MEMBER_STATES[code] ?? fallback(code);
+
+const EXPENSE_STATES: Record<string, string> = {
+  submitted: "Waiting for approval",
+  partially_approved: "One signature, needs a second",
+  approved: "Approved, not yet paid",
+  paid: "Paid",
+  rejected: "Turned down",
+};
+export const expenseState = (code: string) => EXPENSE_STATES[code] ?? fallback(code);
+
+const REFUND_STATES: Record<string, string> = {
+  awaiting_approval: "Waiting for a second person",
+  approved: "Refunded",
+  rejected: "Declined",
+};
+export const refundState = (code: string) => REFUND_STATES[code] ?? fallback(code);

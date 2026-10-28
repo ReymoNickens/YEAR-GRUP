@@ -168,7 +168,7 @@ export function Note({ children }: { children: ReactNode }) {
 }
 
 export function SampleTag() {
-  return <span className="rounded-full bg-gold-soft px-2 py-0.5 text-xs font-medium text-gold">Sample</span>;
+  return <span className="demo-hide rounded-full bg-gold-soft px-2 py-0.5 text-xs font-medium text-gold">Sample</span>;
 }
 
 export function State({

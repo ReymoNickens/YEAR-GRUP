@@ -54,3 +54,16 @@ test("an unknown rule fails closed", () => {
   assert.equal(evaluateClaim("something_new", { ...base, confirmations: [peer(), peer(), peer({ isExecutive: true })] }).verified, false);
   assert.equal(evaluateClaim("something_new", { ...base, confirmations: [peer({ isAdmin: true })] }).verified, true);
 });
+
+test("expenses: treasurer or executive signs; large ones need both", async () => {
+  const { expenseSignerOf, expenseStatusAfter } = await import("./rules.ts");
+  assert.equal(expenseSignerOf(["secretary"]), null);
+  assert.equal(expenseSignerOf(["house_captain"]), null);
+  assert.equal(expenseSignerOf(["treasurer", "executive"]), "treasurer");
+  assert.equal(expenseSignerOf(["organisation_admin"]), "executive");
+  assert.equal(expenseStatusAfter(45_000, 200_000, ["treasurer"]), "approved");
+  assert.equal(expenseStatusAfter(45_000, 200_000, ["executive"]), "approved");
+  assert.equal(expenseStatusAfter(350_000, 200_000, ["executive"]), "partially_approved");
+  assert.equal(expenseStatusAfter(350_000, 200_000, ["executive", "executive"]), "partially_approved");
+  assert.equal(expenseStatusAfter(350_000, 200_000, ["executive", "treasurer"]), "approved");
+});

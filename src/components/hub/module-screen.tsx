@@ -33,11 +33,9 @@ const titles: Record<string, string> = {
 export function ModuleScreen({ slug, module }: { slug: string; module: string }) {
   const [q, setQ] = useState("");
   const [nodeId, setNodeId] = useState("");
-  const [tick, setTick] = useState(0);
-  const { data, error, loading } = useHub(`${module}-${q}-${nodeId}-${tick}`, () =>
+  const { data, error, loading, reload } = useHub(`${module}-${q}-${nodeId}`, () =>
     readModule({ data: { slug, module, q, nodeId } }),
   );
-  const reload = () => setTick((n) => n + 1);
   const bag = (data ?? {}) as Record<string, unknown>;
   return (
     <Shell slug={slug}>

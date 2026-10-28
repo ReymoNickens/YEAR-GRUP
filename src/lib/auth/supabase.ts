@@ -2,6 +2,8 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { createHash } from "node:crypto";
 import { cookies } from "next/headers";
+import { DEMO_COOKIE, readDemoCookie } from "@/lib/demo";
+import { demoMode } from "@/lib/hub/util";
 
 /** Supabase client for server code, reading and refreshing the session cookie. */
 export async function supabaseServer() {
@@ -37,6 +39,10 @@ async function devUser(): Promise<SessionUser | null> {
 
 /** The verified signed-in person, or null. getClaims checks the token signature. */
 export async function currentUser(): Promise<SessionUser | null> {
+  if (demoMode()) {
+    const demo = readDemoCookie((await cookies()).get(DEMO_COOKIE)?.value);
+    return demo ? { userId: demo.userId, email: null, name: demo.persona.memberId ? demo.persona.name : null, avatar: null } : null;
+  }
   const dev = await devUser();
   if (dev) return dev;
   const supabase = await supabaseServer();

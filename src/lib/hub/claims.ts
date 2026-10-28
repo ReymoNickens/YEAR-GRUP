@@ -38,6 +38,20 @@ async function markVerified(sql: Sql, org: OrgRef, m: PlacementRow, byMembership
 }
 
 /**
+ * The executive demo only: let a new visitor skip waiting for cot mates, so they
+ * can try giving straight away. The caller checks that demo mode is on.
+ */
+export async function demoConfirm(sql: Sql, org: OrgRef, membershipId: string) {
+  const rows = await sql<PlacementRow>`
+    select id, status, user_id, display_name, phone, house_node_id, dorm_node_id, cot_node_id, programme_node_id, class_node_id
+    from membership where id = ${membershipId} and organisation_id = ${org.id}
+  `;
+  if (!rows[0]) fail("Join the year group first.");
+  if (rows[0].status === "verified") return;
+  await markVerified(sql, org, rows[0], null, "confirmed straight away in the demo");
+}
+
+/**
  * A person who has proved their phone takes the place that was approved for that
  * number. The place keeps its placement. Whether they are then verified is the
  * organisation's rule, not ours.

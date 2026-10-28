@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Fraunces, Outfit } from "next/font/google";
+import { DemoRibbon } from "@/components/demo-ribbon";
 import { OfflineSync } from "@/components/offline-sync";
+import { demoMode } from "@/lib/hub/util";
 import "./globals.css";
 
 const display = Fraunces({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-fraunces", display: "swap" });
@@ -27,8 +29,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${sans.variable}`}>
+    <html lang="en" className={`${display.variable} ${sans.variable}`} data-demo={demoMode() ? "" : undefined}>
       <body>
+        <DemoRibbon />
         <OfflineSync />
         {children}
       </body>

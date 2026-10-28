@@ -85,3 +85,11 @@
   from { transform: scale(0.6); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
+
+/* In the executive demo every classmate is made up, and the ribbon says so once. */
+[data-demo] .demo-hide { display: none !important; }
+
+@keyframes sheet {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}

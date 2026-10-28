@@ -4,10 +4,12 @@ import { Shell } from "@/components/hub/shell";
 import { Cover, YearSignIn } from "@/components/hub/ui";
 import { currentUser } from "@/lib/auth/supabase";
 import { getSystemSql } from "@/lib/db";
+import { demoMode } from "@/lib/hub/util";
 
 /** The front door. Signed out: one promise and one button. Signed in: straight to your year group. */
 export default async function Door() {
   const user = await currentUser();
+  if (demoMode() && !user) redirect("/demo");
   if (!user) {
     return (
       <Shell nav={false} title="Year Group Hub" eyebrow="Find your year group">

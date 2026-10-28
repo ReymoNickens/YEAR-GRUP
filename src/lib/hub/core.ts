@@ -11,7 +11,7 @@ import { buildInitializePayload, initializeTransaction, verifyTransaction } from
 import { normalisePhone, maskPhone } from "@/lib/hub/phone";
 import { createSmsProvider } from "@/lib/hub/sms";
 import { requestStepUp, confirmStepUp, STEP_UP_ACTIONS, type StepUpAction } from "@/lib/hub/stepup";
-import { devFlag, fail, like, nid, num, str } from "@/lib/hub/util";
+import { demoMode, devFlag, fail, like, nid, num, str } from "@/lib/hub/util";
 
 export { audit, track, fail, like, nid, num, str };
 
@@ -469,11 +469,27 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
   } else if (event[0]) {
     attention = { kicker: "Coming up", title: String(event[0].title), body: `${String(event[0].place)}. Say if you are coming.`, href: `event:${String(event[0].id)}` };
   }
+  // The latest announcement that reached this member, signed with the sender's name and title.
+  const notice = await sql<Record<string, unknown>>`
+    select a.body, a.audience, a.created_at::text as created_at, m.display_name, m.nickname,
+      (select r.role from role_assignment r where r.membership_id = a.author_membership_id
+         order by array_position(array['organisation_admin','executive','treasurer','secretary','house_captain','dorm_prefect','cot_leader','class_representative'], r.role) limit 1) as role
+    from announcement a join membership m on m.id = a.author_membership_id
+    where a.organisation_id = ${org.id} and a.created_at > now() - interval '21 days'
+      and exists (select 1 from outbox o where o.idempotency_key = 'an:' || a.id || ':' || ${member.id} || ':in_app')
+    order by a.created_at desc limit 1
+  `;
   return {
     org,
     member: publicPerson(member, roles, true),
     roles: roles.map((r) => r.role),
     control: canOpenControl(roles),
+    notice: notice[0]
+      ? {
+          body: String(notice[0].body), audience: String(notice[0].audience), at: String(notice[0].created_at),
+          from: String(notice[0].display_name), role: str(notice[0].role),
+        }
+      : null,
     hero: hero ? { id: String(hero.id), title: String(hero.title), story: String(hero.story), target: num(hero.target_pesewas), raised } : null,
     circles: circles.map((c) => ({ id: String(c.id), name: String(c.name), kind: String(c.kind), purpose: String(c.purpose) })),
     feed: feed.map((p) => ({
@@ -777,6 +793,7 @@ export async function beginGateway(
   plan: { charge: number; platformFee: number }, reference: string,
 ): Promise<string | null> {
   if (org.paymentMode !== "live") return null;
+  if (demoMode()) fail("This is the demo. Live payments are switched off here.");
   const secret = paystackSecret();
   if (!secret) fail("Live payments are not connected yet.");
   if (!org.paystackSubaccount) fail("This year group has not connected its payment account yet.");

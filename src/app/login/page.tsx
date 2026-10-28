@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { Shell } from "@/components/hub/shell";
 import { YearSignIn } from "@/components/hub/ui";
 import { currentUser } from "@/lib/auth/supabase";
+import { demoMode } from "@/lib/hub/util";
 
 export const metadata = { title: "Sign in" };
 
@@ -9,6 +10,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
   const { next: raw, error } = await searchParams;
   const next = raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : "/";
   if (await currentUser()) redirect(next);
+  if (demoMode()) redirect("/demo");
   return (
     <Shell nav={false} title="Year Group Hub" eyebrow="Sign in">
       <h1 className="font-display text-4xl">Sign in to take your place.</h1>

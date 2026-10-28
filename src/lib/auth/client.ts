@@ -30,6 +30,10 @@ export async function signOut() {
   } catch {
     /* storage unavailable */
   }
+  if (document.documentElement.hasAttribute("data-demo")) {
+    window.location.assign("/demo/leave");
+    return;
+  }
   await supabaseBrowser().auth.signOut();
   window.location.assign("/");
 }

@@ -39,7 +39,20 @@ export function isProduction(): boolean {
   return process.env.NODE_ENV === "production";
 }
 
-/** Dev conveniences (test gateway, on-screen codes) are off in production no matter what. */
+/**
+ * The executive demo (HUB_DEMO=1): a hosted copy with fictional classmates and
+ * test money, where visitors choose who to be instead of signing in. Never set
+ * it on the real hub; live payments refuse to start while it is on.
+ */
+export function demoMode(): boolean {
+  return process.env.HUB_DEMO === "1";
+}
+
+/** What the demo switches on: codes on screen, the test gateway, and CONFIRM in place of a text code. */
+const DEMO_CONVENIENCES = new Set(["HUB_DEV_OTP", "HUB_ALLOW_TEST_GATEWAY", "HUB_ALLOW_TEST_STEPUP"]);
+
+/** Dev conveniences (test gateway, on-screen codes) are off in production, except in the demo. */
 export function devFlag(name: string): boolean {
+  if (demoMode() && DEMO_CONVENIENCES.has(name)) return true;
   return !isProduction() && process.env[name] === "1";
 }

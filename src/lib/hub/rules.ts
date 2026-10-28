@@ -68,3 +68,21 @@ export function evaluateClaim(rule: string, facts: ClaimFacts): ClaimDecision {
   if (eligible.length > 0) return { verified: true, remaining: 0, reason: "An authorised officer confirmed this claim." };
   return { verified: false, remaining: 1, reason: "Waiting for an authorised officer." };
 }
+
+/**
+ * Expense approval (brief section 3): the treasurer or an executive approves,
+ * never the person who asked. At or above the organisation's threshold it needs
+ * both the treasurer and an executive. Each signer counts once.
+ */
+export type ExpenseSigner = "treasurer" | "executive";
+
+export function expenseSignerOf(roles: string[]): ExpenseSigner | null {
+  if (roles.includes("treasurer")) return "treasurer";
+  if (roles.includes("executive") || roles.includes("organisation_admin")) return "executive";
+  return null;
+}
+
+export function expenseStatusAfter(amountPesewas: number, thresholdPesewas: number, signers: ExpenseSigner[]): "approved" | "partially_approved" {
+  if (amountPesewas < thresholdPesewas) return signers.length >= 1 ? "approved" : "partially_approved";
+  return signers.includes("treasurer") && signers.includes("executive") ? "approved" : "partially_approved";
+}

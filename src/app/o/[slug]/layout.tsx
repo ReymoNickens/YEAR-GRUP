@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { OrgProvider } from "@/components/hub/org-context";
 import { currentUser } from "@/lib/auth/supabase";
 import { getSystemSql } from "@/lib/db";
+import { demoMode } from "@/lib/hub/util";
 
 /**
  * Every screen inside a year group needs a signed-in person. The year group's
@@ -12,6 +13,7 @@ export default async function OrgLayout({ children, params }: { children: React.
   const { slug } = await params;
   if (!/^[a-z0-9-]{3,60}$/.test(slug)) notFound();
   if (!(await currentUser())) {
+    if (demoMode()) redirect("/demo");
     const path = (await headers()).get("x-hub-path") ?? `/o/${slug}`;
     redirect(`/login?next=${encodeURIComponent(path)}`);
   }

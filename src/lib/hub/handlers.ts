@@ -2,7 +2,7 @@ import "server-only";
 import { authMiddleware, createServerFn } from "@/lib/server-fn";
 import { getSql, type Sql } from "@/lib/db";
 import { digestDraft, networkSearch, polish, reminderDraft, routeAsk, type Ctx as AiCtx } from "@/lib/hub/ai";
-import { confirmClaim, openClaims } from "@/lib/hub/claims";
+import { confirmClaim, demoConfirm, openClaims } from "@/lib/hub/claims";
 import { importCsv, reviewRow, squash, type Decision } from "@/lib/hub/importer";
 import { planCollection } from "@/lib/hub/money";
 import {
@@ -31,6 +31,8 @@ import { reconcile } from "@/lib/hub/reconcile";
 import { requireStepUp, type StepUpAction } from "@/lib/hub/stepup";
 import { QUEUEABLE } from "@/lib/offline-queue";
 import { firstTime, mergeProfile } from "@/lib/hub/sync";
+import { expenseSignerOf, expenseStatusAfter, type ExpenseSigner } from "@/lib/hub/rules";
+import { demoMode, devFlag } from "@/lib/hub/util";
 
 export {
   abandonIntent,
@@ -505,6 +507,12 @@ export const hubAct = createServerFn({ method: "POST" }).validator((input: unkno
     return { ok: true };
   }
 
+  if (type === "demo_confirm") {
+    if (!demoMode()) fail("That action is not available.");
+    await demoConfirm(sql, { id: org.id, name: org.name, verificationRule: org.verificationRule }, member.id);
+    return { ok: true };
+  }
+
   if (type === "join") {
     const circle = await sql<{ id: string; kind: string; visibility: string }>`
       select id, kind, visibility from circle where id = ${String(data.circleId)} and organisation_id = ${org.id}
@@ -826,7 +834,8 @@ export const hubAct = createServerFn({ method: "POST" }).validator((input: unkno
   }
 
   if (type === "expense") {
-    if (!officer) fail("Expenses are approved by an executive.");
+    const signer = expenseSignerOf(roles.map((r) => r.role));
+    if (!signer) fail("Expenses are approved by the treasurer or an executive.");
     const how = await stepUp("expense");
     const exp = await sql<Record<string, unknown>>`select * from expense where id = ${String(data.expenseId)} and organisation_id = ${org.id} for update`;
     if (!exp[0]) fail("That expense is not here.");
@@ -836,9 +845,17 @@ export const hubAct = createServerFn({ method: "POST" }).validator((input: unkno
       select approver_membership_id from approval where subject_type = 'expense' and subject_id = ${String(exp[0].id)}
     `;
     if (prior.some((p) => p.approver_membership_id === member.id)) fail("You have already signed this.");
+    const signers: ExpenseSigner[] = [signer];
+    for (const p of prior) {
+      const r = await sql<{ role: string }>`select role from role_assignment where membership_id = ${p.approver_membership_id} and organisation_id = ${org.id}`;
+      const s = expenseSignerOf(r.map((x) => x.role));
+      if (s) signers.push(s);
+    }
     const amount = num(exp[0].amount_pesewas);
-    const needsTwo = amount >= org.twoApprover;
-    const next = needsTwo && prior.length < 1 ? "partially_approved" : "approved";
+    if (amount >= org.twoApprover && prior.length > 0 && signers.every((s) => s === signer)) {
+      fail(signer === "treasurer" ? "This one also needs an executive's signature." : "This one also needs the treasurer's signature.");
+    }
+    const next = expenseStatusAfter(amount, org.twoApprover, signers);
     await sql`update expense set status = ${next} where id = ${String(exp[0].id)}`;
     await sql`
       insert into approval (id, organisation_id, subject_type, subject_id, approver_membership_id, decision, step_up)
@@ -1057,9 +1074,10 @@ export const controlData = createServerFn({ method: "POST" }).validator((input: 
     return {
       area,
       paymentMode: org.paymentMode,
-      testStepUp: Boolean(!process.env.NODE_ENV || process.env.NODE_ENV !== "production") && process.env.HUB_ALLOW_TEST_STEPUP === "1",
+      testStepUp: devFlag("HUB_ALLOW_TEST_STEPUP"),
       isTreasurer: isTreasurer(roles),
       isExec: roles.some((r) => r.role === "organisation_admin" || r.role === "executive"),
+      canApproveExpenses: expenseSignerOf(roles.map((r) => r.role)) != null,
       unsettled: { n: num(unsettled[0]?.n), net: num(unsettled[0]?.net) },
       payments: payments.map((p) => ({
         id: String(p.id), reference: String(p.reference), charge: num(p.charge_pesewas), provider: String(p.provider),
@@ -1125,8 +1143,11 @@ export const controlData = createServerFn({ method: "POST" }).validator((input: 
   }
 
   if (area === "communication") {
-    const circles = await sql<{ id: string; name: string }>`
-      select id, name from circle where organisation_id = ${org.id} and visibility <> 'hidden' order by name
+    const circles = await sql<{ id: string; name: string; kind: string; level: string | null; members: number }>`
+      select c.id, c.name, c.kind, sn.level, (select count(*)::int from circle_member cm where cm.circle_id = c.id) as members
+      from circle c left join structure_node sn on sn.id = c.node_id
+      where c.organisation_id = ${org.id} and c.visibility <> 'hidden'
+      order by sn.sort nulls last, c.name
     `;
     const recent = await sql<Record<string, unknown>>`
       select audience, body, created_at::text as created_at from announcement
