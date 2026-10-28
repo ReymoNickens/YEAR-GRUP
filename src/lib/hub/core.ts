@@ -509,7 +509,7 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
       body: String(p.body),
       at: String(p.created_at),
       circle: String(p.circle_name),
-      author: String(p.nickname || p.display_name),
+      author: String(p.nickname || p.display_name), full: String(p.display_name),
       sample: p.sample === true,
     })),
     attention,
@@ -527,7 +527,7 @@ export const feedData = createServerFn({ method: "POST" }).validator(slugOf).mid
   `;
   return feed.map((p) => ({
     id: String(p.id), body: String(p.body), at: String(p.created_at), circle: String(p.circle_name),
-    author: String(p.nickname || p.display_name), sample: p.sample === true,
+    author: String(p.nickname || p.display_name), full: String(p.display_name), sample: p.sample === true,
   }));
 });
 
@@ -618,7 +618,7 @@ export const circleDetail = createServerFn({ method: "POST" }).validator((input:
     canPost: joined && member.status === "verified",
     posts: posts.map((p) => ({
       id: String(p.id), body: String(p.body), at: String(p.created_at),
-      author: String(p.nickname || p.display_name), authorId: String(p.author_id), sample: p.sample === true,
+      author: String(p.nickname || p.display_name), full: String(p.display_name), authorId: String(p.author_id), sample: p.sample === true,
     })),
     members: members.map((m) => ({
       id: String(m.id), name: String(m.nickname || m.display_name), full: String(m.display_name),

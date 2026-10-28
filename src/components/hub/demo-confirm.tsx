@@ -22,7 +22,7 @@ export function DemoConfirm({ slug, onDone }: { slug: string; onDone: () => void
   const [err, setErr] = useState("");
   if (!demo) return null;
   return (
-    <div className="rounded-3xl border border-dashed border-gold bg-gold-soft/60 p-4">
+    <div className="border border-dashed border-line-2 bg-card p-4">
       <p className="text-sm">In the real hub, two of your cot mates confirm you. For this preview you can skip the wait.</p>
       <button
         type="button"
@@ -38,12 +38,12 @@ export function DemoConfirm({ slug, onDone }: { slug: string; onDone: () => void
             setBusy(false);
           }
         }}
-        className="mt-3 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-ink text-paper disabled:opacity-60"
+        className="btn btn-primary btn-sm btn-block mt-3"
       >
         <Sparkles className="size-4" />
         {busy ? "Confirming…" : "Confirm me now (preview only)"}
       </button>
-      {err ? <p role="alert" className="mt-2 text-sm text-crimson">{err}</p> : null}
+      {err ? <p role="alert" className="mt-2 text-sm text-crimson-ink">{err}</p> : null}
     </div>
   );
 }

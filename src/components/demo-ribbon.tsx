@@ -14,7 +14,7 @@ export async function DemoRibbon() {
           <span className="font-mono text-[10.5px] font-medium tracking-[0.16em] text-[#ff6b78] uppercase">Preview</span>
           <span className="h-3 w-px bg-white/25" aria-hidden />
           <span className="truncate text-white/80">
-            {who ? <>You are <span className="font-medium text-white">{name}</span>{who.persona.memberId ? <span className="hidden sm:inline"> · {who.persona.role.toLowerCase()}</span> : null}</> : "Made-up classmates, test money"}
+            {who ? <>You are <span className="font-medium text-white">{name}</span>{who.persona.memberId ? <span className="hidden sm:inline"> · {who.persona.role}</span> : null}</> : "Made-up classmates, test money"}
           </span>
         </span>
         <a href={who ? "/demo/leave" : "/demo"} className="inline-flex min-h-11 shrink-0 items-center text-[13px] font-medium text-white underline decoration-white/40 underline-offset-4 hover:decoration-white">

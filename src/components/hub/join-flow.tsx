@@ -187,7 +187,7 @@ export function JoinFlow({ slug }: { slug: string }) {
     return (
       <Shell slug={slug} nav={false} title={data?.org.name} eyebrow={data?.org.branding.motto}>
         <section className="mt-3 space-y-4">
-          <h1 className="font-display text-4xl">We found your place.</h1>
+          <h1 className="display-md">We found your place.</h1>
           <Note>
             {claimed.verified
               ? "Your number matched the list, and you are confirmed. Welcome in."
@@ -211,7 +211,7 @@ export function JoinFlow({ slug }: { slug: string }) {
         </div>
         {step === "name" && (
           <section className="mt-3 space-y-4">
-            <h1 className="font-display text-4xl">What should we call you?</h1>
+            <h1 className="display-md">What should we call you?</h1>
             <Field label="Name" value={draft.displayName} autoComplete="name" onChange={(displayName) => setDraft({ ...draft, displayName })} />
             <Button onClick={() => go(verified ? "programme" : "phone")} disabled={draft.displayName.trim().length < 2}>
               Continue
@@ -220,27 +220,27 @@ export function JoinFlow({ slug }: { slug: string }) {
         )}
         {step === "phone" && (
           <section className="mt-3 space-y-4">
-            <h1 className="font-display text-4xl">Your phone number.</h1>
+            <h1 className="display-md">Your phone number.</h1>
             <Note>We send one text-message code. If your number is on the year-group list, your place is waiting for you.</Note>
             <Field label="Phone" value={draft.phone} inputMode="tel" autoComplete="tel-national" placeholder="024 000 0000" onChange={(phone) => setDraft({ ...draft, phone })} />
-            {error ? <p className="text-sm text-crimson">{error}</p> : null}
+            {error ? <p className="text-sm text-crimson-ink">{error}</p> : null}
             <Button onClick={sendCode} disabled={busy || draft.phone.replace(/\D/g, "").length < 9}>{busy ? "Sending" : "Send the code"}</Button>
           </section>
         )}
         {step === "code" && (
           <section className="mt-3 space-y-4">
-            <h1 className="font-display text-4xl">Enter the code.</h1>
+            <h1 className="display-md">Enter the code.</h1>
             <Note>We sent six digits to {masked || "your phone"}. It lasts ten minutes.</Note>
             {devCode ? <Note>Demonstration mode: your code is {devCode}.</Note> : null}
             <Field label="Code" value={code} inputMode="numeric" autoComplete="one-time-code" autoFocus placeholder="123456" onChange={(v) => setCode(v.replace(/\D/g, "").slice(0, 6))} />
-            {error ? <p className="text-sm text-crimson">{error}</p> : null}
+            {error ? <p className="text-sm text-crimson-ink">{error}</p> : null}
             <Button onClick={checkCode} disabled={busy || code.length < 6}>{busy ? "Checking" : "Verify"}</Button>
             <Button tone="quiet" onClick={() => { setCode(""); go("phone"); }}>Use a different number</Button>
           </section>
         )}
         {step === "programme" && (
           <section className="mt-3 space-y-3">
-            <h1 className="font-display text-4xl">Which {terms?.programme?.toLowerCase() ?? "programme"}?</h1>
+            <h1 className="display-md">Which {terms?.programme?.toLowerCase() ?? "programme"}?</h1>
             {data?.programmes.map((p) => (
               <Choice key={p.id} title={p.name} selected={draft.programmeId === p.id} onClick={() => { setDraft({ ...draft, programmeId: p.id, classId: "" }); go("class"); }} />
             ))}
@@ -248,10 +248,10 @@ export function JoinFlow({ slug }: { slug: string }) {
         )}
         {step === "class" && (
           <section className="mt-3 space-y-3">
-            <h1 className="font-display text-4xl">Your {terms?.class?.toLowerCase() ?? "class"}.</h1>
+            <h1 className="display-md">Your {terms?.class?.toLowerCase() ?? "class"}.</h1>
             <div className="grid grid-cols-3 gap-3">
               {programme?.classes.map((c) => (
-                <button key={c.id} type="button" className="h-14 rounded-2xl border border-line bg-card text-lg" onClick={() => { setDraft({ ...draft, classId: c.id }); go("house"); }}>
+                <button key={c.id} type="button" className="h-14 border border-line-2 bg-card text-lg font-medium hover:border-ink" onClick={() => { setDraft({ ...draft, classId: c.id }); go("house"); }}>
                   {c.name}
                 </button>
               ))}
@@ -260,7 +260,7 @@ export function JoinFlow({ slug }: { slug: string }) {
         )}
         {step === "house" && (
           <section className="mt-3 space-y-3">
-            <h1 className="font-display text-4xl">Which {terms?.house?.toLowerCase() ?? "house"}?</h1>
+            <h1 className="display-md">Which {terms?.house?.toLowerCase() ?? "house"}?</h1>
             {data?.houses.map((h) => (
               <Choice key={h.id} title={h.name} detail={`${h.dorms.length} dorms`} onClick={() => { setDraft({ ...draft, houseId: h.id, dormId: "", residence: "placed", cotNumber: null }); go("dorm"); }} />
             ))}
@@ -270,11 +270,11 @@ export function JoinFlow({ slug }: { slug: string }) {
         )}
         {step === "dorm" && (
           <section className="mt-3 space-y-3">
-            <h1 className="font-display text-4xl">{house?.name}</h1>
+            <h1 className="display-md">{house?.name}</h1>
             <Note>Choose the dorm.</Note>
             <div className="flex flex-wrap gap-3">
               {house?.dorms.map((d) => (
-                <button key={d.id} type="button" className="h-12 rounded-full border border-line bg-card px-5" onClick={() => { setDraft({ ...draft, dormId: d.id, cotNumber: null }); go("cot"); }}>
+                <button key={d.id} type="button" className="h-12 border border-line-2 bg-card px-5 font-medium hover:border-ink" onClick={() => { setDraft({ ...draft, dormId: d.id, cotNumber: null }); go("cot"); }}>
                   {d.name}
                 </button>
               ))}
@@ -283,11 +283,11 @@ export function JoinFlow({ slug }: { slug: string }) {
         )}
         {step === "cot" && (
           <section className="mt-3 space-y-4">
-            <h1 className="font-display text-4xl">Cot number</h1>
+            <h1 className="display-md">Cot number</h1>
             <Note>{dorm?.name}. Cot circles open when someone is actually in them.</Note>
             <div className="grid grid-cols-4 gap-3">
               {Array.from({ length: dorm?.cotCount ?? 8 }, (_, i) => i + 1).map((n) => (
-                <button key={n} type="button" className={`h-14 rounded-2xl border text-xl tabular-nums ${draft.cotNumber === n ? "border-crimson bg-gold-soft" : "border-line bg-card"}`} onClick={() => setDraft({ ...draft, cotNumber: n })}>
+                <button key={n} type="button" className={`h-14 border text-xl font-semibold tabular-nums transition-colors ${draft.cotNumber === n ? "border-ink bg-ink text-paper" : "border-line-2 bg-card hover:border-ink"}`} onClick={() => setDraft({ ...draft, cotNumber: n })}>
                   {n}
                 </button>
               ))}
@@ -298,7 +298,7 @@ export function JoinFlow({ slug }: { slug: string }) {
         )}
         {step === "work" && (
           <section className="mt-3 space-y-4">
-            <h1 className="font-display text-4xl">Work, and the city you are in.</h1>
+            <h1 className="display-md">Work, and the city you are in.</h1>
             <Field label="Profession" value={draft.profession} onChange={(profession) => setDraft({ ...draft, profession })} />
             <Field label="City" value={draft.city} autoComplete="address-level2" onChange={(city) => setDraft({ ...draft, city })} />
             <Button disabled={!draft.profession.trim() || !draft.city.trim()} onClick={() => go("circles")}>Continue</Button>
@@ -306,7 +306,7 @@ export function JoinFlow({ slug }: { slug: string }) {
         )}
         {step === "circles" && (
           <section className="mt-3 space-y-3">
-            <h1 className="font-display text-4xl">Any other circles?</h1>
+            <h1 className="display-md">Any other circles?</h1>
             <Note>Optional. Faith circles stay hidden from everyone who is not in them.</Note>
             {data?.voluntary.map((c) => {
               const on = draft.circleIds.includes(c.id);
@@ -325,7 +325,7 @@ export function JoinFlow({ slug }: { slug: string }) {
                 />
               );
             })}
-            {error ? <p className="text-sm text-crimson">{error}</p> : null}
+            {error ? <p className="text-sm text-crimson-ink">{error}</p> : null}
             <Button disabled={busy} onClick={() => finish(draft.circleIds)}>{busy ? "Saving" : "Enter the year group"}</Button>
           </section>
         )}
@@ -334,7 +334,7 @@ export function JoinFlow({ slug }: { slug: string }) {
             Back
           </button>
         ) : null}
-        {step !== "circles" && error ? <p className="mt-3 text-sm text-crimson">{error}</p> : null}
+        {step !== "circles" && error ? <p className="mt-3 text-sm text-crimson-ink">{error}</p> : null}
       </State>
     </Shell>
   );

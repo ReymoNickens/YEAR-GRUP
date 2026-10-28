@@ -77,7 +77,7 @@ function HomeBody({ slug, data, reload }: { slug: string; data: Home; reload: ()
           <ul className="ruled-list">
             {data.feed.map((p) => (
               <li key={p.id} className="flex gap-3.5 py-4">
-                <Avatar name={p.author} size={40} />
+                <Avatar name={p.full} size={40} />
                 <div className="min-w-0 flex-1">
                   <p className="flex items-baseline justify-between gap-3 text-sm">
                     <span className="min-w-0 truncate">
@@ -192,7 +192,7 @@ function Notice({ slug, notice }: { slug: string; notice: NonNullable<Home["noti
     <Section title="From the executive" className="mt-12">
       <Link href={`/o/${slug}/m/inbox`} className="group block py-3">
         <p className="font-display text-[1.6rem] leading-[1.18] tracking-[-0.01em]">
-          <span className="text-crimson">“</span>{notice.body}<span className="text-crimson">”</span>
+          <span className="text-crimson-ink">“</span>{notice.body}<span className="text-crimson-ink">”</span>
         </p>
         <div className="mt-4 flex items-center gap-3">
           <Avatar name={notice.from} size={32} />

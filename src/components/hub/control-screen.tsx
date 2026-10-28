@@ -5,9 +5,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { aiAssist, controlData } from "@/lib/hub/api";
 import { hubAct } from "@/lib/hub/act";
-import { formatGhs } from "@/lib/hub/money";
 import { Shell } from "@/components/hub/shell";
-import { Button, Money, Note, State } from "@/components/hub/ui";
+import { Button, Money, State, Toggle } from "@/components/hub/ui";
 import { MoneyDesk, People } from "@/components/hub/control-desks";
 import { useHub } from "@/components/hub/use-hub";
 
@@ -19,15 +18,17 @@ export function ControlScreen({ slug, area }: { slug: string; area: string }) {
   const { data, error, loading, reload } = useHub(`ctl-${safe}`, () => controlData({ data: { slug, area: safe } }));
   const bag = (data ?? {}) as Record<string, unknown>;
   return (
-    <Shell slug={slug}>
-      <p className="text-xs tracking-widest text-gold uppercase">Control room</p>
-      <h1 className="font-display text-4xl">{areaName(safe)}</h1>
-      <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+    <Shell slug={slug} wide>
+      <header className="rise">
+        <p className="kicker kicker-red">Control room</p>
+        <h1 className="display-lg mt-3">{areaName(safe)}</h1>
+      </header>
+      <nav aria-label="Control room" className="rail -mx-5 mt-6 flex gap-1.5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
         {areas.map((a) => (
-          <Link key={a} href={`/o/${slug}/control/${a}`} className={`flex h-12 shrink-0 items-center rounded-full px-4 ${a === safe ? "bg-crimson text-on-crimson" : "border border-line"}`} aria-current={a === safe ? "page" : undefined}>{areaName(a)}</Link>
+          <Link key={a} href={`/o/${slug}/control/${a}`} className={`flex h-10 shrink-0 items-center border px-3.5 text-sm transition-colors ${a === safe ? "border-ink bg-ink font-medium text-paper" : "border-line-2 text-ink-2 hover:border-ink"}`} aria-current={a === safe ? "page" : undefined}>{areaName(a)}</Link>
         ))}
-      </div>
-            <div className="mt-4">
+      </nav>
+      <div className="mt-8">
         <State loading={loading} error={error}>
           {safe === "people" ? <People bag={bag} slug={slug} reload={reload} /> : null}
           {safe === "money" ? <MoneyDesk bag={bag} slug={slug} reload={reload} /> : null}
@@ -47,13 +48,13 @@ function Community({ bag, slug, reload }: { bag: Record<string, unknown>; slug: 
   const reports = (bag.reports as { id: string; reason: string; body: string }[]) ?? [];
   return (
     <div className="space-y-3">
-      <h2 className="font-display text-2xl">Quieter circles</h2>
+      <h2 className="display-sm pt-4">Quieter circles</h2>
       {quiet.map((c) => <p key={c.name} className="flex justify-between"><span>{c.name}</span><span className="tabular-nums">{c.n}</span></p>)}
       {reports.map((r) => (
-        <article key={r.id} className="rounded-3xl border border-line bg-card p-4">
+        <article key={r.id} className="border border-line bg-card p-5">
           <p>{r.body}</p>
           <p className="text-sm text-muted">{r.reason}</p>
-          <button type="button" className="mt-2 h-10 text-crimson" onClick={async () => { await hubAct({ data: { type: "dismiss-report", slug, reportId: r.id } }); reload(); }}>Dismiss</button>
+          <button type="button" className="mt-2 min-h-11 text-sm font-medium text-crimson-ink" onClick={async () => { await hubAct({ data: { type: "dismiss-report", slug, reportId: r.id } }); reload(); }}>Dismiss</button>
         </article>
       ))}
     </div>
@@ -122,7 +123,7 @@ function Comms({ bag, slug, reload }: { bag: Record<string, unknown>; slug: stri
   return (
     <div className="space-y-6">
       <section>
-        <h2 className="font-display text-2xl">Who should hear this?</h2>
+        <h2 className="display-sm">Who should hear this?</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {AUDIENCES.filter((a) => circles.some((c) => levelOf(c) === a.key)).map((a) => (
             <button
@@ -130,7 +131,7 @@ function Comms({ bag, slug, reload }: { bag: Record<string, unknown>; slug: stri
               type="button"
               aria-pressed={kind === a.key}
               onClick={() => pickKind(a.key)}
-              className={`h-11 rounded-full px-4 text-sm transition ${kind === a.key ? "bg-crimson text-on-crimson" : "border border-line bg-card"}`}
+              className={`h-11 border px-4 text-sm transition-colors ${kind === a.key ? "border-ink bg-ink font-medium text-paper" : "border-line-2 bg-card hover:border-ink"}`}
             >
               {a.label}
             </button>
@@ -139,7 +140,7 @@ function Comms({ bag, slug, reload }: { bag: Record<string, unknown>; slug: stri
         {kind !== "year" ? (
           <select
             aria-label="Choose which one"
-            className="mt-3 h-12 w-full rounded-2xl border border-line bg-card px-4"
+            className="mt-3 input"
             value={circleId}
             onChange={(e) => setCircleId(e.target.value)}
           >
@@ -152,20 +153,20 @@ function Comms({ bag, slug, reload }: { bag: Record<string, unknown>; slug: stri
 
       <section>
         <label className="block">
-          <span className="font-display text-2xl">What do you want to say?</span>
+          <span className="display-sm">What do you want to say?</span>
           <textarea
             value={body}
             maxLength={1000}
             onChange={(e) => setBody(e.target.value)}
-            className="mt-3 min-h-32 w-full rounded-3xl border border-line bg-card p-4 text-base outline-none focus:border-crimson"
+            className="mt-3 min-h-32 w-full border border-line bg-card p-5 text-base outline-none focus:border-crimson"
             placeholder="Keep it short. It shows with your name and title, so members know it is real."
           />
         </label>
         {events.length > 0 ? (
-          <details className="mt-2 rounded-2xl border border-line bg-card px-4 py-3">
+          <details className="mt-2 border border-line bg-card px-4 py-3">
             <summary className="cursor-pointer text-sm">Remind people about an event</summary>
             <div className="mt-3 space-y-2">
-              <select aria-label="Event" className="h-12 w-full rounded-2xl border border-line bg-paper px-4" value={eventId} onChange={(e) => setEventId(e.target.value)}>
+              <select aria-label="Event" className="input" value={eventId} onChange={(e) => setEventId(e.target.value)}>
                 {events.map((e) => <option key={e.id} value={e.id}>{e.title}</option>)}
               </select>
               <Button tone="quiet" onClick={draftReminder}>Write a reminder for me</Button>
@@ -174,33 +175,21 @@ function Comms({ bag, slug, reload }: { bag: Record<string, unknown>; slug: stri
         ) : null}
       </section>
 
-      <button
-        type="button"
-        role="switch"
-        aria-checked={urgent}
-        onClick={() => setUrgent(!urgent)}
-        className="flex min-h-14 w-full items-center justify-between gap-3 rounded-2xl border border-line bg-card px-4 py-2 text-left"
-      >
-        <span>
-          <span className="block">Also send it as a text message</span>
-          <span className="block text-xs text-muted">For urgent news. Texts cost money and count against the monthly budget.</span>
-        </span>
-        <span className={`relative h-7 w-12 shrink-0 rounded-full transition ${urgent ? "bg-crimson" : "bg-line"}`}>
-          <span className={`absolute top-1 size-5 rounded-full bg-white shadow transition-all ${urgent ? "left-6" : "left-1"}`} />
-        </span>
-      </button>
+      <div className="border-y border-line">
+        <Toggle on={urgent} set={setUrgent} title="Also send it as a text message" detail="For urgent news. Texts cost money and count against the monthly budget." />
+      </div>
 
       <Button disabled={busy || !circleId || body.trim().length < 3} onClick={send}>
         {busy ? "Sending…" : target ? `Send to ${target.name}` : "Choose who should hear it"}
       </Button>
-      {msg ? <p role="status" className="rounded-2xl bg-gold-soft px-4 py-3 text-sm">{msg}</p> : null}
+      {msg ? <p role="status" className="border-l-[3px] border-paid bg-card px-4 py-3 text-sm">{msg}</p> : null}
 
       {recent.length ? (
         <section>
-          <h2 className="text-xs tracking-[0.18em] text-gold uppercase">Sent recently</h2>
+          <h2 className="kicker">Sent recently</h2>
           <ul className="mt-3 space-y-2">
             {recent.map((a, i) => (
-              <li key={i} className="rounded-2xl border border-line bg-card p-4">
+              <li key={i} className="border border-line bg-card p-4">
                 <p className="text-xs text-muted">To {a.audience}{a.at ? ` · ${new Date(a.at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : ""}</p>
                 <p className="mt-1">{a.body}</p>
               </li>
@@ -217,7 +206,7 @@ function Gov({ bag }: { bag: Record<string, unknown> }) {
   return (
     <ul className="space-y-2">
       {roles.map((r, i) => (
-        <li key={i} className="flex justify-between rounded-2xl bg-card px-4 py-3">
+        <li key={i} className="flex justify-between border-b border-line py-3">
           <span>{roleTitle(r.role)}</span>
           <span>{r.name}</span>
         </li>
@@ -231,7 +220,7 @@ function Events({ bag }: { bag: Record<string, unknown> }) {
   return (
     <ul className="space-y-3">
       {events.map((e) => (
-        <li key={e.title} className="rounded-3xl border border-line bg-card p-4">
+        <li key={e.title} className="border border-line bg-card p-5">
           <p className="font-display text-2xl">{e.title}</p>
           <p className="text-sm text-muted">{e.place} · {e.going} going</p>
         </li>
@@ -245,11 +234,11 @@ function Reports({ bag, slug }: { bag: Record<string, unknown>; slug: string }) 
   const funds = (bag.funds as { title: string; net: number }[]) ?? [];
   return (
     <div className="space-y-4">
-      <h2 className="font-display text-2xl">What people did</h2>
+      <h2 className="display-sm pt-4">What people did</h2>
       {usage.map((u) => <p key={u.name} className="flex justify-between"><span>{u.name.replaceAll("_", " ")}</span><span className="tabular-nums">{u.n}</span></p>)}
-      <h2 className="font-display text-2xl">Funds</h2>
+      <h2 className="display-sm pt-4">Funds</h2>
       {funds.map((f) => <p key={f.title} className="flex justify-between gap-3"><span>{f.title}</span><Money value={f.net} /></p>)}
-      <Link className="text-sm text-crimson" href={`/o/${slug}/m/impact`}>Open the school page</Link>
+      <Link className="text-sm text-crimson-ink" href={`/o/${slug}/m/impact`}>Open the school page</Link>
     </div>
   );
 }

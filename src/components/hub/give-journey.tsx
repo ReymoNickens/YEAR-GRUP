@@ -223,12 +223,13 @@ function Story({ slug, data, onGive }: { slug: string; data: Detail; onGive: () 
 
 /** Who has given lately: houses and times only. A giver's name or amount never shows. */
 function Recent({ data, compact = false }: { data: Detail; compact?: boolean }) {
+  const org = useOrgFace();
   if (!data.recent?.length) return null;
   const list = (
     <ul className="ruled-list">
       {data.recent.map((r, i) => (
         <li key={i} className="flex items-center gap-3 py-3">
-          {r.me ? <Avatar name="You" size={36} me /> : <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sunk"><Heart className="size-4 text-crimson" strokeWidth={2} /></span>}
+          {r.me ? <Avatar name={org?.me?.name ?? "You"} size={36} me /> : <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sunk"><Heart className="size-4 text-crimson" strokeWidth={2} /></span>}
           <span className="min-w-0 flex-1 text-[14px] leading-snug">
             <span className="block font-medium">{r.me ? "You gave" : "An old boy gave"}</span>
             <span className="block truncate text-muted">{r.house ?? "The year group"}</span>

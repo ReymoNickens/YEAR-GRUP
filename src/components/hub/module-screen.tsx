@@ -7,8 +7,28 @@ import { aiAssist, readModule } from "@/lib/hub/api";
 import { hubAct } from "@/lib/hub/act";
 import { formatGhs } from "@/lib/hub/money";
 import { Shell } from "@/components/hub/shell";
-import { Back, Button, Cover, Field, Money, Note, SampleTag, State } from "@/components/hub/ui";
+import { Back, Button, Cover, Field, Money, Note, PageHead, SampleTag, State } from "@/components/hub/ui";
 import { useHub } from "@/components/hub/use-hub";
+
+const subs: Record<string, string> = {
+  directory: "Old boys’ businesses. Use one, and say so.",
+  asks: "Need a lawyer, a site engineer, a room in Kumasi? Ask the year.",
+  events: "Say if you are coming. The organisers see the numbers, not a chat.",
+  photos: "The years on the hill, in albums by year.",
+  polls: "One vote each. Results show once you have voted.",
+  welfare: "When one of us is in need. Handled quietly by the welfare team.",
+  mentoring: "Old boys who offer an hour to someone starting out.",
+  trivia: "How well do you remember the hill?",
+  capsules: "Notes sealed now, opened at a later reunion.",
+  milestones: "Weddings, children, new posts. Good news from the year.",
+  spotlight: "One of us, with their consent.",
+  elections: "Officers chosen by the year, one vote each.",
+  impact: "What the year has given back to the school.",
+  store: "Year group jerseys, ties and more.",
+  roll: "Who has joined from each house, dorm and class.",
+  birthdays: "Birthdays this month, for those who share them.",
+  inbox: "Announcements from the executive, signed by name.",
+};
 
 const titles: Record<string, string> = {
   directory: "Businesses",
@@ -40,8 +60,8 @@ export function ModuleScreen({ slug, module }: { slug: string; module: string })
   return (
     <Shell slug={slug}>
       <Back href={`/o/${slug}/me`} label="Me" />
-      <h1 className="font-display text-4xl">{titles[module] ?? "Year group"}</h1>
-      <div className="mt-4">
+      <PageHead kicker="The year group" title={titles[module] ?? "Year group"} sub={subs[module]} />
+      <div>
         <State loading={loading} error={error}>
           {module === "directory" ? <Directory slug={slug} bag={bag} q={q} setQ={setQ} reload={reload} /> : null}
           {module === "asks" ? <Asks slug={slug} bag={bag} reload={reload} /> : null}
@@ -79,13 +99,13 @@ function Directory({ slug, bag, q, setQ, reload }: { slug: string; bag: Record<s
       <Note>A support mark means a classmate says they have used the business. That rule can change when you confirm it.</Note>
       <Field label="Search" value={q} onChange={setQ} />
       {list.map((b) => (
-        <article key={b.id} className="rounded-3xl border border-line bg-card p-4">
+        <article key={b.id} className="border border-line bg-card p-5">
           <p className="text-sm text-muted">{b.category} · {b.city}</p>
-          <h2 className="font-display text-2xl">{b.name}</h2>
+          <h2 className="display-sm">{b.name}</h2>
           <p className="mt-1">{b.blurb}</p>
           <p className="mt-2 text-sm text-muted">{b.owner} {b.sample ? <SampleTag /> : null} · {b.contact}</p>
           <p className="mt-2 text-sm">{b.supports} support {b.supports === 1 ? "mark" : "marks"}</p>
-          <button type="button" className="mt-2 h-10 text-sm text-crimson" onClick={async () => { await hubAct({ data: { type: "support", slug, businessId: b.id } }); reload(); }}>
+          <button type="button" className="mt-2 min-h-11 text-sm font-medium text-crimson-ink" onClick={async () => { await hubAct({ data: { type: "support", slug, businessId: b.id } }); reload(); }}>
             {b.mine ? "Remove my mark" : "I have used this"}
           </button>
         </article>
@@ -125,35 +145,35 @@ function Asks({ slug, bag, reload }: { slug: string; bag: Record<string, unknown
   return (
     <div className="space-y-4">
       <Note>The hub keeps the record. The chat stays on WhatsApp.</Note>
-      <section className="space-y-2 rounded-3xl border border-line bg-card p-4">
+      <section className="space-y-2 border border-line bg-card p-5">
         <h2 className="font-display text-xl">Who in the year group could help?</h2>
         <Field label="What do you need" value={find} onChange={setFind} placeholder="a quantity surveyor in Kumasi" />
         <Button tone="quiet" disabled={find.trim().length < 4} onClick={search}>Look through the profiles</Button>
         <p className="text-xs text-muted">It reads what people chose to put on their profiles, and suggests. It never contacts anyone.</p>
-        {findErr ? <p className="text-sm text-crimson">{findErr}</p> : null}
+        {findErr ? <p className="text-sm text-crimson-ink">{findErr}</p> : null}
         {found && found.length === 0 ? <p className="text-sm text-muted">No one matches yet. Post it below and the year group will see it.</p> : null}
         {found?.map((m, i) => (
           <p key={i} className="text-sm"><strong>{m.name}</strong> · {[m.profession, m.business, m.city].filter(Boolean).join(" · ")} <span className="text-muted">({m.reason})</span></p>
         ))}
       </section>
       {list.map((a) => (
-        <article key={a.id} className="rounded-3xl border border-line bg-card p-4">
-          <p className="text-xs tracking-widest text-gold uppercase">{a.category}</p>
-          <h2 className="font-display text-2xl">{a.title}</h2>
+        <article key={a.id} className="border border-line bg-card p-5">
+          <p className="kicker">{a.category}</p>
+          <h2 className="display-sm">{a.title}</h2>
           <p className="mt-1">{a.body}</p>
           <p className="mt-2 text-sm text-muted">{a.author} {a.sample ? <SampleTag /> : null}</p>
           {a.replies.map((r) => (
             <p key={r.id} className="mt-2 text-sm">{r.author}: {r.body} {r.recommended ? "· recommended" : ""}</p>
           ))}
           <div className="mt-3 flex gap-2">
-            <input value={reply} onChange={(e) => setReply(e.target.value)} className="h-12 flex-1 rounded-2xl border border-line px-3" placeholder="Reply" />
+            <input value={reply} onChange={(e) => setReply(e.target.value)} className="h-12 flex-1 border border-line px-3" placeholder="Reply" />
             <button type="button" className="btn-primary !w-auto px-4" onClick={async () => { await hubAct({ data: { type: "reply", slug, askId: a.id, body: reply, recommended: false } }); setReply(""); reload(); }}>Send</button>
           </div>
         </article>
       ))}
-      <h2 className="font-display text-2xl">Ask</h2>
+      <h2 className="display-sm">Ask</h2>
       <label className="block text-sm text-muted">Category
-        <select className="mt-1 h-12 w-full rounded-2xl border border-line bg-card px-3" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+        <select className="mt-1 h-12 w-full border border-line bg-card px-3" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
           {cats.map((c) => <option key={c}>{c}</option>)}
         </select>
       </label>
@@ -166,27 +186,43 @@ function Asks({ slug, bag, reload }: { slug: string; bag: Record<string, unknown
 
 function Events({ slug, bag, reload }: { slug: string; bag: Record<string, unknown>; reload: () => void }) {
   const list = rows<{ id: string; title: string; place: string; startsAt: string; story: string; price: number | null; purposeId: string | null; going: number; mine: string | null }>(bag, "events");
+  const [busy, setBusy] = useState("");
+  async function rsvp(eventId: string, status: string) {
+    setBusy(eventId);
+    try { await hubAct({ data: { type: "rsvp", slug, eventId, status } }); reload(); } finally { setBusy(""); }
+  }
   return (
-    <div className="space-y-3">
-      <Cover motif="tie" alt="" className="h-44 rounded-3xl" />
-      {list.map((e) => (
-        <article key={e.id} className="rounded-3xl border border-line bg-card p-4">
-          <p className="text-sm text-muted">{new Date(e.startsAt).toLocaleString("en-GB", { dateStyle: "medium", timeStyle: "short" })} · {e.place}</p>
-          <h2 className="font-display text-2xl">{e.title}</h2>
-          <p className="mt-1">{e.story}</p>
-          <p className="mt-2 text-sm">{e.going} going {e.mine ? `· you said ${e.mine}` : ""}</p>
-          {e.price && e.purposeId ? (
-            <Link className="btn-primary mt-3" href={`/o/${slug}/give/${e.purposeId}`}>Ticket {formatGhs(e.price)}</Link>
-          ) : (
-            <div className="mt-3 grid grid-cols-3 gap-2">
-              {(["going", "maybe", "no"] as const).map((s) => (
-                <button key={s} type="button" className="btn-quiet" onClick={async () => { await hubAct({ data: { type: "rsvp", slug, eventId: e.id, status: s } }); reload(); }}>{s}</button>
-              ))}
+    <ul className="ruled-list border-y border-line">
+      {list.map((e) => {
+        const d = new Date(e.startsAt);
+        return (
+          <li key={e.id} className="grid grid-cols-[4.5rem_1fr] gap-4 py-6 sm:grid-cols-[5.5rem_1fr] sm:gap-6">
+            <div className="flex h-fit flex-col items-center border-[1.5px] border-ink px-1 pt-2 pb-1.5 text-center leading-none">
+              <span className="font-mono text-[10px] font-medium tracking-[0.18em] uppercase">{d.toLocaleDateString("en-GB", { weekday: "short" })}</span>
+              <span className="font-display text-[2.6rem] leading-[0.95]">{d.getDate()}</span>
+              <span className="font-mono text-[10px] font-medium tracking-[0.18em] text-crimson-ink uppercase">{d.toLocaleDateString("en-GB", { month: "short" })}</span>
             </div>
-          )}
-        </article>
-      ))}
-    </div>
+            <div className="min-w-0">
+              <h2 className="font-display text-[1.75rem] leading-[1.02] tracking-[-0.01em]">{e.title}</h2>
+              <p className="mt-1.5 text-[13px] text-muted">{d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} · {e.place}</p>
+              <p className="mt-2.5 text-[15px] leading-relaxed">{e.story}</p>
+              <p className="mt-2.5 text-[13px]"><span className="font-semibold">{e.going}</span> <span className="text-muted">going</span></p>
+              {e.price && e.purposeId ? (
+                <Link className="btn btn-primary btn-sm mt-4" href={`/o/${slug}/give/${e.purposeId}`}>Get a ticket · {formatGhs(e.price)}</Link>
+              ) : (
+                <div className="mt-4 grid max-w-sm grid-cols-3 border border-line-2" role="radiogroup" aria-label={`Are you coming to ${e.title}?`}>
+                  {([["going", "Going"], ["maybe", "Maybe"], ["no", "Can’t"]] as const).map(([k, label]) => (
+                    <button key={k} type="button" role="radio" aria-checked={e.mine === k} disabled={busy === e.id} onClick={() => rsvp(e.id, k)} className={`h-11 text-sm transition-colors ${e.mine === k ? "bg-ink font-semibold text-paper" : "bg-card hover:bg-sunk/60"}`}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
@@ -240,7 +276,7 @@ function Photos({ bag, slug, reload }: { bag: Record<string, unknown>; slug: str
       </div>
       {open ? (
         <div className="space-y-3">
-          <h2 className="font-display text-3xl">{open.title}</h2>
+          <h2 className="display-sm">{open.title}</h2>
           <p className="text-muted">{open.caption}</p>
           {other.loading && album !== first ? (
             <div className="grid grid-cols-2 gap-2" aria-busy="true">
@@ -251,7 +287,7 @@ function Photos({ bag, slug, reload }: { bag: Record<string, unknown>; slug: str
           ) : (
             <div className="grid grid-cols-2 gap-2">
               {open.photos.map((p) => (
-                <figure key={p.id} className="overflow-hidden rounded-2xl border border-line bg-card">
+                <figure key={p.id} className="overflow-hidden border border-line bg-card">
                   {p.dataUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element -- compressed data URLs stored with the photo
                     <img src={p.dataUrl} alt={p.caption} loading="lazy" decoding="async" className="aspect-square w-full object-cover" />
@@ -269,7 +305,7 @@ function Photos({ bag, slug, reload }: { bag: Record<string, unknown>; slug: str
         {busy ? "Uploading…" : "Add a photo"}
         <input type="file" accept="image/*" className="sr-only" disabled={busy} onChange={(e) => { const f = e.target.files?.[0]; if (f) void onFile(f); }} />
       </label>
-      {err ? <p role="alert" className="text-sm text-crimson">{err}</p> : null}
+      {err ? <p role="alert" className="text-sm text-crimson-ink">{err}</p> : null}
     </div>
   );
 }
@@ -293,19 +329,33 @@ function compress(file: File) {
 function Polls({ slug, bag, reload }: { slug: string; bag: Record<string, unknown>; reload: () => void }) {
   const polls = rows<{ id: string; question: string; closesOn: string; mine: string | null; options: { id: string; label: string; votes: number }[] }>(bag, "polls");
   return (
-    <div className="space-y-4">
-      {polls.map((p) => (
-        <article key={p.id} className="rounded-3xl border border-line bg-card p-4">
-          <h2 className="font-display text-2xl">{p.question}</h2>
-          <div className="mt-3 space-y-2">
-            {p.options.map((o) => (
-              <button key={o.id} type="button" disabled={!!p.mine} className="flex h-12 w-full items-center justify-between rounded-2xl border border-line px-4" onClick={async () => { await hubAct({ data: { type: "vote", slug, optionId: o.id } }); reload(); }}>
-                <span>{o.label}</span><span className="tabular-nums">{o.votes}</span>
-              </button>
-            ))}
-          </div>
-        </article>
-      ))}
+    <div className="space-y-10">
+      {polls.map((p) => {
+        const total = p.options.reduce((n, o) => n + o.votes, 0);
+        const voted = !!p.mine;
+        return (
+          <article key={p.id}>
+            <div className="rule-top pt-3">
+              <p className="kicker">{voted ? `${total} votes · you voted` : `Closes ${new Date(p.closesOn).toLocaleDateString("en-GB", { day: "numeric", month: "long" })}`}</p>
+              <h2 className="display-sm mt-2">{p.question}</h2>
+            </div>
+            <div className="mt-4 space-y-2">
+              {p.options.map((o) => {
+                const pct = total ? Math.round((o.votes / total) * 100) : 0;
+                const mine = p.mine === o.id;
+                return (
+                  <button key={o.id} type="button" disabled={voted} onClick={async () => { await hubAct({ data: { type: "vote", slug, optionId: o.id } }); reload(); }}
+                    className={`relative flex min-h-14 w-full items-center justify-between gap-3 overflow-hidden border px-4 text-left transition-colors ${mine ? "border-ink" : "border-line-2"} ${voted ? "" : "bg-card hover:border-ink"}`}>
+                    {voted ? <span aria-hidden className={`absolute inset-y-0 left-0 ${mine ? "bg-crimson-fill/15" : "bg-sunk"}`} style={{ width: `${pct}%` }} /> : null}
+                    <span className="relative text-[15px] font-medium">{o.label}{mine ? <span className="ml-2 font-mono text-[10.5px] tracking-widest text-crimson-ink uppercase">Yours</span> : null}</span>
+                    {voted ? <span className="relative font-mono text-sm tabular-nums">{pct}%</span> : null}
+                  </button>
+                );
+              })}
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
 }
@@ -317,7 +367,7 @@ function Welfare({ slug, bag, reload }: { slug: string; bag: Record<string, unkn
     <div className="space-y-3">
       <Note>This record stays off the board and away from the ledger. Any money still goes through an approval.</Note>
       {list.map((w) => (
-        <article key={w.id} className="rounded-3xl border border-line bg-card p-4">
+        <article key={w.id} className="border border-line bg-card p-5">
           <p className="text-sm text-muted">{w.category} · {w.status} · {w.author}</p>
           <p className="mt-2">{w.body}</p>
         </article>
@@ -335,7 +385,7 @@ function Mentors({ slug, bag, reload }: { slug: string; bag: Record<string, unkn
   return (
     <div className="space-y-3">
       {list.map((m) => (
-        <article key={m.id} className="rounded-3xl border border-line bg-card p-4">
+        <article key={m.id} className="border border-line bg-card p-5">
           <p className="text-sm text-gold">{m.kind === "offer" ? "Offering" : "Seeking"} · {m.field}</p>
           <p className="mt-1">{m.note}</p>
           <p className="mt-2 text-sm text-muted">{m.author} {m.sample ? <SampleTag /> : null}</p>
@@ -354,16 +404,16 @@ function Trivia({ slug, bag, reload }: { slug: string; bag: Record<string, unkno
   return (
     <div className="space-y-4">
       {scores.length ? (
-        <ul className="rounded-3xl border border-line bg-card p-4 text-sm">
+        <ul className="border border-line bg-card p-5 text-sm">
           {scores.map((s) => <li key={s.house} className="flex justify-between"><span>{s.house}</span><span className="tabular-nums">{s.points}</span></li>)}
         </ul>
       ) : null}
       {questions.map((q) => (
         <article key={q.id}>
-          <h2 className="font-display text-2xl">{q.prompt}</h2>
+          <h2 className="display-sm">{q.prompt}</h2>
           <div className="mt-2 space-y-2">
             {q.choices.map((c, i) => (
-              <button key={c} type="button" disabled={q.yourChoice != null} className="h-12 w-full rounded-2xl border border-line bg-card text-left px-4" onClick={async () => { await hubAct({ data: { type: "trivia", slug, questionId: q.id, choice: i } }); reload(); }}>
+              <button key={c} type="button" disabled={q.yourChoice != null} className="h-12 w-full border border-line bg-card text-left px-4" onClick={async () => { await hubAct({ data: { type: "trivia", slug, questionId: q.id, choice: i } }); reload(); }}>
                 {c} {q.yourChoice === i ? (q.correct ? "· right" : "· not this one") : ""}
               </button>
             ))}
@@ -382,9 +432,9 @@ function Capsules({ slug, bag, reload }: { slug: string; bag: Record<string, unk
   return (
     <div className="space-y-3">
       {list.map((c) => (
-        <article key={c.id} className="rounded-3xl border border-line bg-card p-4">
+        <article key={c.id} className="border border-line bg-card p-5">
           <p className="text-sm text-muted">{c.author} · {c.sealed ? `Sealed until ${c.until}` : "Open"}</p>
-          <h2 className="font-display text-2xl">{c.title}</h2>
+          <h2 className="display-sm">{c.title}</h2>
           {c.body ? <p className="mt-2">{c.body}</p> : <Note>The words stay shut.</Note>}
         </article>
       ))}
@@ -403,7 +453,7 @@ function Milestones({ slug, bag, reload }: { slug: string; bag: Record<string, u
     <div className="space-y-3">
       <Note>Share work or a business. The hub does not ask about private life.</Note>
       {list.map((m) => (
-        <article key={m.id} className="rounded-3xl border border-line bg-card p-4">
+        <article key={m.id} className="border border-line bg-card p-5">
           <p className="text-sm text-muted">{m.author} {m.sample ? <SampleTag /> : null}</p>
           <p className="mt-1">{m.body}</p>
         </article>
@@ -437,10 +487,10 @@ function Elections({ slug, bag, reload }: { slug: string; bag: Record<string, un
       <Note>The ballot is secret. We record that you voted, and separately what was chosen, with nothing joining the two.</Note>
       {elections.map((e) => (
         <article key={e.id} className="space-y-3">
-          <h2 className="font-display text-3xl">{e.role}</h2>
+          <h2 className="display-sm">{e.role}</h2>
           <p>{e.blurb}</p>
           {e.nominations.map((n) => (
-            <button key={n.id} type="button" disabled={e.voted} className="w-full rounded-3xl border border-line bg-card p-4 text-left" onClick={async () => { await hubAct({ data: { type: "ballot", slug, nominationId: n.id } }); reload(); }}>
+            <button key={n.id} type="button" disabled={e.voted} className="w-full border border-line bg-card p-5 text-left" onClick={async () => { await hubAct({ data: { type: "ballot", slug, nominationId: n.id } }); reload(); }}>
               <span className="font-display text-2xl">{n.name}</span>
               <span className="mt-1 block">{n.statement}</span>
               <span className="mt-2 block text-sm text-muted tabular-nums">{n.votes} votes</span>
@@ -461,8 +511,8 @@ function Impact({ bag }: { bag: Record<string, unknown> }) {
       <Cover motif="class" alt="" className="h-48 rounded-3xl" />
       <Note>Figures come from the ledger, not from a separate total.</Note>
       {projects.map((p) => (
-        <article key={p.title} className="rounded-3xl border border-line bg-card p-4">
-          <h2 className="font-display text-2xl">{p.title}</h2>
+        <article key={p.title} className="border border-line bg-card p-5">
+          <h2 className="display-sm">{p.title}</h2>
           <p className="mt-1">{p.story}</p>
           <p className="mt-3 font-display text-3xl"><Money value={p.net} /></p>
         </article>
@@ -478,10 +528,10 @@ function Store({ slug, bag }: { slug: string; bag: Record<string, unknown> }) {
   return (
     <div className="space-y-3">
       {products.map((p) => (
-        <article key={p.id} className="overflow-hidden rounded-3xl border border-line bg-card">
+        <article key={p.id} className="overflow-hidden border border-line bg-card">
           <Cover motif={p.motif} alt="" className="h-44" />
           <div className="p-4">
-            <h2 className="font-display text-2xl">{p.name}</h2>
+            <h2 className="display-sm">{p.name}</h2>
             <p className="mt-1">{p.blurb}</p>
             <p className="mt-2 tabular-nums"><Money value={p.price} /> · {p.stock} left</p>
             <div className="mt-3">
@@ -498,7 +548,7 @@ function Store({ slug, bag }: { slug: string; bag: Record<string, unknown> }) {
           </div>
         </article>
       ))}
-      {err ? <p className="text-sm text-crimson">{err}</p> : null}
+      {err ? <p className="text-sm text-crimson-ink">{err}</p> : null}
     </div>
   );
 }
@@ -517,7 +567,7 @@ function Roll({ bag, nodeId, setNodeId }: { bag: Record<string, unknown>; nodeId
       {!nodeId && typeof bag.missing === "number" ? <p>{bag.missing} names are still on the import sheet.</p> : null}
       <ul className="space-y-2">
         {people.map((p) => (
-          <li key={p.id} className="flex items-center justify-between rounded-2xl bg-card px-4 py-3">
+          <li key={p.id} className="flex items-center justify-between border-b border-line py-3">
             <span>{p.name} <span className="text-sm text-muted">{p.full}</span></span>
             {p.sample ? <SampleTag /> : null}
           </li>
@@ -531,11 +581,11 @@ function Birthdays({ bag }: { bag: Record<string, unknown> }) {
   const people = rows<{ id: string; name: string; day: number; sample: boolean; city: string | null }>(bag, "people");
   return (
     <div className="space-y-3">
-      <h2 className="font-display text-2xl">{String(bag.month ?? "")}</h2>
+      <h2 className="display-sm">{String(bag.month ?? "")}</h2>
       <Note>Only people in your circles, and only if they have not opted out.</Note>
       {people.length === 0 ? <Note>No birthdays in your circles this month.</Note> : null}
       {people.map((p) => (
-        <p key={p.id} className="rounded-2xl bg-card px-4 py-3">{p.day} · {p.name} {p.sample ? <SampleTag /> : null}</p>
+        <p key={p.id} className="border-b border-line py-3">{p.day} · {p.name} {p.sample ? <SampleTag /> : null}</p>
       ))}
     </div>
   );
@@ -555,7 +605,7 @@ function Inbox({ bag }: { bag: Record<string, unknown> }) {
     <ul className="space-y-2">
       {messages.length === 0 ? <Note>Nothing in the inbox yet.</Note> : null}
       {messages.map((m, i) => (
-        <li key={i} className="rounded-2xl border border-line bg-card p-4">
+        <li key={i} className="border border-line bg-card p-4">
           <p className="font-medium">{messageTitle(m.template)}</p>
           {bodyOf(m.payload) ? <p className="mt-1 text-sm">{bodyOf(m.payload)}</p> : null}
           <p className="mt-2 text-xs text-muted">

@@ -1,7 +1,7 @@
 "use client";
 import { ArrowLeft, ChevronRight, RotateCw, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { signInWithGoogle } from "@/lib/auth/client";
 import { formatGhs } from "@/lib/hub/money";
 import { useOrgFace } from "@/components/hub/org-context";
@@ -16,9 +16,15 @@ export function Crest({ src, className = "h-11 w-10", label }: { src?: string; c
   const org = useOrgFace();
   const file = src ?? org?.crest ?? "";
   const [failed, setFailed] = useState(false);
+  const img = useRef<HTMLImageElement>(null);
+  // A file that failed before the page came alive never fires onError; check once on mount.
+  useEffect(() => {
+    const el = img.current;
+    if (el && el.complete && el.naturalWidth === 0) setFailed(true);
+  }, []);
   if (file && !failed) {
     // eslint-disable-next-line @next/next/no-img-element -- a small local file; next/image adds nothing here
-    return <img src={file} alt={label ?? ""} className={`${className} object-contain`} onError={() => setFailed(true)} />;
+    return <img ref={img} src={file} alt={label ?? ""} className={`${className} object-contain`} onError={() => setFailed(true)} />;
   }
   return (
     <svg viewBox="0 0 40 46" className={className} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
