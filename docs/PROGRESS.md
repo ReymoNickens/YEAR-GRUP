@@ -2,6 +2,24 @@
 
 Update this at the end of every session.
 
+## 29 Oct 2026: the preview's officers, by name
+
+The executives asked for their own names and offices in the preview:
+**Amable (President)**, **Charles Armah (Financial Secretary)**, **Stephen Tawiah (Organiser)**.
+
+- An office can carry the year group's own title (`role_assignment.title`, migration
+  `20261029100000_role_titles.sql`); permissions stay on the role key. President = executive,
+  Financial Secretary = treasurer, Organiser = new `organiser` role.
+- The Organiser can put events on the calendar (`event_create`), see who is coming by house, and
+  remind those who have not answered (opens Messages with the event chosen). No money desk.
+- The money desk is now only for officers who keep or sign for money (`canSeeMoney`).
+- Sample officers renamed in `supabase/sample/20261029100050_sample_officers.sql`; their invented
+  nicknames, work and lines were cleared because they are real people.
+- Demo personas: Kwame (member), President, Financial Secretary, Organiser, and a new old boy.
+  A renamed persona can take over its sample membership from the old demo login.
+- Their demo journeys interlock: the Organiser's bus expense (GH₵3,500) needs both the President
+  and the Financial Secretary; the Financial Secretary's refund needs the President.
+
 ## 29 Oct 2026: member dues
 
 Each member now has **My dues** (`/o/<slug>/dues`): what is due now, every year (or month) with what

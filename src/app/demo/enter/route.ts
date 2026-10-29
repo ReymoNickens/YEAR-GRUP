@@ -13,11 +13,13 @@ export async function GET(request: NextRequest) {
   if (!persona || !value) return NextResponse.redirect(new URL("/demo", request.url));
   await ensureDemoDatabase();
   if (persona.memberId) {
-    // Tie the fictional classmate to this persona's login (once; a real account is never taken over).
+    // Tie the fictional classmate to this persona's login. Only a sample membership that is unclaimed,
+    // or held by a demo login (a persona that was renamed), moves; a real account is never taken over.
     const sql = await getSystemSql();
+    const demoLogins = [...PERSONAS.map((p) => p.key), "treasurer", "executive"].map(demoUserId);
     await sql`
       update membership set user_id = ${demoUserId(persona.key)}
-      where id = ${persona.memberId} and sample = true and (user_id is null or user_id = ${demoUserId(persona.key)})
+      where id = ${persona.memberId} and sample = true and (user_id is null or user_id = any(${demoLogins}))
     `;
     // Their phone counts as verified long ago, so approvals can send the (on-screen) code.
     await sql`

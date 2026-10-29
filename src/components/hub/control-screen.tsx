@@ -2,8 +2,9 @@
 import { areaName } from "@/lib/hub/words";
 import { roleTitle } from "@/lib/hub/roles";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { aiAssist, controlData } from "@/lib/hub/api";
+import { aiAssist, controlData, orgEntry } from "@/lib/hub/api";
 import { hubAct } from "@/lib/hub/act";
 import { Shell } from "@/components/hub/shell";
 import { Button, Money, State, Toggle } from "@/components/hub/ui";
@@ -17,6 +18,11 @@ export function ControlScreen({ slug, area }: { slug: string; area: string }) {
   // reload() refreshes in place: the open tab, the message and the scroll position stay.
   const { data, error, loading, reload } = useHub(`ctl-${safe}`, () => controlData({ data: { slug, area: safe } }));
   const bag = (data ?? {}) as Record<string, unknown>;
+  // Show only the desks this officer can use; the server checks again on every call.
+  const entry = useHub(`me-${slug}`, () => orgEntry({ data: slug }));
+  const keys = entry.data?.roles ?? [];
+  const money = keys.some((r) => ["organisation_admin", "executive", "treasurer", "secretary"].includes(r));
+  const shown = areas.filter((a) => a !== "money" || money || !entry.data);
   return (
     <Shell slug={slug} wide>
       <header className="rise">
@@ -24,7 +30,7 @@ export function ControlScreen({ slug, area }: { slug: string; area: string }) {
         <h1 className="display-lg mt-3">{areaName(safe)}</h1>
       </header>
       <nav aria-label="Control room" className="rail -mx-5 mt-6 flex gap-1.5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
-        {areas.map((a) => (
+        {shown.map((a) => (
           <Link key={a} href={`/o/${slug}/control/${a}`} className={`flex h-10 shrink-0 items-center border px-3.5 text-sm transition-colors ${a === safe ? "border-ink bg-ink font-medium text-paper" : "border-line-2 text-ink-2 hover:border-ink"}`} aria-current={a === safe ? "page" : undefined}>{areaName(a)}</Link>
         ))}
       </nav>
@@ -35,7 +41,7 @@ export function ControlScreen({ slug, area }: { slug: string; area: string }) {
           {safe === "community" ? <Community bag={bag} slug={slug} reload={reload} /> : null}
           {safe === "communication" ? <Comms bag={bag} slug={slug} reload={reload} /> : null}
           {safe === "governance" ? <Gov bag={bag} /> : null}
-          {safe === "events" ? <Events bag={bag} /> : null}
+          {safe === "events" ? <Events bag={bag} slug={slug} reload={reload} /> : null}
           {safe === "reports" ? <Reports bag={bag} slug={slug} /> : null}
         </State>
       </div>
@@ -84,7 +90,8 @@ function Comms({ bag, slug, reload }: { bag: Record<string, unknown>; slug: stri
   const [body, setBody] = useState("");
   const [msg, setMsg] = useState("");
   const [busy, setBusy] = useState(false);
-  const [eventId, setEventId] = useState(events[0]?.id ?? "");
+  const asked = useSearchParams().get("event");
+  const [eventId, setEventId] = useState(asked && events.some((e) => e.id === asked) ? asked : events[0]?.id ?? "");
   const [urgent, setUrgent] = useState(false);
   const options = circles.filter((c) => levelOf(c) === kind);
   const target = circles.find((c) => c.id === circleId);
@@ -163,8 +170,8 @@ function Comms({ bag, slug, reload }: { bag: Record<string, unknown>; slug: stri
           />
         </label>
         {events.length > 0 ? (
-          <details className="mt-2 border border-line bg-card px-4 py-3">
-            <summary className="cursor-pointer text-sm">Remind people about an event</summary>
+          <details className="mt-2 border border-line bg-card px-4 py-3" open={!!asked}>
+            <summary className="cursor-pointer text-sm font-medium">Remind people about an event</summary>
             <div className="mt-3 space-y-2">
               <select aria-label="Event" className="input" value={eventId} onChange={(e) => setEventId(e.target.value)}>
                 {events.map((e) => <option key={e.id} value={e.id}>{e.title}</option>)}
@@ -215,17 +222,125 @@ function Gov({ bag }: { bag: Record<string, unknown> }) {
   );
 }
 
-function Events({ bag }: { bag: Record<string, unknown> }) {
-  const events = (bag.events as { title: string; place: string; startsAt: string; going: number }[]) ?? [];
+type EventRow = {
+  id: string; title: string; place: string; startsAt: string; story: string; audience: string | null;
+  capacity: number | null; price: number | null; going: number; maybe: number; declined: number; invited: number;
+  houses: { house: string; n: number }[];
+};
+
+/** The organiser's desk: put an event on the calendar, see who is coming by house, and remind the rest. */
+function Events({ bag, slug, reload }: { bag: Record<string, unknown>; slug: string; reload: () => void }) {
+  const events = (bag.events as EventRow[]) ?? [];
+  const audiences = (bag.audiences as { id: string; name: string }[]) ?? [];
+  const canCreate = bag.canCreate === true;
+  const [form, setForm] = useState({ title: "", place: "", startsAt: "", story: "", circleId: audiences[0]?.id ?? "", capacity: "" });
+  const [msg, setMsg] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [now] = useState(() => Date.now());
+  const upcoming = events.filter((e) => new Date(e.startsAt).getTime() >= now - 86_400_000);
+  const past = events.filter((e) => new Date(e.startsAt).getTime() < now - 86_400_000);
+
+  async function create() {
+    setBusy(true);
+    setMsg("");
+    try {
+      await hubAct({ data: { type: "event_create", slug, ...form, startsAt: form.startsAt ? new Date(form.startsAt).toISOString() : "" } });
+      setForm({ ...form, title: "", place: "", startsAt: "", story: "", capacity: "" });
+      setMsg("It is on the calendar. Members can say if they are coming.");
+      reload();
+    } catch (e) {
+      setMsg(e instanceof Error ? e.message : "The event was not saved.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const card = (e: EventRow) => {
+    const answered = e.going + e.maybe + e.declined;
+    const silent = Math.max(0, e.invited - answered);
+    const top = Math.max(1, ...e.houses.map((h) => h.n));
+    const d = new Date(e.startsAt);
+    return (
+      <li key={e.id} className="py-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="kicker">{d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })} · {d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</p>
+            <h3 className="mt-2 font-display text-[1.75rem] leading-[1.02] tracking-[-0.01em]">{e.title}</h3>
+            <p className="mt-1 text-[13px] text-muted">{e.place}{e.audience ? ` · for ${e.audience}` : ""}{e.capacity ? ` · ${e.capacity} seats` : ""}</p>
+          </div>
+          <div className="shrink-0 text-right">
+            <p className="figure text-[2rem]">{e.going}</p>
+            <p className="text-[12px] text-muted">coming</p>
+          </div>
+        </div>
+        <dl className="mt-4 grid grid-cols-4 border-t border-l border-line text-center">
+          {[["Coming", e.going], ["Maybe", e.maybe], ["Can’t", e.declined], ["Not yet", silent]].map(([k, v]) => (
+            <div key={String(k)} className="border-r border-b border-line px-1 py-2.5">
+              <dt className="text-[11px] text-muted">{k}</dt>
+              <dd className="mt-0.5 font-mono text-[15px] font-semibold tabular-nums">{v}</dd>
+            </div>
+          ))}
+        </dl>
+        {e.houses.length ? (
+          <ul className="mt-4 space-y-2" aria-label="Coming, by house">
+            {e.houses.map((h) => (
+              <li key={h.house} className="grid grid-cols-[9rem_1fr_2rem] items-center gap-3 text-[13px]">
+                <span className="truncate">{h.house}</span>
+                <span className="h-1.5 bg-sunk"><span className="block h-full bg-ink" style={{ width: `${(h.n / top) * 100}%` }} /></span>
+                <span className="text-right font-mono tabular-nums">{h.n}</span>
+              </li>
+            ))}
+          </ul>
+        ) : null}
+        {silent > 0 ? (
+          <Link href={`/o/${slug}/control/communication?event=${e.id}`} className="mt-4 inline-flex min-h-11 items-center text-sm font-medium text-crimson-ink underline underline-offset-4">
+            Remind the {silent} who have not answered
+          </Link>
+        ) : null}
+      </li>
+    );
+  };
+
   return (
-    <ul className="space-y-3">
-      {events.map((e) => (
-        <li key={e.title} className="border border-line bg-card p-5">
-          <p className="font-display text-2xl">{e.title}</p>
-          <p className="text-sm text-muted">{e.place} · {e.going} going</p>
-        </li>
-      ))}
-    </ul>
+    <div className="space-y-10">
+      {canCreate ? (
+        <details className="group border border-line bg-card" open={events.length === 0}>
+          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between px-5 text-[15px] font-medium">
+            Put an event on the calendar <span aria-hidden className="text-xl transition-transform group-open:rotate-45">+</span>
+          </summary>
+          <div className="space-y-4 border-t border-line p-5">
+            <label className="block"><span className="mb-2 block text-[13px] font-medium text-ink-2">What is it</span><input className="input" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="Founders day thanksgiving" /></label>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block"><span className="mb-2 block text-[13px] font-medium text-ink-2">Where</span><input className="input" value={form.place} onChange={(e) => setForm({ ...form, place: e.target.value })} placeholder="Cape Coast" /></label>
+              <label className="block"><span className="mb-2 block text-[13px] font-medium text-ink-2">When</span><input type="datetime-local" className="input" value={form.startsAt} onChange={(e) => setForm({ ...form, startsAt: e.target.value })} /></label>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="block"><span className="mb-2 block text-[13px] font-medium text-ink-2">Who is it for</span>
+                <select className="input" value={form.circleId} onChange={(e) => setForm({ ...form, circleId: e.target.value })}>
+                  {audiences.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </label>
+              <label className="block"><span className="mb-2 block text-[13px] font-medium text-ink-2">Seats (optional)</span><input className="input" inputMode="numeric" value={form.capacity} onChange={(e) => setForm({ ...form, capacity: e.target.value.replace(/\D/g, "") })} placeholder="120" /></label>
+            </div>
+            <label className="block"><span className="mb-2 block text-[13px] font-medium text-ink-2">A line for members</span><textarea className="input min-h-24" value={form.story} onChange={(e) => setForm({ ...form, story: e.target.value })} placeholder="What to bring, what to expect." /></label>
+            <Button disabled={busy || form.title.trim().length < 3 || form.place.trim().length < 2 || !form.startsAt || !form.circleId} onClick={create}>{busy ? "Saving…" : "Put it on the calendar"}</Button>
+            {msg ? <p role="status" className="border-l-[3px] border-paid bg-paper px-4 py-3 text-sm">{msg}</p> : null}
+          </div>
+        </details>
+      ) : null}
+
+      <section>
+        <h2 className="display-sm">Coming up</h2>
+        {upcoming.length === 0 ? <p className="py-4 text-muted">Nothing on the calendar yet.</p> : null}
+        <ul className="mt-2 ruled-list border-y border-line">{upcoming.map(card)}</ul>
+      </section>
+      {past.length ? (
+        <section>
+          <h2 className="display-sm">Already held</h2>
+          <ul className="mt-2 ruled-list border-y border-line opacity-80">{past.map(card)}</ul>
+        </section>
+      ) : null}
+    </div>
   );
 }
 

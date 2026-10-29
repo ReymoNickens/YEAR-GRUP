@@ -1269,6 +1269,16 @@ select hub_apply_grants();
 
 insert into supabase_migrations.schema_migrations (version, name) values ('20261029090000', 'dues_plan') on conflict do nothing;
 
+-- ===== 20261029100000_role_titles.sql =====
+-- An office can carry the year group's own title ("President", "Financial Secretary"),
+-- while what it may do stays with its role key.
+alter table role_assignment add column if not exists title text;
+
+select hub_apply_grants();
+
+
+insert into supabase_migrations.schema_migrations (version, name) values ('20261029100000', 'role_titles') on conflict do nothing;
+
 -- ===== supabase/manual/organisation-mfantsipim-2007.sql =====
 -- Mfantsipim 2007: generated from config/organisations/mfantsipim-2007.json by scripts/provision-sql.ts
 insert into organisation (id, slug, name, type, terminology, branding, verification_rule, min_givers, enabled_modules, payment_mode,

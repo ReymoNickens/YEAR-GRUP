@@ -4,6 +4,7 @@ const TITLES: Record<string, string> = {
   executive: "Executive",
   treasurer: "Treasurer",
   secretary: "Secretary",
+  organiser: "Organiser",
   house_captain: "House captain",
   dorm_prefect: "Dorm prefect",
   cot_leader: "Cot leader",

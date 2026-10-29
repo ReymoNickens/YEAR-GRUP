@@ -3113,4 +3113,26 @@ insert into receipt (id, organisation_id, number, intent_id, purpose_title, amou
   select 'rc_pi_dues_22', 'org_2007', 'MF2007-' || lpad(c.n::text, 4, '0'), 'pi_dues_22', 'Year group dues', 24000, (now() - interval '8 days')::date, false from c;
 
 
+-- ===== 20261029100000_role_titles.sql =====
+-- An office can carry the year group's own title ("President", "Financial Secretary"),
+-- while what it may do stays with its role key.
+alter table role_assignment add column if not exists title text;
+
+select hub_apply_grants();
+
+
+insert into supabase_migrations.schema_migrations (version, name) values ('20261029100000', 'role_titles') on conflict do nothing;
+
+-- ===== 20261029100050_sample_officers.sql =====
+-- Sample only: the preview's officers, named as the executives asked.
+-- Amable (President), Charles Armah (Financial Secretary), Stephen Tawiah (Organiser).
+-- Their invented nicknames, work and lines are cleared: these are real people.
+update membership set display_name = 'Amable', nickname = null, profession = null, bio = null where id = 'mem_19' and organisation_id = 'org_2007';
+update membership set display_name = 'Charles Armah', nickname = null, profession = null, bio = null where id = 'mem_11' and organisation_id = 'org_2007';
+update membership set display_name = 'Stephen Tawiah', nickname = null, profession = null, bio = null where id = 'mem_17' and organisation_id = 'org_2007';
+update role_assignment set title = 'President' where id = 'role_exec' and organisation_id = 'org_2007';
+update role_assignment set title = 'Financial Secretary' where id = 'role_treasurer' and organisation_id = 'org_2007';
+update role_assignment set role = 'organiser', title = 'Organiser' where id = 'role_secretary' and organisation_id = 'org_2007';
+
+
 commit;

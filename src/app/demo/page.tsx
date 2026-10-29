@@ -16,11 +16,11 @@ const PROMISES = [
 ];
 
 const TRY = [
+  ["As Kwame, pay your 2026 dues", "and give to the library; watch the house cup move."],
+  ["As Amable, the President,", "approve names from the uploaded member list, co-sign the bus expense and approve the refund."],
+  ["As Charles Armah, Financial Secretary,", "see who has paid their dues, sign the bus expense, and download the ledger."],
+  ["As Stephen Tawiah, the Organiser,", "put an event on the calendar, see who is coming by house, and remind the rest."],
   ["Join as a new old boy", "and find your cot."],
-  ["Pay your 2026 dues as Kwame,", "then give ₵200 to the library and watch the house cup move."],
-  ["See who has paid their dues", "as the treasurer, then approve the reunion cards expense."],
-  ["Send an announcement to one house", "as an executive."],
-  ["Open Photos, Polls and Businesses", "from the sidebar or the Me tab."],
 ];
 
 /** The front page of the executive demo: what this is, who you can be, and what to try. */

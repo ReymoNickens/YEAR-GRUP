@@ -10,6 +10,8 @@ import {
   audit,
   beginGateway,
   canOpenControl,
+  canOrganise,
+  canSeeMoney,
   duesPlans,
   duesPaidBy,
   fail,
@@ -826,6 +828,31 @@ export const hubAct = createServerFn({ method: "POST" }).validator((input: unkno
     return { ok: true };
   }
 
+  if (type === "event_create") {
+    if (!canOrganise(roles)) fail("Events are put on the calendar by the organiser or the executive.");
+    const title = String(data.title ?? "").trim();
+    const place = String(data.place ?? "").trim();
+    const story = String(data.story ?? "").trim();
+    const startsAt = new Date(String(data.startsAt ?? ""));
+    const capacity = data.capacity == null || data.capacity === "" ? null : num(data.capacity);
+    if (title.length < 3) fail("Give the event a name.");
+    if (place.length < 2) fail("Say where it is.");
+    if (Number.isNaN(startsAt.getTime())) fail("Choose the day and time.");
+    if (startsAt.getTime() < Date.now() - 3_600_000) fail("Choose a day that has not passed.");
+    if (capacity != null && (!Number.isInteger(capacity) || capacity < 1 || capacity > 5000)) fail("Seats must be a whole number.");
+    const circle = await sql<{ id: string }>`
+      select id from circle where id = ${String(data.circleId ?? "")} and organisation_id = ${org.id} and visibility <> 'hidden'
+    `;
+    if (!circle[0]) fail("Choose who the event is for.");
+    const id = nid("ev");
+    await sql`
+      insert into hub_event (id, organisation_id, circle_id, title, place, starts_at, story, price_pesewas, purpose_id, capacity)
+      values (${id}, ${org.id}, ${circle[0].id}, ${title.slice(0, 80)}, ${place.slice(0, 80)}, ${startsAt.toISOString()}, ${story.slice(0, 400)}, null, null, ${capacity})
+    `;
+    await audit(sql, org.id, member.id, "event_created", title.slice(0, 80));
+    return { ok: true, id };
+  }
+
   if (type === "dues_plan") {
     if (!(isTreasurer(roles) || roles.some((r) => r.role === "organisation_admin" || r.role === "executive"))) fail("Dues are set by the treasurer or an executive.");
     const amount = num(data.amountPesewas);
@@ -1037,6 +1064,7 @@ export const controlData = createServerFn({ method: "POST" }).validator((input: 
   if (!canOpenControl(roles)) fail("The control room is for officers of this year group.");
   const scope = scopeOf(roles);
   const area = data.area;
+  if (area === "money" && !canSeeMoney(roles)) fail("The money desk is for the officers who keep and sign for the money.");
 
   if (area === "people") {
     const counts = await sql<Record<string, unknown>>`
@@ -1230,7 +1258,7 @@ export const controlData = createServerFn({ method: "POST" }).validator((input: 
 
   if (area === "governance") {
     const rolesRows = await sql<Record<string, unknown>>`
-      select r.role, m.nickname, m.display_name, m.sample from role_assignment r
+      select coalesce(r.title, r.role) as role, m.nickname, m.display_name, m.sample from role_assignment r
       join membership m on m.id = r.membership_id where r.organisation_id = ${org.id} order by r.role
     `;
     return {
@@ -1246,13 +1274,37 @@ export const controlData = createServerFn({ method: "POST" }).validator((input: 
 
   if (area === "events") {
     const rows = await sql<Record<string, unknown>>`
-      select e.title, e.place, e.starts_at::text as starts_at,
-        (select count(*)::int from rsvp r where r.event_id = e.id and r.status = 'going') as going
-      from hub_event e where e.organisation_id = ${org.id} order by e.starts_at
+      select e.id, e.title, e.place, e.starts_at::text as starts_at, e.story, e.capacity, e.price_pesewas, c.name as audience,
+        (select count(*)::int from rsvp r where r.event_id = e.id and r.status = 'going') as going,
+        (select count(*)::int from rsvp r where r.event_id = e.id and r.status = 'maybe') as maybe,
+        (select count(*)::int from rsvp r where r.event_id = e.id and r.status = 'no') as declined,
+        (select count(*)::int from circle_member cm where cm.circle_id = e.circle_id) as invited
+      from hub_event e left join circle c on c.id = e.circle_id
+      where e.organisation_id = ${org.id} order by e.starts_at
+    `;
+    const houses = await sql<{ event_id: string; house: string | null; n: number }>`
+      select r.event_id, h.name as house, count(*)::int as n from rsvp r
+      join hub_event e on e.id = r.event_id
+      join membership m on m.id = r.membership_id
+      left join structure_node h on h.id = m.house_node_id
+      where e.organisation_id = ${org.id} and r.status = 'going'
+      group by r.event_id, h.name order by n desc
+    `;
+    const audiences = await sql<{ id: string; name: string; level: string | null }>`
+      select c.id, c.name, n.level from circle c left join structure_node n on n.id = c.node_id
+      where c.organisation_id = ${org.id} and c.kind = 'derived' and (n.level is null or n.level in ('year', 'house'))
+      order by case when n.level is null or n.level = 'year' then 0 else 1 end, c.name
     `;
     return {
       area,
-      events: rows.map((e) => ({ title: String(e.title), place: String(e.place), startsAt: String(e.starts_at), going: num(e.going) })),
+      canCreate: canOrganise(roles),
+      audiences: audiences.map((c) => ({ id: String(c.id), name: String(c.name) })),
+      events: rows.map((e) => ({
+        id: String(e.id), title: String(e.title), place: String(e.place), startsAt: String(e.starts_at), story: String(e.story),
+        audience: str(e.audience), capacity: e.capacity == null ? null : num(e.capacity), price: e.price_pesewas == null ? null : num(e.price_pesewas),
+        going: num(e.going), maybe: num(e.maybe), declined: num(e.declined), invited: num(e.invited),
+        houses: houses.filter((h) => h.event_id === e.id).map((h) => ({ house: h.house ?? "No house", n: num(h.n) })),
+      })),
     };
   }
 

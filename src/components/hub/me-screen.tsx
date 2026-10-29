@@ -6,7 +6,6 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { signOut } from "@/lib/auth/client";
-import { roleTitle } from "@/lib/hub/roles";
 import { myReceipts, orgEntry, peersWaiting, phoneStart, phoneVerify } from "@/lib/hub/api";
 import { hubAct } from "@/lib/hub/act";
 import { Shell } from "@/components/hub/shell";
@@ -113,7 +112,7 @@ export function MeScreen({ slug }: { slug: string }) {
     }
   }
   const pending = (waiting.data ?? []).filter((w) => !confirmed.includes(w.id));
-  const roleNames = entry.data?.roles.map(roleTitle) ?? [];
+  const roleNames = entry.data?.titles ?? [];
   return (
     <Shell slug={slug} wide>
       <State loading={entry.loading} error={entry.error}>

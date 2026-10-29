@@ -5,6 +5,7 @@ import { audit, track } from "@/lib/hub/audit";
 import { syncDerived as syncDerivedFor } from "@/lib/hub/circles";
 import { claimPlace, enrolNewMember, type EnrolForm } from "@/lib/hub/claims";
 import { duesStatement, type DuesPlan } from "@/lib/hub/dues";
+import { roleTitle } from "@/lib/hub/roles";
 import { planCollection } from "@/lib/hub/money";
 import { bindPhone, primaryPhone, requestCode, verifyCode } from "@/lib/hub/otp";
 import { failIntent, settleIntent as settleIntentCore, type PayOrg } from "@/lib/hub/payments";
@@ -58,7 +59,7 @@ export type Member = {
   className: string | null;
 };
 
-type Role = { role: string; scopeType: string; scopeId: string | null; scopePath: string | null };
+type Role = { role: string; title: string | null; scopeType: string; scopeId: string | null; scopePath: string | null };
 
 function obj(v: unknown): Record<string, string> {
   if (!v) return {};
@@ -159,10 +160,11 @@ async function memberByUser(sql: Sql, orgId: string, userId: string) {
 
 async function rolesOf(sql: Sql, memberId: string) {
   const rows = await sql<Record<string, unknown>>`
-    select role, scope_type, scope_id, scope_path from role_assignment where membership_id = ${memberId}
+    select role, title, scope_type, scope_id, scope_path from role_assignment where membership_id = ${memberId}
   `;
   return rows.map((r) => ({
     role: String(r.role),
+    title: str(r.title),
     scopeType: String(r.scope_type),
     scopeId: str(r.scope_id),
     scopePath: str(r.scope_path),
@@ -170,7 +172,19 @@ async function rolesOf(sql: Sql, memberId: string) {
 }
 
 export function isOfficer(roles: Role[]) {
+  return roles.some((r) => ["organisation_admin", "executive", "treasurer", "secretary", "organiser"].includes(r.role));
+}
+/** Who may open the money desk: the officers who keep or sign for the money. */
+export function canSeeMoney(roles: Role[]) {
   return roles.some((r) => ["organisation_admin", "executive", "treasurer", "secretary"].includes(r.role));
+}
+/** Who may put an event on the calendar. */
+export function canOrganise(roles: Role[]) {
+  return roles.some((r) => ["organisation_admin", "executive", "organiser"].includes(r.role));
+}
+/** The titles to show for someone's offices: the year group's own title where it set one. */
+export function titlesOf(roles: Role[]) {
+  return [...new Set(roles.map((r) => r.title || roleTitle(r.role)))];
 }
 export function isTreasurer(roles: Role[]) {
   return roles.some((r) => r.role === "treasurer");
@@ -238,6 +252,7 @@ export const orgEntry = createServerFn({ method: "POST" }).validator(slugOf).mid
     org,
     member: member ? publicPerson(member, roles, true) : null,
     roles: roles.map((r) => r.role),
+    titles: titlesOf(roles),
     control: canOpenControl(roles),
   };
 });
@@ -495,8 +510,8 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
   // The latest announcement that reached this member, signed with the sender's name and title.
   const notice = await sql<Record<string, unknown>>`
     select a.body, a.audience, a.created_at::text as created_at, m.display_name, m.nickname,
-      (select r.role from role_assignment r where r.membership_id = a.author_membership_id
-         order by array_position(array['organisation_admin','executive','treasurer','secretary','house_captain','dorm_prefect','cot_leader','class_representative'], r.role) limit 1) as role
+      (select coalesce(r.title, r.role) from role_assignment r where r.membership_id = a.author_membership_id
+         order by array_position(array['organisation_admin','executive','treasurer','secretary','organiser','house_captain','dorm_prefect','cot_leader','class_representative'], r.role) limit 1) as role
     from announcement a join membership m on m.id = a.author_membership_id
     where a.organisation_id = ${org.id} and a.created_at > now() - interval '21 days'
       and exists (select 1 from outbox o where o.idempotency_key = 'an:' || a.id || ':' || ${member.id} || ':in_app')
