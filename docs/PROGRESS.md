@@ -2,6 +2,22 @@
 
 Update this at the end of every session.
 
+## 29 Oct 2026: design reset, Stage A (branch `claude/honours-board`)
+
+The executives found the redesign still common. Direction chosen with the owner: **The Honours
+Board** (gilt names on a dark board; papers pinned to it), a warm and ceremonial voice, 2007 as the
+year we left school. Concept, audit and system in `docs/DESIGN.md`.
+
+- Built on its own branch with its own preview link:
+  https://year-grup-git-claude-honours-board-reymonickens-projects.vercel.app/demo
+  (the live demo on `claude/practical-volta-ezvr3s` is untouched). A branch-scoped `DATABASE_URL`
+  points the preview at the same demo database.
+- Done in Stage A: tokens, type (Cormorant Garamond lettering, Source Serif 4 text and figures),
+  the frame, **Home** and **My dues**. Other screens inherit type and colour only.
+- Home counts only real things: confirmed members, confirmed givers. `branding.cohort` = 2007.
+- Stage B, after approval: the demo landing, giving journey, receipt, circles, roll, Me, events,
+  notices and the control room, then merge into the live branch.
+
 ## 29 Oct 2026: the preview's officers, by name
 
 The executives asked for their own names and offices in the preview:
