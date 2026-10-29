@@ -803,19 +803,19 @@ insert into circle (id, organisation_id, kind, visibility, node_id, name, purpos
 insert into circle (id, organisation_id, kind, visibility, node_id, name, purpose, slug) values ('cir_c_bartels_upper_3', 'org_2007', 'derived', 'open', 'c_bartels_upper_3', 'Cot 3, Upper Bartels-Sneath', 'Opened because a cot mate is here.', 'cot-bartels-upper-3');
 insert into circle (id, organisation_id, kind, visibility, node_id, name, purpose, slug) values ('cir_c_bartels_middle_1', 'org_2007', 'derived', 'open', 'c_bartels_middle_1', 'Cot 1, Middle Bartels-Sneath', 'Opened because a cot mate is here.', 'cot-bartels-middle-1');
 insert into membership (id, organisation_id, user_id, sample, status, display_name, nickname, phone, city, profession, bio, house_node_id, dorm_node_id, cot_node_id, programme_node_id, class_node_id, residence_escape, birthday_month, birthday_day, birthday_opt_out) values (
-    'mem_01', 'org_2007', null, true, 'verified', 'Kwame Mensah', 'Killer', '+233200001000', 'Accra', 'Civil engineer', 'I still measure a room by eye before I trust the tape.',
+    'mem_01', 'org_2007', null, true, 'verified', 'Kwame Mensah', 'Wayo', '+233200001000', 'Accra', 'Civil engineer', 'I still measure a room by eye before I trust the tape.',
     'h_balmer', 'd_balmer_upper', 'c_balmer_upper_3', 'p_sci', 'cl_sci_s1', null, 10, 12, false
   );
 insert into membership (id, organisation_id, user_id, sample, status, display_name, nickname, phone, city, profession, bio, house_node_id, dorm_node_id, cot_node_id, programme_node_id, class_node_id, residence_escape, birthday_month, birthday_day, birthday_opt_out) values (
-    'mem_02', 'org_2007', null, true, 'verified', 'Yaw Boateng', 'Professor', '+233200001001', 'Kumasi', 'Lecturer', 'I teach structures and I still quote our old physics master.',
+    'mem_02', 'org_2007', null, true, 'verified', 'Yaw Boateng', 'Obonto', '+233200001001', 'Kumasi', 'Lecturer', 'I teach structures and I still quote our old physics master.',
     'h_balmer', 'd_balmer_upper', 'c_balmer_upper_3', 'p_sci', 'cl_sci_s2', null, 3, 2, false
   );
 insert into membership (id, organisation_id, user_id, sample, status, display_name, nickname, phone, city, profession, bio, house_node_id, dorm_node_id, cot_node_id, programme_node_id, class_node_id, residence_escape, birthday_month, birthday_day, birthday_opt_out) values (
-    'mem_03', 'org_2007', null, true, 'verified', 'Kofi Asante', 'Shatta', '+233200001002', 'Accra', 'Events producer', 'If the sound is wrong, the hall is wrong.',
+    'mem_03', 'org_2007', null, true, 'verified', 'Kofi Asante', 'Wetbone', '+233200001002', 'Accra', 'Events producer', 'If the sound is wrong, the hall is wrong.',
     'h_balmer', 'd_balmer_lower', 'c_balmer_lower_1', 'p_sci', 'cl_sci_s1', null, 7, 19, false
   );
 insert into membership (id, organisation_id, user_id, sample, status, display_name, nickname, phone, city, profession, bio, house_node_id, dorm_node_id, cot_node_id, programme_node_id, class_node_id, residence_escape, birthday_month, birthday_day, birthday_opt_out) values (
-    'mem_04', 'org_2007', null, true, 'verified', 'Kojo Owusu', 'Lawyer', '+233200001003', 'Accra', 'Barrister', 'I argue for a living and I still lose to my cot.',
+    'mem_04', 'org_2007', null, true, 'verified', 'Kojo Owusu', 'Reymo', '+233200001003', 'Accra', 'Barrister', 'I argue for a living and I still lose to my cot.',
     'h_balmer', 'd_balmer_lower', 'c_balmer_lower_5', 'p_arts', 'cl_arts_a2', null, 1, 8, false
   );
 insert into membership (id, organisation_id, user_id, sample, status, display_name, nickname, phone, city, profession, bio, house_node_id, dorm_node_id, cot_node_id, programme_node_id, class_node_id, residence_escape, birthday_month, birthday_day, birthday_opt_out) values (

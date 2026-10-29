@@ -22,10 +22,10 @@ const programmes = [
 ];
 
 const people = [
-  ["Kwame Mensah", "Killer", "balmer", "upper", 3, "sci", "s1", "Accra", "Civil engineer", 10, 12, "I still measure a room by eye before I trust the tape."],
-  ["Yaw Boateng", "Professor", "balmer", "upper", 3, "sci", "s2", "Kumasi", "Lecturer", 3, 2, "I teach structures and I still quote our old physics master."],
-  ["Kofi Asante", "Shatta", "balmer", "lower", 1, "sci", "s1", "Accra", "Events producer", 7, 19, "If the sound is wrong, the hall is wrong."],
-  ["Kojo Owusu", "Lawyer", "balmer", "lower", 5, "arts", "a2", "Accra", "Barrister", 1, 8, "I argue for a living and I still lose to my cot."],
+  ["Kwame Mensah", "Wayo", "balmer", "upper", 3, "sci", "s1", "Accra", "Civil engineer", 10, 12, "I still measure a room by eye before I trust the tape."],
+  ["Yaw Boateng", "Obonto", "balmer", "upper", 3, "sci", "s2", "Kumasi", "Lecturer", 3, 2, "I teach structures and I still quote our old physics master."],
+  ["Kofi Asante", "Wetbone", "balmer", "lower", 1, "sci", "s1", "Accra", "Events producer", 7, 19, "If the sound is wrong, the hall is wrong."],
+  ["Kojo Owusu", "Reymo", "balmer", "lower", 5, "arts", "a2", "Accra", "Barrister", 1, 8, "I argue for a living and I still lose to my cot."],
   ["Kwesi Appiah", "Doctor", "balmer", "upper", 7, "sci", "s3", "Tema", "Medical officer", 11, 4, "Night shifts, then the group chat."],
   ["Kobby Nunoo", "Radar", "balmer", "lower", 2, "sci", "s1", "Accra", "Telecoms engineer", 10, 28, "I keep the lines up."],
   ["Ebo Hanson", "Pilot", "balmer", "upper", null, "arts", "a1", "Takoradi", "Airline officer", 5, 16, "I boarded, but I cannot swear to the cot number."],
