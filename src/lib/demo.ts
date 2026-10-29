@@ -36,7 +36,7 @@ export const PERSONAS: Persona[] = [
   {
     key: "kwame",
     memberId: "mem_01",
-    name: "Kwame “Killer” Mensah",
+    name: "Kwame “Wayo” Mensah",
     role: "House captain, Balmer-Acquaah",
     blurb: "A confirmed member: his circles, his cot mates, the library appeal, giving and receipts.",
     start: "/home",
