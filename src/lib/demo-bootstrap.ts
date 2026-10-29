@@ -35,9 +35,9 @@ export function ensureDemoDatabase(): Promise<void> {
 }
 
 /**
- * A preview loaded before a newer migration existed: run the migrations it has not
- * seen, with the sample rows that came with them, once, and record each one in
- * Supabase's history. Every migration is written to be safe to run again.
+ * A preview loaded before a newer migration or sample existed: run the migrations it
+ * has not seen, with the sample rows that came with them (or after them), once, and
+ * record each one in Supabase's history. Every file is written to be safe to run again.
  */
 async function catchUp() {
   const sql = await getSystemSql();
@@ -47,17 +47,22 @@ async function catchUp() {
     (await sql<{ version: string }>`select version from supabase_migrations.schema_migrations`).map((r) => String(r.version)),
   );
   const pending = migrations.filter((f) => !done.has(f.slice(0, 14)));
-  if (!pending.length) return;
-  const since = pending[0].slice(0, 14);
-  const samples = (await readdir(join(root, "sample"))).filter((f) => /^\d{14}_.*\.sql$/.test(f) && f.slice(0, 14) > since);
+  // Sample rows can also arrive on their own (no schema change): any sample newer than everything recorded.
+  // Each sample file is written to be safe to run again, and is recorded once it has run.
+  const newest = [...done].sort().at(-1) ?? "";
+  const since = pending[0]?.slice(0, 14) ?? "99999999999999";
+  const samples = (await readdir(join(root, "sample"))).filter((f) => {
+    const v = f.slice(0, 14);
+    return /^\d{14}_.*\.sql$/.test(f) && !done.has(v) && (v > since || v > newest);
+  });
+  if (!pending.length && !samples.length) return;
   const files = [...pending.map((f) => ({ f, dir: "migrations" })), ...samples.map((f) => ({ f, dir: "sample" }))].sort((a, b) => a.f.localeCompare(b.f));
   const parts = ["begin;", "select pg_advisory_xact_lock(727007);"];
   for (const { f, dir } of files) {
     parts.push(await readFile(join(root, dir, f), "utf8"));
-    if (dir === "migrations") {
-      const [version, ...name] = f.replace(/\.sql$/, "").split("_");
-      parts.push(`insert into supabase_migrations.schema_migrations (version, name) values ('${version}', '${name.join("_")}') on conflict do nothing;`);
-    }
+    const [version, ...name] = f.replace(/\.sql$/, "").split("_");
+    const label = dir === "sample" ? `sample_${name.join("_")}` : name.join("_");
+    parts.push(`insert into supabase_migrations.schema_migrations (version, name) values ('${version}', '${label}') on conflict do nothing;`);
   }
   parts.push("commit;");
   await sql.query(parts.join("\n"));

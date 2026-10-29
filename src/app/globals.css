@@ -1,109 +1,130 @@
 @import "tailwindcss";
 
 /* ═══════════════════════════════════════════════════════════════════
-   THE HONOURS BOARD  (docs/DESIGN.md)
-   The board: dark ground, names lettered in gilt. Identity and pride.
-   Paper: warm, ruled, printed. Ledgers, receipts, notices, forms.
-   Light mode is the printed programme; board panels stay dark on it,
-   as a board hangs on a hall wall.
+   THE EXERCISE BOOK AND THE BLACKBOARD  (docs/DESIGN.md)
+   Light: the exercise book. Cream paper, blue rules, the red margin.
+   Dark: the classroom blackboard, written in chalk.
+   Paper slips (.slip) stay paper in both; board bands (.board) stay
+   blackboard in both. Colours: the crest's red and black, and paper.
    ═══════════════════════════════════════════════════════════════════ */
 
-/* ── Programme (light) ── */
+/* ── The exercise book (light) ── */
 :root {
-  --paper: #f1ebde;
-  --card: #faf6ec;
-  --sunk: #e7dfce;
-  --ink: #1c1813;
-  --ink-2: #3b342a;
-  --muted: #6c6355;
-  --line: #d9cfbb;
-  --line-2: #bfb39a;
-  --gilt: #7d5f26;
-  --gilt-hi: #94712e;
-  --gilt-line: #b89b62;
-  --crimson: #a3141e;
-  --crimson-ink: #a3141e;
-  --crimson-fill: #8f1a20;
+  --paper: #fbf8ef;
+  --card: #ffffff;
+  --sunk: #f0eadb;
+  --ink: #1d1b18;
+  --ink-2: #3d3933;
+  --muted: #6b655b;
+  --line: #ddd5c4;
+  --line-2: #bdb3a0;
+  --rule: #b9cfe2;            /* the exercise book's blue rule */
+  --gilt: #b0102a;            /* the accent: red ink (the name kept so every screen follows) */
+  --gilt-hi: #c8102e;
+  --gilt-line: #dcaab1;
+  --crimson: #b0102a;
+  --crimson-ink: #b0102a;
+  --crimson-fill: #c8102e;
   --on-crimson: #ffffff;
   --gold: var(--gilt);
-  --gold-soft: #ece2c9;
+  --gold-soft: #f6e3e5;
   --paid: #2f6b45;
   --paid-soft: #e2eadb;
-  --stamp: #a3141e;
-  --btn-bg: #1c1813;
-  --btn-fg: #f6f0e3;
+  --stamp: #b0102a;
+  --hand: #1f3a8a;            /* biro */
+  --btn-bg: #141212;
+  --btn-fg: #ffffff;
   --shadow: 28 20 10;
   color-scheme: light;
 }
 
-/* ── The board: the dark ground, in dark mode everywhere, and in any .board panel ── */
+/* ── The blackboard: dark mode everywhere, and any .board band ── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --paper: #12100d;
-    --card: #1b1814;
-    --sunk: #25211c;
-    --ink: #ece4d3;
-    --ink-2: #cfc6b4;
-    --muted: #a69c8a;
-    --line: #2f2a23;
-    --line-2: #4a4135;
-    --gilt: #c9a45c;
-    --gilt-hi: #e0bf78;
-    --gilt-line: #8a7140;
-    --crimson: #e0575e;
-    --crimson-ink: #ec7e83;
-    --crimson-fill: #9e1b22;
-    --gold-soft: #2a2418;
-    --paid: #86c497;
-    --paid-soft: #17231a;
-    --stamp: #ec7e83;
-    --btn-bg: #c9a45c;
-    --btn-fg: #12100d;
+    --paper: #1b1e1d;
+    --card: #242827;
+    --sunk: #2d3230;
+    --ink: #eeede6;
+    --ink-2: #d2d3cb;
+    --muted: #a5a89f;
+    --line: #363b39;
+    --line-2: #535956;
+    --rule: transparent;
+    --gilt: #ff8a93;          /* red chalk */
+    --gilt-hi: #ffa6ad;
+    --gilt-line: #7c4248;
+    --crimson: #ff8a93;
+    --crimson-ink: #ff9aa2;
+    --crimson-fill: #c8102e;
+    --gold-soft: #3a2427;
+    --paid: #8fd1a2;
+    --paid-soft: #1c2b21;
+    --stamp: #ff8a93;
+    --hand: #eeede6;          /* chalk */
+    --btn-bg: #c8102e;
+    --btn-fg: #ffffff;
     --shadow: 0 0 0;
     color-scheme: dark;
   }
 }
 .board {
-  --paper: #12100d;
-  --card: #1b1814;
-  --sunk: #25211c;
-  --ink: #ece4d3;
-  --ink-2: #cfc6b4;
-  --muted: #a69c8a;
-  --line: #2f2a23;
-  --line-2: #4a4135;
-  --gilt: #c9a45c;
-  --gilt-hi: #e0bf78;
-  --gilt-line: #8a7140;
-  --crimson: #e0575e;
-  --crimson-ink: #ec7e83;
-  --gold-soft: #2a2418;
-  --paid: #86c497;
-  --paid-soft: #17231a;
-  --btn-bg: #c9a45c;
-  --btn-fg: #12100d;
+  --paper: #1b1e1d;
+  --card: #242827;
+  --sunk: #2d3230;
+  --ink: #eeede6;
+  --ink-2: #d2d3cb;
+  --muted: #a5a89f;
+  --line: #363b39;
+  --line-2: #535956;
+  --rule: transparent;
+  --gilt: #ff8a93;
+  --gilt-hi: #ffa6ad;
+  --gilt-line: #7c4248;
+  --crimson: #ff8a93;
+  --crimson-ink: #ff9aa2;
+  --gold-soft: #3a2427;
+  --paid: #8fd1a2;
+  --paid-soft: #1c2b21;
+  --hand: #eeede6;
+  --btn-bg: #c8102e;
+  --btn-fg: #ffffff;
   background-color: var(--paper);
   color: var(--ink);
   color-scheme: dark;
 }
-/* Paper pinned to the board: always warm and printed, whatever the mode. */
+/* Chalk dust: wiped, never clean. */
+.board, .chalkboard {
+  background-image:
+    radial-gradient(ellipse 60% 40% at 18% 30%, rgba(255,255,255,.045), transparent 70%),
+    radial-gradient(ellipse 50% 35% at 80% 75%, rgba(255,255,255,.035), transparent 70%),
+    radial-gradient(ellipse 90% 20% at 50% 100%, rgba(255,255,255,.03), transparent 70%);
+}
+@media (prefers-color-scheme: dark) {
+  body { background-image:
+    radial-gradient(ellipse 60% 40% at 15% 10%, rgba(255,255,255,.03), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 85% 60%, rgba(255,255,255,.025), transparent 70%); background-attachment: fixed; }
+}
+/* A paper slip: always paper, whatever the mode. */
 .slip {
-  --paper: #f3ecdd;
-  --card: #f8f3e7;
-  --sunk: #e8dfcc;
-  --ink: #1c1813;
-  --ink-2: #3b342a;
-  --muted: #6c6355;
-  --line: #d6cbb5;
-  --line-2: #b9ab90;
-  --gilt: #7d5f26;
-  --gilt-line: #b89b62;
-  --crimson: #a3141e;
-  --crimson-ink: #a3141e;
+  --paper: #fbf8ef;
+  --card: #ffffff;
+  --sunk: #f0eadb;
+  --ink: #1d1b18;
+  --ink-2: #3d3933;
+  --muted: #6b655b;
+  --line: #ddd5c4;
+  --line-2: #bdb3a0;
+  --rule: #b9cfe2;
+  --gilt: #b0102a;
+  --gilt-line: #dcaab1;
+  --crimson: #b0102a;
+  --crimson-ink: #b0102a;
   --paid: #2f6b45;
-  --btn-bg: #1c1813;
-  --btn-fg: #f6f0e3;
-  background-color: var(--paper);
+  --hand: #1f3a8a;
+  --stamp: #b0102a;
+  --btn-bg: #141212;
+  --btn-fg: #ffffff;
+  background-color: var(--card);
   color: var(--ink);
   color-scheme: light;
 }
@@ -129,11 +150,15 @@
   --color-paid: var(--paid);
   --color-paid-soft: var(--paid-soft);
   --color-stamp: var(--stamp);
+  --color-hand: var(--hand);
   --font-sans: var(--font-body), Georgia, "Times New Roman", serif;
-  --font-display: var(--font-serif), Georgia, serif;
-  --font-mono: var(--font-body), Georgia, serif;
-  --font-stencil: var(--font-serif), Georgia, serif;
-  --font-note: var(--font-serif), Georgia, serif;
+  /* What people write (quotes, notes, names in a list): the biro, or chalk on the board. */
+  --font-display: var(--face-hand), "Comic Sans MS", cursive;
+  --font-sign: var(--face-sign), "Rockwell", Georgia, serif;
+  --font-typed: var(--face-typed), "Courier New", monospace;
+  --font-mono: var(--face-typed), "Courier New", monospace;
+  --font-stencil: var(--face-sign), Georgia, serif;
+  --font-note: var(--face-hand), cursive;
   --radius-sm: 0px;
   --radius-md: 0px;
   --radius-lg: 0px;
@@ -154,12 +179,12 @@
     font-optical-sizing: auto;
     font-variant-numeric: lining-nums;
   }
-  h1, h2, h3 { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.005em; line-height: 1; text-wrap: balance; }
+  h1, h2, h3 { font-family: var(--font-sign); font-weight: 400; letter-spacing: 0.005em; line-height: 1; text-wrap: balance; }
   p { text-wrap: pretty; }
   button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
   button, a { -webkit-tap-highlight-color: transparent; }
   :focus-visible { outline: 2px solid var(--gilt); outline-offset: 3px; }
-  ::selection { background: var(--gilt); color: #12100d; }
+  ::selection { background: #c8102e; color: #fff; }
   input, textarea, select { font: inherit; color: inherit; }
 }
 
@@ -167,68 +192,102 @@
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* Grain, barely there: paper fibre in light, wood in the dark. */
+/* Paper fibre in the light; chalk grain in the dark. */
 body::before {
   content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 80; opacity: 0.05; mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-@media (prefers-color-scheme: dark) { body::before { mix-blend-mode: screen; opacity: 0.035; } }
+@media (prefers-color-scheme: dark) { body::before { mix-blend-mode: screen; opacity: 0.04; } }
 
-/* ── Lettering and type ───────────────────────────────────────────── */
-.font-display { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.005em; line-height: 1; }
-.display-xl { font-family: var(--font-display); font-weight: 500; font-size: clamp(3.4rem, 14vw, 8.25rem); line-height: 0.88; letter-spacing: -0.015em; }
-.display-lg { font-family: var(--font-display); font-weight: 500; font-size: clamp(2.75rem, 10vw, 5rem); line-height: 0.92; letter-spacing: -0.01em; }
-.display-md { font-family: var(--font-display); font-weight: 500; font-size: clamp(2.2rem, 7vw, 3.25rem); line-height: 0.98; letter-spacing: -0.005em; }
-.display-sm { font-family: var(--font-display); font-weight: 600; font-size: 1.75rem; line-height: 1.05; }
-/* Lettered: names as they are cut on a board. Caps, wide, gilt on the board. */
-.lettered { font-family: var(--font-display); font-weight: 600; text-transform: uppercase; letter-spacing: 0.12em; line-height: 1.05; }
-.board .lettered, .lettered-gilt { color: var(--gilt); }
-/* Small capitals: the label of a section, printed, never decorating. */
-.kicker { font-family: var(--font-sans); font-size: 0.7rem; line-height: 1.3; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
-.board .kicker { color: var(--gilt); }
+/* ── Type ─────────────────────────────────────────────────────────── */
+/* The hand: biro on paper, chalk on the board. Never slanted by the browser. */
+.font-display { font-family: var(--font-display); font-weight: 400; letter-spacing: 0; line-height: 1.2; }
+.font-display.italic, .italic.font-display { font-style: normal; }
+/* The painted sign: slab capitals for names and the big headings. */
+.display-xl, .display-lg, .display-md, .display-sm, .sign { font-family: var(--font-sign); font-weight: 400; letter-spacing: 0.005em; }
+.display-xl { font-size: clamp(3rem, 13vw, 6.75rem); line-height: 0.9; text-transform: uppercase; }
+.display-lg { font-size: clamp(2.2rem, 8vw, 3.75rem); line-height: 0.95; }
+.display-md { font-size: clamp(1.8rem, 6vw, 2.6rem); line-height: 1; }
+.display-sm { font-size: 1.45rem; line-height: 1.1; }
+.sign { text-transform: uppercase; line-height: 0.92; }
+/* Painted: red letters with a hard offset shadow, as a sign-writer does them. */
+.painted { color: #c8102e; text-shadow: 3px 3px 0 #141212; }
+.board .painted, .painted-on-board { color: #e3122f; text-shadow: 3px 3px 0 #f4efe2; }
+/* Lettered: a name on a sign. */
+.lettered { font-family: var(--font-sign); font-weight: 400; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1; }
+.board .lettered, .lettered-gilt { color: var(--ink); }
+/* The typewriter: labels, section heads, notices. */
+.kicker { font-family: var(--font-typed); font-size: 0.78rem; line-height: 1.35; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.board .kicker { color: var(--ink-2); }
 .kicker-red { color: var(--crimson-ink) !important; }
-/* Figures: Source Serif at display size, lining and tabular, so money lines up and reads at a glance. */
-.figure { font-family: var(--font-sans); font-weight: 500; font-optical-sizing: auto; font-variation-settings: "opsz" 60; letter-spacing: -0.02em; line-height: 0.95; font-variant-numeric: lining-nums tabular-nums; }
+.typed { font-family: var(--font-typed); }
+/* Figures: Literata, lining and tabular, so money lines up. */
+.figure { font-family: var(--font-sans); font-weight: 600; letter-spacing: -0.02em; line-height: 0.95; font-variant-numeric: lining-nums tabular-nums; }
 .mono { font-variant-numeric: lining-nums tabular-nums; letter-spacing: 0.01em; }
-.stencil { font-family: var(--font-display); font-weight: 600; letter-spacing: 0.04em; }
-.note-hand, .serif-italic { font-family: var(--font-display); font-style: italic; font-weight: 500; }
+.stencil { font-family: var(--font-sign); letter-spacing: 0.03em; }
+.note-hand, .serif-italic { font-family: var(--font-display); font-style: normal; color: var(--hand); }
 .board .serif-italic, .gilt { color: var(--gilt); }
+/* Chalk: the hand in white, a little dusty. */
+.chalk {
+  font-family: var(--font-display); color: #f3f1ea; text-shadow: 0 0 1px rgba(243,241,234,.55), 0 0 6px rgba(243,241,234,.12);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='1 1 1 .55 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+          mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='1 1 1 .55 1'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.chalk-red { color: #ff8a93; text-shadow: 0 0 1px rgba(255,138,147,.5); }
+/* A chalk underline, drawn by hand. */
+.chalk-line { height: 3px; background: linear-gradient(90deg, rgba(243,241,234,.75), rgba(243,241,234,.5) 40%, rgba(243,241,234,.8) 70%, rgba(243,241,234,.35)); border-radius: 2px; transform: rotate(-.6deg); }
 
 /* ── The graphic language ─────────────────────────────────────────── */
-/* The moulding: a gilt double rule that opens a panel. */
-.moulding { height: 6px; border-top: 2px solid var(--gilt-line); border-bottom: 1px solid var(--gilt-line); }
+/* The double red rule across the top of an exercise-book page. */
+.moulding { height: 5px; border-top: 1px solid #d9455a; border-bottom: 1px solid #d9455a; opacity: .9; }
+@media (prefers-color-scheme: dark) { .moulding { border-color: rgba(243,241,234,.35); } }
+.board .moulding { border-color: rgba(243,241,234,.35); }
+.slip .moulding { border-color: #d9455a; }
 .rule-top { border-top: 1px solid var(--ink); }
-.board .rule-top { border-top-color: var(--gilt-line); }
-/* Mitred corners: small gilt marks on a framed panel. */
+.board .rule-top { border-top-color: var(--line-2); }
+/* A paper with the blue rules and the red margin. */
+.lined {
+  background-image:
+    linear-gradient(to right, transparent 2.15rem, #e06474 2.15rem, #e06474 calc(2.15rem + 1px), transparent calc(2.15rem + 1px), transparent calc(2.15rem + 4px), #e06474 calc(2.15rem + 4px), #e06474 calc(2.15rem + 5px), transparent calc(2.15rem + 5px)),
+    repeating-linear-gradient(to bottom, transparent 0 calc(1.75rem - 1px), var(--rule) calc(1.75rem - 1px) 1.75rem);
+}
+@media (prefers-color-scheme: dark) { .lined { background-image: none; } }
+/* Pinned: a slip of paper held by a red drawing pin. */
+.pinned { position: relative; box-shadow: 0 12px 26px -16px rgba(0,0,0,.55), 0 1px 0 rgba(0,0,0,.05); }
+.pinned::before {
+  content: ""; position: absolute; top: -7px; left: 50%; width: 15px; height: 15px; margin-left: -7px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #ff6b79, #8f0b20 70%); box-shadow: 0 2px 3px rgba(0,0,0,.45); z-index: 1;
+}
+.tilt-l { transform: rotate(-0.6deg); } .tilt-r { transform: rotate(0.5deg); }
+@media (prefers-reduced-motion: reduce) { .tilt-l, .tilt-r { transform: none; } }
+/* Red tape across a corner. */
+.tape { position: absolute; background: #c8102e; color: #fff; font-family: var(--font-typed); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; padding: 4px 36px; }
+/* Mitred corners on a framed panel, now in red. */
 .framed { position: relative; }
 .framed::before, .framed::after {
-  content: ""; position: absolute; width: 18px; height: 18px; pointer-events: none;
+  content: ""; position: absolute; width: 16px; height: 16px; pointer-events: none;
   border-color: var(--gilt); border-style: solid;
 }
-.framed::before { top: 10px; left: 10px; border-width: 1.5px 0 0 1.5px; }
-.framed::after { bottom: 10px; right: 10px; border-width: 0 1.5px 1.5px 0; }
+.framed::before { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+.framed::after { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
 /* Dot leaders: name ........ value. */
 .leader { display: flex; align-items: baseline; gap: 0.5rem; }
 .leader > .dots { flex: 1; min-width: 1.5rem; border-bottom: 1.5px dotted var(--line-2); transform: translateY(-0.28em); }
-.board .leader > .dots { border-bottom-color: var(--gilt-line); }
 
 /* ── Surfaces ─────────────────────────────────────────────────────── */
 .card { background: var(--card); border: 1px solid var(--line); }
 .hairline { border-color: var(--line); }
 .ruled-list > * + * { border-top: 1px solid var(--line); }
-/* The old poster class (appeal blocks on other screens) becomes a framed board panel. */
+/* The old poster class (appeal blocks on other screens) becomes a blackboard panel. */
 .poster {
-  --paper: #12100d; --ink: #ece4d3; --muted: #a69c8a; --gilt: #c9a45c; --gilt-line: #8a7140; --line: #2f2a23;
-  position: relative; color: #ece4d3; background: #12100d; border: 1px solid #2f2a23;
+  --paper: #1b1e1d; --ink: #eeede6; --ink-2: #d2d3cb; --muted: #a5a89f; --gilt: #ff8a93; --gilt-line: #7c4248; --line: #363b39;
+  position: relative; color: #eeede6; background: #1b1e1d; border: 6px solid #3b2a1c;
 }
-.poster::before, .poster::after { content: ""; position: absolute; width: 18px; height: 18px; border-color: #c9a45c; border-style: solid; pointer-events: none; }
-.poster::before { top: 10px; left: 10px; border-width: 1.5px 0 0 1.5px; }
-.poster::after { bottom: 10px; right: 10px; border-width: 0 1.5px 1.5px 0; }
 
 /* ── Buttons ──────────────────────────────────────────────────────── */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.6rem; min-height: 3.25rem; padding: 0 1.5rem;
-  font-family: var(--font-sans); font-weight: 600; font-size: 0.8rem; letter-spacing: 0.16em; text-transform: uppercase;
+  font-family: var(--font-sign); font-weight: 400; font-size: 0.9rem; letter-spacing: 0.04em; text-transform: uppercase;
   text-decoration: none; white-space: nowrap; border: 1px solid transparent;
   transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease, opacity 0.15s ease, transform 0.12s var(--ease-out);
   user-select: none;
@@ -242,15 +301,15 @@ body::before {
 .btn-red:hover { filter: brightness(1.1); }
 .btn-quiet { background: transparent; color: var(--ink); border-color: var(--line-2); }
 .btn-quiet:hover { border-color: var(--gilt); color: var(--gilt); }
-.btn-white { background: #c9a45c; color: #12100d; }
-.btn-white:hover { background: #e0bf78; }
-.btn-ghost-light { background: transparent; color: #ece4d3; border-color: #4a4135; }
-.btn-ghost-light:hover { border-color: #c9a45c; color: #e0bf78; }
-.btn-sm { min-height: 2.75rem; padding: 0 1rem; font-size: 0.72rem; }
-.btn-primary:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.25rem; padding: 0 1.5rem; font-weight: 600; font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; }
-.btn-quiet:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.25rem; padding: 0 1.25rem; font-weight: 600; font-size: .8rem; letter-spacing: .14em; text-transform: uppercase; border-width: 1px; }
+.btn-white { background: #f4efe2; color: #141212; }
+.btn-white:hover { background: #fff; }
+.btn-ghost-light { background: transparent; color: #eeede6; border-color: #535956; }
+.btn-ghost-light:hover { border-color: #eeede6; }
+.btn-sm { min-height: 2.75rem; padding: 0 1rem; font-size: 0.8rem; }
+.btn-primary:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.25rem; padding: 0 1.5rem; font-family: var(--font-sign); font-size: .9rem; letter-spacing: .04em; text-transform: uppercase; }
+.btn-quiet:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.25rem; padding: 0 1.25rem; font-family: var(--font-sign); font-size: .9rem; letter-spacing: .04em; text-transform: uppercase; border-width: 1px; }
 /* A text action: small capitals with a gilt underline. */
-.textlink { font-family: var(--font-sans); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gilt); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
+.textlink { font-family: var(--font-typed); font-size: 0.82rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gilt); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
 .textlink:hover { color: var(--gilt-hi); }
 .link-red { color: var(--crimson-ink); text-decoration: underline; text-underline-offset: 4px; }
 
@@ -265,7 +324,7 @@ body::before {
 /* ── Receipts and stamps ──────────────────────────────────────────── */
 .stamp {
   display: inline-block; padding: 0.4rem 0.6rem 0.3rem; border: 2px solid currentColor;
-  font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; line-height: 1; font-size: 0.8rem;
+  font-family: var(--font-sign); font-weight: 400; text-transform: uppercase; letter-spacing: 0.08em; line-height: 1; font-size: 0.8rem;
   color: var(--stamp); transform: rotate(-5deg); opacity: 0.92;
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='1'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='1 1 1 0.5'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
           mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.6' numOctaves='1'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='1 1 1 0.5'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -302,7 +361,7 @@ body::before {
 [data-demo] .demo-hide { display: none !important; }
 .rail { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .rail::-webkit-scrollbar { display: none; }
-.motif { background: #1b1814; color: #ece4d3; }
+.motif { background: #1b1e1d; color: #eeede6; }
 
 @media print {
   body { background: #fff; }

@@ -4,6 +4,7 @@ import { getSql, getSystemSql, setTenant, withScope, type Sql } from "@/lib/db";
 import { audit, track } from "@/lib/hub/audit";
 import { syncDerived as syncDerivedFor } from "@/lib/hub/circles";
 import { claimPlace, enrolNewMember, type EnrolForm } from "@/lib/hub/claims";
+import { upcoming } from "@/lib/hub/birthdays";
 import { duesStatement, type DuesPlan } from "@/lib/hub/dues";
 import { roleTitle } from "@/lib/hub/roles";
 import { planCollection } from "@/lib/hub/money";
@@ -489,16 +490,6 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
   let attention: { kicker: string; title: string; body: string; href: string } | null = null;
   if (member.status !== "verified") {
     attention = { kicker: "Your place", title: "Your place is not yet confirmed", body: "Two of your cot mates, or an executive, will vouch for you. Until then the roll shows you as claimed.", href: "me" };
-  } else if (due[0]) {
-    attention = { kicker: "Instalment", title: String(due[0].title), body: `A part is due ${String(due[0].due_on)}.`, href: "give" };
-  } else if (dues && dues.outstanding > 0) {
-    const behind = dues.periods.filter((p) => p.state !== "paid").map((p) => p.label);
-    attention = {
-      kicker: "Dues",
-      title: `${(dues.outstanding / 100).toLocaleString("en-GH", { style: "currency", currency: "GHS", maximumFractionDigits: 0 })} for ${behind.join(" and ")}`,
-      body: "Your dues keep the year group able to meet, to write and to turn up for one another. Settle them here and the receipt is yours at once.",
-      href: "dues",
-    };
   } else if (num(expense[0]?.n) > 0) {
     attention = { kicker: "Approval", title: "An expense is waiting", body: "It does not move until someone other than the requester approves it.", href: "control" };
   } else if (num(refunds[0]?.n) > 0) {
@@ -506,6 +497,43 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
   } else if (event[0]) {
     attention = { kicker: "Coming up", title: String(event[0].title), body: `${String(event[0].place)}. Say if you are coming.`, href: `event:${String(event[0].id)}` };
   }
+  // The boys: birthdays in the next ten days (shared ones, in circles you share), the boys in your city, and the newest on the roll.
+  const today = todayInAccra();
+  const bdayRows = await sql<Record<string, unknown>>`
+    select distinct m.id, m.nickname, m.display_name, m.sample, m.birthday_month, m.birthday_day, h.name as house
+    from membership m
+    join circle_member cm on cm.membership_id = m.id
+    join circle_member mine on mine.circle_id = cm.circle_id and mine.membership_id = ${member.id}
+    left join structure_node h on h.id = m.house_node_id
+    where m.organisation_id = ${org.id} and m.birthday_opt_out = false and m.id <> ${member.id}
+      and m.birthday_month is not null and m.birthday_day is not null
+  `;
+  const birthdays = upcoming(
+    bdayRows.map((r) => ({
+      id: String(r.id), name: String(r.nickname || r.display_name), full: String(r.display_name), house: str(r.house), sample: r.sample === true,
+      month: num(r.birthday_month), day: num(r.birthday_day),
+    })),
+    today,
+    10,
+  ).slice(0, 4);
+  const near = member.city
+    ? await sql<Record<string, unknown>>`
+        select m.id, m.nickname, m.display_name, m.city, m.sample, h.name as house from membership m
+        left join structure_node h on h.id = m.house_node_id
+        where m.organisation_id = ${org.id} and m.id <> ${member.id} and m.status = 'verified'
+          and lower(trim(m.city)) = lower(trim(${member.city}))
+        order by m.created_at desc limit 10
+      `
+    : [];
+  const newest = await sql<Record<string, unknown>>`
+    select m.id, m.nickname, m.display_name, m.city, m.sample, h.name as house from membership m
+    left join structure_node h on h.id = m.house_node_id
+    where m.organisation_id = ${org.id} and m.id <> ${member.id} and m.status = 'verified'
+    order by m.created_at desc, m.display_name limit 10
+  `;
+  const person = (r: Record<string, unknown>) => ({
+    id: String(r.id), name: String(r.nickname || r.display_name), full: String(r.display_name), city: str(r.city), house: str(r.house), sample: r.sample === true,
+  });
   // What you have given (gateway-confirmed only), and how many have given to the appeal.
   const mine = await sql<{ total: number; n: number }>`
     select coalesce(sum(gift_pesewas), 0)::int as total, count(*)::int as n from payment_intent
@@ -541,6 +569,9 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
     hero: hero ? { id: String(hero.id), title: String(hero.title), story: String(hero.story), target: num(hero.target_pesewas), raised, givers: num(heroGivers[0]?.n) } : null,
     given: { total: num(mine[0]?.total), count: num(mine[0]?.n) },
     present: num(present[0]?.n),
+    birthdays,
+    around: near.length ? { kind: "city" as const, city: member.city, people: near.map(person) } : { kind: "newest" as const, city: member.city, people: newest.map(person) },
+    instalment: due[0] ? { title: String(due[0].title), dueOn: String(due[0].due_on) } : null,
     next: nextEvent[0]
       ? { id: String(nextEvent[0].id), title: String(nextEvent[0].title), place: String(nextEvent[0].place), at: String(nextEvent[0].starts_at), mine: str(nextEvent[0].mine), going: num(nextEvent[0].going) }
       : null,

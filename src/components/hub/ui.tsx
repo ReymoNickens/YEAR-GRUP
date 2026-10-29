@@ -41,7 +41,7 @@ export function Wordmark({ name, motto, crest, size = "md" }: { name: string; mo
       <Crest src={crest} className={size === "lg" ? "h-14 w-12 shrink-0" : "h-10 w-9 shrink-0"} />
       <span className="min-w-0 leading-none">
         <span className={`lettered block truncate ${size === "lg" ? "text-[1.1rem]" : "text-[0.95rem]"}`}>{name}</span>
-        {motto ? <span className="mt-1.5 block truncate font-display text-[0.95rem] italic text-muted">{motto}</span> : null}
+        {motto ? <span className="mt-1.5 block truncate font-display text-[1rem] text-muted">{motto}</span> : null}
       </span>
     </span>
   );
@@ -53,13 +53,13 @@ export function initialsOf(name: string) {
   return ((parts[0][0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] ?? "" : "")).toUpperCase();
 }
 
-/** A lettered monogram in a thin gilt ring. Your own is filled. */
+/** A monogram painted in slab capitals on a black disc ringed in red. Your own is red. */
 export function Avatar({ name, size = 40, me = false, className = "" }: { name: string; size?: number; me?: boolean; className?: string }) {
   return (
     <span
       aria-hidden
-      className={`inline-grid shrink-0 place-items-center rounded-full font-display font-semibold tracking-[0.06em] ${me ? "bg-gilt text-[#12100d]" : "border border-gilt-line text-gilt"} ${className}`}
-      style={{ width: size, height: size, fontSize: Math.round(size * 0.38) }}
+      className={`inline-grid shrink-0 place-items-center rounded-full font-sign leading-none tracking-[0.02em] ${me ? "bg-[#c8102e] text-white" : "border-2 border-[#c8102e] bg-[#141212] text-[#f4efe2]"} ${className}`}
+      style={{ width: size, height: size, fontSize: Math.round(size * 0.36) }}
     >
       {initialsOf(name)}
     </span>
@@ -86,13 +86,12 @@ export function PageHead({ kicker, title, sub, action, size = "lg" }: { kicker?:
   );
 }
 
-/** A titled block: the moulding, then the title in small capitals, an optional action on the right. */
+/** A titled block: a slab heading as on a painted sign, an optional action on the right. */
 export function Section({ title, action, children, className = "", id }: { title: ReactNode; action?: ReactNode; children: ReactNode; className?: string; id?: string }) {
   return (
     <section className={`mt-12 first:mt-0 ${className}`} aria-labelledby={id}>
-      <div className="moulding" aria-hidden />
-      <div className="flex items-baseline justify-between gap-3 pt-3">
-        <h2 id={id} className="kicker text-ink-2">{title}</h2>
+      <div className="flex items-baseline justify-between gap-3 border-b-2 border-ink pb-2">
+        <h2 id={id} className="font-sign text-[1.15rem] leading-tight uppercase">{title}</h2>
         {action}
       </div>
       <div className="mt-2">{children}</div>
@@ -256,7 +255,7 @@ export function Choice({ title, detail, onClick, selected }: { title: string; de
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`relative flex min-h-16 w-full items-center justify-between gap-3 border px-4 py-3.5 text-left transition-colors ${selected ? "border-gilt bg-card shadow-[inset_3px_0_0_var(--gilt)]" : "border-line-2 bg-card hover:border-gilt-line"}`}
+      className={`relative flex min-h-16 w-full items-center justify-between gap-3 border px-4 py-3.5 text-left transition-colors ${selected ? "border-ink bg-card shadow-[inset_4px_0_0_var(--gilt)]" : "border-line-2 bg-card hover:border-ink"}`}
     >
       <span className="min-w-0">
         <span className="block text-[17px] font-semibold leading-tight">{title}</span>
@@ -335,12 +334,12 @@ export function Stat({ value, label, tone }: { value: ReactNode; label: ReactNod
 export function Bar({ value, max, tone = "light", label, ticks, height = 6 }: { value: number; max: number; tone?: "light" | "onDark"; label?: string; ticks?: number[]; height?: number }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   const shown = pct > 0 ? Math.max(1.5, pct) : 0;
-  const track = tone === "onDark" ? "bg-[#2f2a23]" : "bg-sunk";
-  const fill = tone === "onDark" ? "bg-[#c9a45c]" : "bg-gilt";
+  const track = tone === "onDark" ? "bg-[#363b39]" : "bg-sunk";
+  const fill = tone === "onDark" ? "bg-[#f3f1ea]" : "bg-gilt";
   return (
     <div role="progressbar" aria-label={label ?? "Progress"} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} className={`relative overflow-hidden ${track}`} style={{ height }}>
       <div className={`grow h-full ${fill} transition-[width] duration-1000 ease-out`} style={{ width: `${shown}%` }} />
-      {ticks?.map((t) => <span key={t} aria-hidden className={`absolute top-0 h-full w-0.5 ${tone === "onDark" ? "bg-[#12100d]" : "bg-paper"}`} style={{ left: `${t}%` }} />)}
+      {ticks?.map((t) => <span key={t} aria-hidden className={`absolute top-0 h-full w-0.5 ${tone === "onDark" ? "bg-[#1b1e1d]" : "bg-paper"}`} style={{ left: `${t}%` }} />)}
     </div>
   );
 }

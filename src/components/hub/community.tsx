@@ -215,7 +215,7 @@ export function PeopleIndex({ slug }: { slug: string }) {
   const { data, error, loading } = useHub(`people-${slug}-${q}-${cursor}`, () => peoplePage({ data: { slug, q, cursor } }));
   return (
     <Shell slug={slug}>
-      <PageHead kicker="People" title="Classmates" sub="Find a classmate by nickname, city or work." />
+      <PageHead kicker="The roll" title="The boys" sub="Find any of the boys by nickname, city or work." />
       <label className="relative block">
         <span className="sr-only">Search nickname, city or work</span>
         <Search className="pointer-events-none absolute top-1/2 left-4 size-5 -translate-y-1/2 text-muted" />

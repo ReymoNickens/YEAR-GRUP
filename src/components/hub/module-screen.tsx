@@ -33,7 +33,7 @@ const subs: Record<string, string> = {
 const titles: Record<string, string> = {
   directory: "Businesses",
   asks: "Ask the year",
-  events: "Events",
+  events: "Meet-ups",
   photos: "Photos",
   polls: "Polls",
   welfare: "Welfare",

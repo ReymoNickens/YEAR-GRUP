@@ -1,100 +1,72 @@
-# Design: The Honours Board
+# Design: The Exercise Book and the Blackboard
 
-Year Group Hub, Mfantsipim 2007. Stage A of the design reset (branch `claude/honours-board`).
+Year Group Hub, Mfantsipim 2007. Branch `claude/honours-board` (the design preview).
 
-## 1. Why the first redesign still looked generic
+## 1. What the founder asked for
 
-| Cause | Where it showed |
-|---|---|
-| The current "tasteful startup" kit: an editorial serif, Geist, small mono uppercase labels | Every screen. Interchangeable with Linear, Vercel and most AI-built products. |
-| One section pattern repeated | A black rule, a serif title and "See all ›" on Home, Give, Me, Circles. |
-| A fintech hero card in disguise | The red appeal block with a grid texture and a big number. |
-| Uniform icon tiles | The four outlined shortcuts on Home. |
-| Nothing specific to 2007 | The year was only text; swap the name and crest and it is any alumni app. |
-| Product copy, not a voice | "Two taps to pay, and the receipt comes straight back." |
-| Stock moves | Pastel initial avatars, a placeholder shield in place of the crest. |
-| Sample numbers on the landing page | "40 on the roll" from fictional data. |
+- **Welcome first, money second.** The boys should feel at home when they open it. When it is
+  all dues and appeals, it becomes stressful to enter.
+- **Authentic, not common.** The earlier Honours Board (gilt on dark wood, Cormorant Garamond)
+  read as generic prestige: not Mfantsipim's colours, and fonts many polished sites use.
+- **Chosen direction (29 Oct 2026):** "the mix" of three samples, plus blackboard and white chalk.
+  School colours: **red and black**.
 
 ## 2. The concept
 
-**Every school hall has honours boards**: names lettered in gold on dark wood, listed by year,
-house and office. They are institutional and sentimental at once. They are about belonging to a
-list, and they need no photographs.
+Things every old boy handled at school, used as materials:
 
-The hub is built as that board and the papers pinned to it:
-
-- **The board** (dark, lettered in gilt) carries identity and pride: the greeting, the appeal,
-  the officers, who has answered.
-- **Paper** (warm, ruled, printed) carries the business: dues ledgers, receipts, notices, forms.
-
-Voice: an old boy writing to old boys, warm and a little ceremonial, never corporate.
-"Your house is two names from the board", not "2 more givers to join".
-
-The cohort's own spine is time: 2007, the year we left Kwabotwe, and 2027, the twentieth.
+| Material | Where it is used |
+|---|---|
+| **The blackboard**, written in white chalk, the date in the corner as a teacher writes it | The top of Home, the sidebar, the whole app in dark mode |
+| **The exercise book**: cream paper, blue rules, the double red margin | The page in light mode; Home's body |
+| **Paper slips**, pinned with a red drawing pin, a little crooked | Notices, birthdays, letters, meet-ups (always paper, in both modes) |
+| **The painted sign**: slab capitals with a hard offset shadow, as Ghana's sign-writers paint them | Names, headings, buttons, the tab bar |
+| **The typewriter** | Labels, dates, typed notices |
+| **Biro** (blue) on paper, **chalk** (white) on the board | What people write: quotes, nicknames in lists, signatures |
 
 ## 3. The system
 
 ### Type
 | Role | Face | Use |
 |---|---|---|
-| Lettering | Cormorant Garamond (500 to 700, italic; lining figures) | Headlines, names on the board, big figures. Caps with wide tracking for lettered names. |
-| Text | Source Serif 4 (optical sizes) | Everything you read and press. A printed-programme feel, not an app sans. |
-| Small capitals | Source Serif 4, 600, tracked 0.18em | Labels and section heads. Replaces the mono kickers. |
+| Sign | Alfa Slab One | Names (`display-xl`, `.lettered`), headings, buttons, tabs |
+| Hand | Kalam | `font-display` and `.serif-italic`: what people write; `.chalk` on the board |
+| Typed | Special Elite | `.kicker`, `.typed`, `.textlink`: labels, dates, notices |
+| Reading | Literata | Body text and `.figure` (lining, tabular, so money lines up) |
 
-Figures are set in Source Serif 4 at its display optical size, lining and tabular, so money lines up. The lettering face's old-style figures are kept out of anything you count.
-
-### Colour and material
-| Token | Board (dark) | Programme (light) | Use |
+### Colour
+| Token | Exercise book (light) | Blackboard (dark) | Use |
 |---|---|---|---|
-| Ground | `#12100d` | `#f1ebde` | The page |
-| Raised | `#1b1814` | `#faf6ec` | Panels, fields |
-| Ink | `#ece4d3` bone | `#1c1813` | Text |
-| Muted | `#a69c8a` | `#6c6355` | Secondary text (AA) |
-| Gilt | `#c9a45c` | `#7d5f26` bronze | Lettering, rules, progress, the primary action |
-| Crest red | `#e0575e` | `#a3141e` | Only for what is owed or wrong |
-| Paper | `#f3ecdd` on any ground | | Ledgers, receipts, notices |
+| Ground (`--paper`) | `#fbf8ef` | `#1b1e1d` | The page |
+| Ink | `#1d1b18` | `#eeede6` chalk | Text |
+| Accent (`--gilt`, name kept) | `#b0102a` red ink | `#ff8a93` red chalk | Headings' red word, links, focus |
+| Crest red | `#c8102e` | `#c8102e` | Painted names, tape, pins, the bar's edge |
+| Black | `#141212` | `#141212` | Bars, buttons on paper, the board's ledge |
+| Hand (`--hand`) | `#1f3a8a` biro | chalk | Handwriting |
+| Rule | `#b9cfe2` | none | Exercise-book lines |
 
-Board bands stay dark in both modes: in light mode they hang on a cream programme page, as a board
-hangs on a hall wall. No gradients except the faint grain of paper and wood.
+`.board` is always blackboard; `.slip` is always paper.
 
-### Graphic language (original, not school insignia)
-1. **The moulding**: a gilt double rule (2px, 3px gap, 1px) that opens every board panel.
-2. **Mitred corners**: small gilt corner marks on framed panels only (the appeal, the officers).
-3. **Dot leaders**: name ........ value, as a programme or an honours board lists them.
-4. **The years**: years since 2007 and to 2027, set in lettering, never as a countdown widget.
-5. **Roll numbers**: a member's place on the roll, "No. 017", in small capitals.
+### Motifs
+`.chalk`, `.chalk-red`, `.chalk-line` · `.painted` / `.painted-on-board` · `.lined` (blue rules and red margin) ·
+`.pinned` (drawing pin) · `.tilt-l` / `.tilt-r` · `.tape` (red tape across a corner) · `.stamp`.
 
-The crest is the school's own file, used as supplied, at one size per context. Nothing is invented
-in its place.
+### Home, in order
+1. The blackboard: the date chalked in the corner, "Akwaaba," in chalk, your nickname painted in red,
+   years since we left the hill, how many are on the roll.
+2. Something that needs you (never money): your place, an approval, a date to answer.
+3. The boys in your city (or the newest on the roll).
+4. Birthdays in the next ten days (only those who share them, in circles you share).
+5. From the boys: posts from your circles, in their own hand.
+6. The notice board, the next meet-up (stamped with how many are going), where you belong.
+7. One quiet line for dues, an instalment and the open appeal.
 
-### Space and layout
-- 4px base; steps 4, 8, 12, 16, 24, 32, 48, 64, 96.
-- Text measure 36 to 62 characters.
-- Phones: 20px gutters, one column, the board band full-bleed.
-- Desktop: a dark board sidebar; pages composed asymmetrically (7/5), not a stretched phone.
-- Every section gets a treatment that fits its content: a framed panel for the appeal, a paper
-  slip for a notice, a ledger for dues, a lettered list for houses, a letters column for notes.
+### Navigation
+Tabs: Home, Boys, Meet, Circles, Me. Notices, My dues and Give sit in the side list
+(and in Me), not on the bar.
 
-### Components
-- **Buttons**: square, 52px, small-capital labels. Primary is gilt on the board, ink on paper.
-  Red only for paying what is owed.
-- **Fields**: a single underline on paper, a framed box on the board.
-- **Lists**: hairline-ruled, or dot-leadered where a value follows a name.
-- **Avatars**: lettered monograms in a thin gilt ring. Your own is filled.
-- **Navigation**: small-capital words, no icon tiles. A gilt bar marks where you are.
-
-### Interaction
-- Motion only to orient: content rises 6px and fades in on arrival (once), sheets slide from the
-  edge, progress lines draw in. 200 to 400ms, ease-out, nothing loops. Reduced motion respected.
-- Hover on desktop brightens gilt; press darkens. Focus is a 2px gilt outline offset by 3px.
-- Targets 48px and up. Contrast AA throughout, including gilt on board (7.9:1) and bronze on
-  cream (4.9:1).
-
-## 4. Stage A scope
-Tokens, typography, the frame (sidebar, top bar, tab bar), **Home** and **My dues**.
-Other screens inherit the new type and colour but keep their old composition until Stage B.
-
-## 5. Not done, on purpose
-- No photographs, stock alumni, fabricated statistics or testimonials. Every number on Home is
-  real data: givers counted from confirmed payments, members counted from confirmed places.
-- No invented school symbols. The "07" and the moulding are ours; the crest is the school's.
+## 4. Rules kept
+- No photographs required, no invented school symbols: the crest is the school's own file.
+- Sample names and posts are marked as sample outside demo mode.
+- Targets 48px; contrast AA (red ink on paper 6.8:1, red chalk on board 7:1, white on crest red 5.9:1).
+- Reduced motion: tilts and animations switch off.

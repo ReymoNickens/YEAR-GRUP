@@ -2,6 +2,25 @@
 
 Update this at the end of every session.
 
+## 29 Oct 2026: the exercise book and the blackboard (branch `claude/honours-board`)
+
+The owner found the Honours Board still common and too focused on money ("the boys should feel
+welcomed"). From two concept pages (the four signature ideas, then three sample Home screens) the
+owner chose **the mix plus blackboard and chalk**, in **red and black**. System in `docs/DESIGN.md`.
+
+- New type: Alfa Slab One (painted signs), Kalam (biro and chalk), Special Elite (typewriter),
+  Literata (reading). Light mode is the exercise book; dark mode is the blackboard.
+- Home leads with the boys: chalked date and Akwaaba, the boys in your city (or newest on the roll),
+  birthdays in the next ten days (`src/lib/hub/birthdays.ts`, tested), posts, the notice board, the
+  next meet-up. Money left the Home alert and is one quiet line at the end.
+- Tabs are now Home, Boys, Meet, Circles, Me; Give and My dues moved to the side list and Me.
+- Demo: sample file `20261029110050_sample_welcome.sql` restores the nicknames (Wayo, Obonto,
+  Wetbone, Reymo) on databases loaded earlier and puts Amable's welcome notice on the board.
+  `demo-bootstrap.ts` now runs new sample files even when no migration is pending (each sample is
+  safe to re-run and is recorded once).
+- Next: the owner judges the preview; then carry the look through the remaining screens
+  (giving, receipt, circles, control room) and merge into the live branch.
+
 ## 29 Oct 2026: design reset, Stage A (branch `claude/honours-board`)
 
 The executives found the redesign still common. Direction chosen with the owner: **The Honours
