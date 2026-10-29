@@ -187,7 +187,8 @@ body::before {
 .kicker { font-family: var(--font-sans); font-size: 0.7rem; line-height: 1.3; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
 .board .kicker { color: var(--gilt); }
 .kicker-red { color: var(--crimson-ink) !important; }
-.figure { font-family: var(--font-display); font-weight: 500; letter-spacing: -0.01em; line-height: 0.9; font-variant-numeric: lining-nums tabular-nums; }
+/* Figures: Source Serif at display size, lining and tabular, so money lines up and reads at a glance. */
+.figure { font-family: var(--font-sans); font-weight: 500; font-optical-sizing: auto; font-variation-settings: "opsz" 60; letter-spacing: -0.02em; line-height: 0.95; font-variant-numeric: lining-nums tabular-nums; }
 .mono { font-variant-numeric: lining-nums tabular-nums; letter-spacing: 0.01em; }
 .stencil { font-family: var(--font-display); font-weight: 600; letter-spacing: 0.04em; }
 .note-hand, .serif-italic { font-family: var(--font-display); font-style: italic; font-weight: 500; }

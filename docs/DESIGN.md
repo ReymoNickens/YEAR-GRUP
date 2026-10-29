@@ -37,11 +37,11 @@ The cohort's own spine is time: 2007, the year we left Kwabotwe, and 2027, the t
 ### Type
 | Role | Face | Use |
 |---|---|---|
-| Lettering | Cormorant (500 to 700, italic) | Headlines, names on the board, big figures. Caps with wide tracking for lettered names. |
+| Lettering | Cormorant Garamond (500 to 700, italic; lining figures) | Headlines, names on the board, big figures. Caps with wide tracking for lettered names. |
 | Text | Source Serif 4 (optical sizes) | Everything you read and press. A printed-programme feel, not an app sans. |
 | Small capitals | Source Serif 4, 600, tracked 0.18em | Labels and section heads. Replaces the mono kickers. |
 
-Figures are lining and tabular wherever money is compared.
+Figures are set in Source Serif 4 at its display optical size, lining and tabular, so money lines up. The lettering face's old-style figures are kept out of anything you count.
 
 ### Colour and material
 | Token | Board (dark) | Programme (light) | Use |

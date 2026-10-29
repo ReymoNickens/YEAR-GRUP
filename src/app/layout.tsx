@@ -1,12 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant, Source_Serif_4 } from "next/font/google";
+import { Cormorant_Garamond, Source_Serif_4 } from "next/font/google";
 import { DemoRibbon } from "@/components/demo-ribbon";
 import { OfflineSync } from "@/components/offline-sync";
 import { demoMode } from "@/lib/hub/util";
 import "./globals.css";
 
-// The Honours Board: Cormorant for lettering (names, headlines, figures), Source Serif 4 for reading.
-const lettering = Cormorant({ subsets: ["latin"], weight: ["500", "600", "700"], style: ["normal", "italic"], variable: "--font-serif", display: "swap" });
+// The Honours Board: Cormorant Garamond for lettering (names, headlines, figures), Source Serif 4 for reading.
+const lettering = Cormorant_Garamond({ subsets: ["latin"], weight: ["500", "600", "700"], style: ["normal", "italic"], variable: "--font-serif", display: "swap" });
 const body = Source_Serif_4({ subsets: ["latin"], weight: ["400", "500", "600", "700"], style: ["normal", "italic"], variable: "--font-body", display: "swap" });
 
 export const metadata: Metadata = {
