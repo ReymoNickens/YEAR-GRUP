@@ -27,5 +27,5 @@ export default async function OrgLayout({ children, params }: { children: React.
     select display_name, nickname from membership where organisation_id = ${rows[0].id} and user_id = ${user.userId} limit 1
   `;
   const b = rows[0].branding ?? {};
-  return <OrgProvider org={{ slug, name: b.shortName ?? rows[0].name, motto: b.motto ?? "", place: b.place ?? "", crest: b.crest ?? "", founded: b.founded ?? "", me: me[0] ? { name: me[0].display_name, nickname: me[0].nickname ?? "" } : null }}>{children}</OrgProvider>;
+  return <OrgProvider org={{ slug, name: b.shortName ?? rows[0].name, motto: b.motto ?? "", place: b.place ?? "", crest: b.crest ?? "", founded: b.founded ?? "", cohort: b.cohort ?? "", me: me[0] ? { name: me[0].display_name, nickname: me[0].nickname ?? "" } : null }}>{children}</OrgProvider>;
 }

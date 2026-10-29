@@ -1,38 +1,46 @@
 "use client";
-import { BookUser, CalendarCheck, CalendarDays, Heart, House, Images, Mail, Store, UserRound, UsersRound, Vote } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { useOrgFace } from "@/components/hub/org-context";
-import { Avatar, Wordmark } from "@/components/hub/ui";
+import { Avatar, Crest } from "@/components/hub/ui";
 
 const tabs = [
-  { suffix: "/home", label: "Home", icon: House },
-  { suffix: "/circles", label: "Circles", icon: UsersRound },
-  { suffix: "/give", label: "Give", icon: Heart },
-  { suffix: "/people", label: "People", icon: BookUser },
-  { suffix: "/me", label: "Me", icon: UserRound },
+  { suffix: "/home", label: "Home" },
+  { suffix: "/circles", label: "Circles" },
+  { suffix: "/give", label: "Give" },
+  { suffix: "/people", label: "Roll" },
+  { suffix: "/me", label: "Me" },
 ] as const;
 
 const more = [
-  { suffix: "/dues", label: "My dues", icon: CalendarCheck },
-  { suffix: "/m/events", label: "Events", icon: CalendarDays },
-  { suffix: "/m/photos", label: "Photos", icon: Images },
-  { suffix: "/m/polls", label: "Polls", icon: Vote },
-  { suffix: "/m/directory", label: "Businesses", icon: Store },
-  { suffix: "/m/inbox", label: "Messages", icon: Mail },
+  { suffix: "/dues", label: "My dues" },
+  { suffix: "/m/events", label: "Calendar" },
+  { suffix: "/m/inbox", label: "Notices" },
+  { suffix: "/m/photos", label: "Photographs" },
+  { suffix: "/m/polls", label: "Polls" },
+  { suffix: "/m/directory", label: "Businesses" },
 ] as const;
 
+/** Years since the cohort left school, in Roman numerals for the lettering. */
+export function roman(n: number) {
+  const map: [number, string][] = [[1000, "M"], [900, "CM"], [500, "D"], [400, "CD"], [100, "C"], [90, "XC"], [50, "L"], [40, "XL"], [10, "X"], [9, "IX"], [5, "V"], [4, "IV"], [1, "I"]];
+  let out = "";
+  for (const [v, s] of map) while (n >= v) { out += s; n -= v; }
+  return out;
+}
+
 /**
- * The frame of every screen. Phones: the crest and name on top, one task in the
- * middle, five tabs at the bottom. Wide screens: a sidebar with the same five,
- * plus the year group's other rooms, and a composed page beside it.
+ * The frame of every screen, as an honours board. Wide screens: a dark board down
+ * the left with the crest, the year group lettered, and the rooms in small capitals.
+ * Phones: the board across the top, the page below, and five words at the bottom.
  */
 export function Shell({
   slug,
   children,
   nav = true,
   wide = false,
+  bleed = false,
 }: {
   slug?: string;
   eyebrow?: string;
@@ -40,6 +48,8 @@ export function Shell({
   children: ReactNode;
   nav?: boolean;
   wide?: boolean;
+  /** The page brings its own board band at the very top (Home), so the main area starts flush. */
+  bleed?: boolean;
 }) {
   const path = usePathname() ?? "";
   const org = useOrgFace();
@@ -52,41 +62,39 @@ export function Shell({
 
   return (
     <div className="min-h-dvh bg-paper text-ink lg:flex">
-      {/* Wide screens: the sidebar. */}
       {home ? (
-        <aside className="sticky top-0 hidden h-dvh w-[264px] shrink-0 flex-col border-r border-line px-5 py-7 lg:flex">
-          <Link href={`${base}/home`} aria-label={`${name}, home`} className="px-2">
-            <Wordmark name={name} motto={motto} />
+        <aside className="board sticky top-0 hidden h-dvh w-[272px] shrink-0 flex-col border-r border-[#2f2a23] px-7 py-8 lg:flex">
+          <Link href={`${base}/home`} aria-label={`${name}, home`} className="block">
+            <Crest className="h-16 w-14" />
+            <span className="lettered mt-5 block text-[1.15rem]">{name}</span>
+            {motto ? <span className="mt-1 block font-display text-[1.05rem] italic text-muted">{motto}</span> : null}
           </Link>
-          <nav aria-label="Main" className="mt-9">
-            <ul className="space-y-0.5">
+          <div className="moulding mt-6" aria-hidden />
+          <nav aria-label="Main" className="mt-5">
+            <ul>
               {tabs.map((t) => {
                 const on = isOn(t.suffix);
-                const Icon = t.icon;
                 return (
                   <li key={t.label}>
                     <Link
                       href={`${base}${t.suffix}`}
                       aria-current={on ? "page" : undefined}
-                      className={`flex h-11 items-center gap-3 px-3 text-[15px] transition-colors ${on ? "bg-ink font-medium text-paper" : "text-ink-2 hover:bg-sunk"}`}
+                      className={`group flex h-11 items-center gap-3 text-[0.78rem] font-semibold tracking-[0.2em] uppercase transition-colors ${on ? "text-gilt" : "text-ink-2 hover:text-gilt-hi"}`}
                     >
-                      <Icon className="size-[18px]" strokeWidth={on ? 2.25 : 1.75} />
+                      <span aria-hidden className={`h-px transition-all duration-300 ${on ? "w-6 bg-gilt" : "w-3 bg-[#4a4135] group-hover:w-5 group-hover:bg-gilt-line"}`} />
                       {t.label}
-                      {t.label === "Give" && !on ? <span className="ml-auto size-1.5 rounded-full bg-crimson" aria-hidden /> : null}
                     </Link>
                   </li>
                 );
               })}
             </ul>
-            <p className="kicker mt-9 px-3">The year group</p>
-            <ul className="mt-2 space-y-0.5">
+            <p className="mt-8 font-display text-[1rem] italic text-muted">The year group</p>
+            <ul className="mt-2">
               {more.map((t) => {
                 const on = isOn(t.suffix);
-                const Icon = t.icon;
                 return (
                   <li key={t.label}>
-                    <Link href={`${base}${t.suffix}`} aria-current={on ? "page" : undefined} className={`flex h-10 items-center gap-3 px-3 text-sm transition-colors ${on ? "bg-sunk font-medium text-ink" : "text-muted hover:bg-sunk hover:text-ink"}`}>
-                      <Icon className="size-4" strokeWidth={1.75} />
+                    <Link href={`${base}${t.suffix}`} aria-current={on ? "page" : undefined} className={`flex h-9 items-center text-[0.95rem] transition-colors ${on ? "text-gilt" : "text-muted hover:text-ink"}`}>
                       {t.label}
                     </Link>
                   </li>
@@ -95,11 +103,11 @@ export function Shell({
             </ul>
           </nav>
           {meName ? (
-            <Link href={`${base}/me`} className="mt-auto flex items-center gap-3 border-t border-line px-2 pt-5">
-              <Avatar name={meName} size={36} me />
+            <Link href={`${base}/me`} className="mt-auto flex items-center gap-3 border-t border-[#2f2a23] pt-5">
+              <Avatar name={meName} size={38} me />
               <span className="min-w-0">
-                <span className="block truncate text-sm font-medium">{org?.me?.nickname || meName}</span>
-                <span className="block truncate text-xs text-muted">{meName}</span>
+                <span className="block truncate text-[0.95rem]">{org?.me?.nickname || meName}</span>
+                <span className="block truncate text-[0.8rem] text-muted">{org?.me?.nickname ? meName : "Your page"}</span>
               </span>
             </Link>
           ) : null}
@@ -107,11 +115,14 @@ export function Shell({
       ) : null}
 
       <div className="min-w-0 flex-1">
-        {/* Phones: the top bar. */}
-        <header className="sticky top-0 z-20 border-b border-line bg-paper/90 backdrop-blur-md lg:hidden">
+        <header className="board sticky top-0 z-20 border-b border-[#2f2a23] lg:hidden">
           <div className="mx-auto flex h-16 max-w-xl items-center justify-between gap-3 px-5">
-            <Link href={home ? `${base}/home` : "/"} aria-label={`${name}, home`} className="min-w-0">
-              <Wordmark name={name} motto={motto} />
+            <Link href={home ? `${base}/home` : "/"} aria-label={`${name}, home`} className="flex min-w-0 items-center gap-3">
+              <Crest className="h-10 w-9 shrink-0" />
+              <span className="min-w-0 leading-none">
+                <span className="lettered block truncate text-[0.92rem]">{name}</span>
+                {motto ? <span className="mt-1 block truncate font-display text-[0.95rem] italic text-muted">{motto}</span> : null}
+              </span>
             </Link>
             {home && meName ? (
               <Link href={`${base}/me`} aria-label="Me" className="grid size-11 place-items-center">
@@ -121,27 +132,24 @@ export function Shell({
           </div>
         </header>
 
-        <main className={`mx-auto w-full px-5 pt-6 lg:px-12 lg:pt-12 ${wide ? "max-w-xl lg:max-w-[1120px]" : "max-w-xl lg:max-w-[760px]"} ${nav ? "pb-28 lg:pb-16" : "pb-10"}`}>
+        <main className={`mx-auto w-full ${bleed ? "" : "px-5 pt-7 lg:px-14 lg:pt-14"} ${wide || bleed ? "max-w-xl lg:max-w-[1160px]" : "max-w-xl lg:max-w-[780px]"} ${nav ? "pb-28 lg:pb-20" : "pb-12"}`}>
           {children}
         </main>
       </div>
 
-      {/* Phones: the tab bar. */}
       {nav && home ? (
-        <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-paper/92 backdrop-blur-md lg:hidden">
-          <ul className="mx-auto flex max-w-xl justify-between px-1 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
+        <nav aria-label="Main" className="board fixed inset-x-0 bottom-0 z-20 border-t border-[#2f2a23] lg:hidden">
+          <ul className="mx-auto flex max-w-xl justify-between px-2 pb-[max(0.25rem,env(safe-area-inset-bottom))]">
             {tabs.map((t) => {
               const on = isOn(t.suffix);
-              const Icon = t.icon;
               return (
                 <li key={t.label} className="flex-1">
                   <Link
                     href={`${base}${t.suffix}`}
                     aria-current={on ? "page" : undefined}
-                    className={`relative flex h-[60px] flex-col items-center justify-center gap-1 text-[11px] tracking-[0.01em] transition-colors ${on ? "font-semibold text-ink" : "text-muted"}`}
+                    className={`relative flex h-[58px] items-center justify-center text-[0.7rem] font-semibold tracking-[0.18em] uppercase transition-colors ${on ? "text-gilt" : "text-muted"}`}
                   >
-                    <span aria-hidden className={`absolute top-0 h-[2px] w-7 transition-colors ${on ? "bg-crimson" : "bg-transparent"}`} />
-                    <Icon className="size-[22px]" strokeWidth={on ? 2.2 : 1.6} fill={on && t.label === "Give" ? "currentColor" : "none"} />
+                    <span aria-hidden className={`absolute top-0 h-[2px] transition-all duration-300 ${on ? "w-8 bg-gilt" : "w-0 bg-transparent"}`} />
                     {t.label}
                   </Link>
                 </li>

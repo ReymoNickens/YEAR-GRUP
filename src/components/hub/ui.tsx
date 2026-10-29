@@ -34,35 +34,18 @@ export function Crest({ src, className = "h-11 w-10", label }: { src?: string; c
   );
 }
 
-/** Crest, name and motto: the year group's signature, as it heads every screen. */
+/** Crest, name and motto: the year group's signature, lettered as on a board. */
 export function Wordmark({ name, motto, crest, size = "md" }: { name: string; motto?: string; crest?: string; size?: "md" | "lg" }) {
   return (
     <span className="flex min-w-0 items-center gap-3">
       <Crest src={crest} className={size === "lg" ? "h-14 w-12 shrink-0" : "h-10 w-9 shrink-0"} />
       <span className="min-w-0 leading-none">
-        <span className={`block truncate font-semibold tracking-[-0.01em] ${size === "lg" ? "text-xl" : "text-[15px]"}`}>{name}</span>
-        {motto ? <span className="kicker mt-1.5 block truncate">{motto}</span> : null}
+        <span className={`lettered block truncate ${size === "lg" ? "text-[1.1rem]" : "text-[0.95rem]"}`}>{name}</span>
+        {motto ? <span className="mt-1.5 block truncate font-display text-[0.95rem] italic text-muted">{motto}</span> : null}
       </span>
     </span>
   );
 }
-
-const AVATAR_TONES = [
-  "bg-[#e9e2d3] text-[#3d3424]",
-  "bg-[#dfe5e0] text-[#25382c]",
-  "bg-[#e6dde0] text-[#4a2430]",
-  "bg-[#dde2ea] text-[#26324a]",
-  "bg-[#ece4d9] text-[#4a3420]",
-  "bg-[#e2e0ea] text-[#35304a]",
-];
-const AVATAR_TONES_DARK = [
-  "dark:bg-[#2c271d] dark:text-[#e8dcc2]",
-  "dark:bg-[#1f2a23] dark:text-[#cfe3d5]",
-  "dark:bg-[#2c1f24] dark:text-[#ecd2da]",
-  "dark:bg-[#1f2530] dark:text-[#d2dcec]",
-  "dark:bg-[#2e251b] dark:text-[#ecdac5]",
-  "dark:bg-[#24222e] dark:text-[#dad6ec]",
-];
 
 export function initialsOf(name: string) {
   const parts = name.replace(/[“”"'][^“”"']*[“”"']/g, "").trim().split(/\s+/).filter(Boolean);
@@ -70,16 +53,13 @@ export function initialsOf(name: string) {
   return ((parts[0][0] ?? "") + (parts.length > 1 ? parts[parts.length - 1][0] ?? "" : "")).toUpperCase();
 }
 
-/** Initials in a quiet, steady colour: the same person always gets the same one. */
+/** A lettered monogram in a thin gilt ring. Your own is filled. */
 export function Avatar({ name, size = 40, me = false, className = "" }: { name: string; size?: number; me?: boolean; className?: string }) {
-  let h = 0;
-  for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  const tone = me ? "bg-crimson-fill text-white" : `${AVATAR_TONES[h % 6]} ${AVATAR_TONES_DARK[h % 6]}`;
   return (
     <span
       aria-hidden
-      className={`inline-grid shrink-0 place-items-center rounded-full font-semibold tracking-[-0.02em] ${tone} ${className}`}
-      style={{ width: size, height: size, fontSize: Math.round(size * 0.36) }}
+      className={`inline-grid shrink-0 place-items-center rounded-full font-display font-semibold tracking-[0.06em] ${me ? "bg-gilt text-[#12100d]" : "border border-gilt-line text-gilt"} ${className}`}
+      style={{ width: size, height: size, fontSize: Math.round(size * 0.38) }}
     >
       {initialsOf(name)}
     </span>
@@ -106,12 +86,13 @@ export function PageHead({ kicker, title, sub, action, size = "lg" }: { kicker?:
   );
 }
 
-/** A titled block: a black rule, the title, an optional link on the right. */
+/** A titled block: the moulding, then the title in small capitals, an optional action on the right. */
 export function Section({ title, action, children, className = "", id }: { title: ReactNode; action?: ReactNode; children: ReactNode; className?: string; id?: string }) {
   return (
-    <section className={`mt-10 first:mt-0 ${className}`} aria-labelledby={id}>
-      <div className="rule-top flex items-baseline justify-between gap-3 pt-3">
-        <h2 id={id} className="display-sm">{title}</h2>
+    <section className={`mt-12 first:mt-0 ${className}`} aria-labelledby={id}>
+      <div className="moulding" aria-hidden />
+      <div className="flex items-baseline justify-between gap-3 pt-3">
+        <h2 id={id} className="kicker text-ink-2">{title}</h2>
         {action}
       </div>
       <div className="mt-2">{children}</div>
@@ -121,9 +102,8 @@ export function Section({ title, action, children, className = "", id }: { title
 
 export function SectionLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link href={href} className="inline-flex min-h-11 items-center gap-1 text-sm font-medium text-ink-2 hover:text-ink">
+    <Link href={href} className="textlink inline-flex min-h-11 items-center">
       {children}
-      <ChevronRight className="size-4" aria-hidden />
     </Link>
   );
 }
@@ -276,14 +256,14 @@ export function Choice({ title, detail, onClick, selected }: { title: string; de
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`relative flex min-h-16 w-full items-center justify-between gap-3 border px-4 py-3.5 text-left transition-colors ${selected ? "border-ink bg-ink text-paper" : "border-line-2 bg-card hover:border-ink"}`}
+      className={`relative flex min-h-16 w-full items-center justify-between gap-3 border px-4 py-3.5 text-left transition-colors ${selected ? "border-gilt bg-card shadow-[inset_3px_0_0_var(--gilt)]" : "border-line-2 bg-card hover:border-gilt-line"}`}
     >
       <span className="min-w-0">
-        <span className="block text-[17px] font-semibold leading-tight tracking-[-0.01em]">{title}</span>
-        {detail ? <span className={`mt-1 block text-sm ${selected ? "text-paper/70" : "text-muted"}`}>{detail}</span> : null}
+        <span className="block text-[17px] font-semibold leading-tight">{title}</span>
+        {detail ? <span className="mt-1 block text-sm text-muted">{detail}</span> : null}
       </span>
-      <span aria-hidden className={`grid size-5 shrink-0 place-items-center rounded-full border-[1.5px] ${selected ? "border-paper" : "border-line-2"}`}>
-        {selected ? <span className="size-2.5 rounded-full bg-paper" /> : null}
+      <span aria-hidden className={`grid size-5 shrink-0 place-items-center rounded-full border-[1.5px] ${selected ? "border-gilt" : "border-line-2"}`}>
+        {selected ? <span className="size-2.5 rounded-full bg-gilt" /> : null}
       </span>
     </button>
   );
@@ -296,7 +276,7 @@ export function Toggle({ on, set, title, detail }: { on: boolean; set: (v: boole
         <span className="block text-[15px] font-medium">{title}</span>
         {detail ? <span className="mt-0.5 block text-sm text-muted">{detail}</span> : null}
       </span>
-      <span className={`relative h-[30px] w-[50px] shrink-0 rounded-full transition-colors duration-200 ${on ? "bg-paid" : "bg-line-2"}`}>
+      <span className={`relative h-[30px] w-[50px] shrink-0 rounded-full transition-colors duration-200 ${on ? "bg-gilt" : "bg-line-2"}`}>
         <span className={`absolute top-[3px] size-6 rounded-full bg-white shadow-[0_2px_4px_rgba(0,0,0,.2)] transition-all duration-200 ${on ? "left-[23px]" : "left-[3px]"}`} />
       </span>
     </button>
@@ -351,16 +331,16 @@ export function Stat({ value, label, tone }: { value: ReactNode; label: ReactNod
   );
 }
 
-/** Progress: a thin, square bar in the school's red, with optional milestone ticks. */
+/** Progress: a gilt line on a dark track, drawn in on arrival, with optional milestone ticks. */
 export function Bar({ value, max, tone = "light", label, ticks, height = 6 }: { value: number; max: number; tone?: "light" | "onDark"; label?: string; ticks?: number[]; height?: number }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   const shown = pct > 0 ? Math.max(1.5, pct) : 0;
-  const track = tone === "onDark" ? "bg-white/25" : "bg-sunk";
-  const fill = tone === "onDark" ? "bg-white" : "bg-crimson";
+  const track = tone === "onDark" ? "bg-[#2f2a23]" : "bg-sunk";
+  const fill = tone === "onDark" ? "bg-[#c9a45c]" : "bg-gilt";
   return (
     <div role="progressbar" aria-label={label ?? "Progress"} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} className={`relative overflow-hidden ${track}`} style={{ height }}>
-      <div className={`h-full ${fill} transition-[width] duration-1000 ease-out`} style={{ width: `${shown}%` }} />
-      {ticks?.map((t) => <span key={t} aria-hidden className={`absolute top-0 h-full w-0.5 ${tone === "onDark" ? "bg-black/20" : "bg-paper"}`} style={{ left: `${t}%` }} />)}
+      <div className={`grow h-full ${fill} transition-[width] duration-1000 ease-out`} style={{ width: `${shown}%` }} />
+      {ticks?.map((t) => <span key={t} aria-hidden className={`absolute top-0 h-full w-0.5 ${tone === "onDark" ? "bg-[#12100d]" : "bg-paper"}`} style={{ left: `${t}%` }} />)}
     </div>
   );
 }
@@ -377,7 +357,7 @@ export function Callout({ children, tone = "plain" }: { children: ReactNode; ton
 }
 
 export function SampleTag() {
-  return <span className="demo-hide ml-1 inline-block border border-line-2 px-1.5 py-0.5 align-middle font-mono text-[10px] tracking-widest text-muted uppercase">Sample</span>;
+  return <span className="demo-hide ml-1 inline-block border border-line-2 px-1.5 py-0.5 align-middle text-[10px] font-semibold tracking-[0.16em] text-muted uppercase">Sample</span>;
 }
 
 export function Pill({ children, tone = "plain" }: { children: ReactNode; tone?: "plain" | "red" | "paid" | "ink" }) {
@@ -385,9 +365,9 @@ export function Pill({ children, tone = "plain" }: { children: ReactNode; tone?:
     plain: "border-line-2 text-ink-2",
     red: "border-crimson text-crimson-ink",
     paid: "border-paid text-paid",
-    ink: "border-ink bg-ink text-paper",
+    ink: "border-gilt text-gilt",
   }[tone];
-  return <span className={`inline-flex h-6 items-center border px-2 font-mono text-[10.5px] font-medium tracking-[0.1em] whitespace-nowrap uppercase ${cls}`}>{children}</span>;
+  return <span className={`inline-flex h-6 items-center border px-2 text-[10.5px] font-semibold tracking-[0.14em] whitespace-nowrap uppercase ${cls}`}>{children}</span>;
 }
 
 export function State({

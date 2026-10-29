@@ -473,20 +473,30 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
   const refunds = isOfficer(roles)
     ? await sql<{ n: number }>`select count(*)::int as n from refund where organisation_id = ${org.id} and status = 'awaiting_approval'`
     : [];
+  const present = await sql<{ n: number }>`select count(*)::int as n from membership where organisation_id = ${org.id} and status = 'verified'`;
+  const nextEvent = await sql<Record<string, unknown>>`
+    select e.id, e.title, e.place, e.starts_at::text as starts_at,
+      (select status from rsvp r where r.event_id = e.id and r.membership_id = ${member.id}) as mine,
+      (select count(*)::int from rsvp r where r.event_id = e.id and r.status = 'going') as going
+    from hub_event e
+    where e.organisation_id = ${org.id} and e.starts_at > now()
+      and (e.circle_id is null or e.circle_id in (select circle_id from circle_member where membership_id = ${member.id}))
+    order by e.starts_at limit 1
+  `;
   const duesPlan = await duesPlans(sql, org.id);
   const duesPaid = (await duesPaidBy(sql, org.id, member.id)).get(member.id) ?? 0;
   const dues = duesPlan.plans.length ? duesStatement(duesPlan.plans, duesPaid, todayInAccra()) : null;
   let attention: { kicker: string; title: string; body: string; href: string } | null = null;
   if (member.status !== "verified") {
-    attention = { kicker: "Your place", title: "Waiting on confirmation", body: "Two verified cot mates, or an executive who is not you, confirm a claim.", href: "me" };
+    attention = { kicker: "Your place", title: "Your place is not yet confirmed", body: "Two of your cot mates, or an executive, will vouch for you. Until then the roll shows you as claimed.", href: "me" };
   } else if (due[0]) {
     attention = { kicker: "Instalment", title: String(due[0].title), body: `A part is due ${String(due[0].due_on)}.`, href: "give" };
   } else if (dues && dues.outstanding > 0) {
     const behind = dues.periods.filter((p) => p.state !== "paid").map((p) => p.label);
     attention = {
       kicker: "Dues",
-      title: `${(dues.outstanding / 100).toLocaleString("en-GH", { style: "currency", currency: "GHS", maximumFractionDigits: 0 })} due`,
-      body: `For ${behind.join(" and ")}. Two taps to pay, and the receipt comes straight back.`,
+      title: `${(dues.outstanding / 100).toLocaleString("en-GH", { style: "currency", currency: "GHS", maximumFractionDigits: 0 })} for ${behind.join(" and ")}`,
+      body: "Your dues keep the year group able to meet, to write and to turn up for one another. Settle them here and the receipt is yours at once.",
       href: "dues",
     };
   } else if (num(expense[0]?.n) > 0) {
@@ -530,6 +540,10 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
       : null,
     hero: hero ? { id: String(hero.id), title: String(hero.title), story: String(hero.story), target: num(hero.target_pesewas), raised, givers: num(heroGivers[0]?.n) } : null,
     given: { total: num(mine[0]?.total), count: num(mine[0]?.n) },
+    present: num(present[0]?.n),
+    next: nextEvent[0]
+      ? { id: String(nextEvent[0].id), title: String(nextEvent[0].title), place: String(nextEvent[0].place), at: String(nextEvent[0].starts_at), mine: str(nextEvent[0].mine), going: num(nextEvent[0].going) }
+      : null,
     dues: dues ? { outstanding: dues.outstanding, rate: dues.rate, period: dues.period, ahead: dues.ahead, current: dues.periods.find((p) => p.current) ?? null } : null,
     circles: circles.map((c) => ({ id: String(c.id), name: String(c.name), kind: String(c.kind), purpose: String(c.purpose) })),
     feed: feed.map((p) => ({

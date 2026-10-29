@@ -1,14 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
+import { Cormorant, Source_Serif_4 } from "next/font/google";
 import { DemoRibbon } from "@/components/demo-ribbon";
 import { OfflineSync } from "@/components/offline-sync";
 import { demoMode } from "@/lib/hub/util";
 import "./globals.css";
 
-// An editorial serif for what we say, a crisp grotesk for what you do, mono for numbers on paper.
-const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-serif", display: "swap" });
-const body = Geist({ subsets: ["latin"], variable: "--font-body", display: "swap" });
-const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono-face", display: "swap" });
+// The Honours Board: Cormorant for lettering (names, headlines, figures), Source Serif 4 for reading.
+const lettering = Cormorant({ subsets: ["latin"], weight: ["500", "600", "700"], style: ["normal", "italic"], variable: "--font-serif", display: "swap" });
+const body = Source_Serif_4({ subsets: ["latin"], weight: ["400", "500", "600", "700"], style: ["normal", "italic"], variable: "--font-body", display: "swap" });
 
 export const metadata: Metadata = {
   title: { default: "Year Group Hub", template: "%s · Year Group Hub" },
@@ -24,14 +23,14 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F5F3EE" },
-    { media: "(prefers-color-scheme: dark)", color: "#0D0D0E" },
+    { media: "(prefers-color-scheme: light)", color: "#12100D" },
+    { media: "(prefers-color-scheme: dark)", color: "#12100D" },
   ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${serif.variable} ${body.variable} ${mono.variable}`} data-demo={demoMode() ? "" : undefined}>
+    <html lang="en" className={`${lettering.variable} ${body.variable}`} data-demo={demoMode() ? "" : undefined}>
       <body>
         <DemoRibbon />
         <OfflineSync />

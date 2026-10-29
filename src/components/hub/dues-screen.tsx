@@ -1,11 +1,13 @@
 "use client";
-import { CalendarCheck, Lock, ShieldCheck } from "lucide-react";
+import { Lock } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DemoConfirm } from "@/components/hub/demo-confirm";
 import { Shell } from "@/components/hub/shell";
-import { Back, Callout, Choice, Kicker, Money, Pill, Section, Sheet, State, Toggle } from "@/components/hub/ui";
+import { useOrgFace } from "@/components/hub/org-context";
+import { Back, Callout, Choice, Money, Sheet, State, Toggle } from "@/components/hub/ui";
+import { wholeCedis } from "@/lib/hub/words-money";
 import { useHub } from "@/components/hub/use-hub";
 import { duesData, startPayment } from "@/lib/hub/api";
 import { formatGhs, parseCedisToPesewas, planCollection } from "@/lib/hub/money";
@@ -33,19 +35,20 @@ export function DuesScreen({ slug }: { slug: string }) {
 }
 
 function DuesBody({ slug, data, reload }: { slug: string; data: Dues; reload: () => void }) {
+  const org = useOrgFace();
   const s = data.statement;
   const behind = s.periods.filter((p) => p.state !== "paid");
   const current = s.periods.find((p) => p.current);
   const picks: Pick[] = [];
   if (s.outstanding > 0) {
-    picks.push({ key: "all", title: `Everything due · ${formatGhs(s.outstanding)}`, detail: behind.length > 1 ? `Clears ${behind.map((p) => p.label).join(" and ")}` : `Clears ${behind[0]?.label ?? "what is due"}`, amount: s.outstanding });
+    picks.push({ key: "all", title: `All that is due · ${formatGhs(s.outstanding)}`, detail: `Clears ${behind.map((p) => p.label).join(" and ")}`, amount: s.outstanding });
     const oldest = behind[0];
-    if (behind.length > 1 && oldest) picks.push({ key: "oldest", title: `${oldest.label} only · ${formatGhs(oldest.due - oldest.paid)}`, detail: "The oldest first, the rest later", amount: oldest.due - oldest.paid });
+    if (behind.length > 1 && oldest) picks.push({ key: "oldest", title: `${oldest.label} first · ${formatGhs(oldest.due - oldest.paid)}`, detail: "The oldest year now, the rest later", amount: oldest.due - oldest.paid });
   } else if (s.rate > 0) {
-    picks.push({ key: "ahead", title: `Pay ${s.period === "month" ? "next month" : "next year"} ahead · ${formatGhs(s.rate)}`, detail: "It counts the moment the new period starts", amount: s.rate });
+    picks.push({ key: "ahead", title: `${s.period === "month" ? "Next month" : "Next year"}, ahead · ${formatGhs(s.rate)}`, detail: "Counted the day the new period opens", amount: s.rate });
   }
   const [picked, setChoice] = useState(picks[0]?.key ?? "other");
-  // After a payment the choices change (everything due becomes pay ahead); fall back to the first.
+  // After a payment the choices change (all that is due becomes paying ahead); fall back to the first.
   const choice = picked === "other" || picks.some((p) => p.key === picked) ? picked : picks[0]?.key ?? "other";
   const [other, setOther] = useState("");
   const [open, setOpen] = useState(false);
@@ -54,47 +57,22 @@ function DuesBody({ slug, data, reload }: { slug: string; data: Dues; reload: ()
   if (!data.open) {
     return (
       <header className="rise">
-        <Kicker>Dues</Kicker>
-        <h1 className="display-lg mt-3">No dues are set yet.</h1>
-        <p className="mt-3 max-w-[46ch] text-muted">When the executive sets the year group’s dues, what you owe and what you have paid will show here.</p>
+        <p className="kicker">Dues</p>
+        <h1 className="display-lg mt-4">No dues are set yet.</h1>
+        <p className="mt-4 max-w-[44ch] font-display text-[1.3rem] leading-snug italic text-muted">When the Financial Secretary sets the year’s dues, your ledger opens here.</p>
       </header>
     );
   }
 
-  const status = (
-    <div className={`rise rise-1 border p-6 sm:p-7 ${s.outstanding > 0 ? "border-ink bg-card" : "border-paid bg-paid-soft"}`}>
-      {s.outstanding > 0 ? (
-        <>
-          <p className="kicker kicker-red">Due now</p>
-          <p className="figure mt-3 text-[3.25rem] sm:text-[4rem]">{formatGhs(s.outstanding)}</p>
-          <p className="mt-2 text-[15px] text-muted">For {behind.map((p) => p.label).join(" and ")} · dues are {formatGhs(s.rate)} {per(s.period)}</p>
-        </>
-      ) : (
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="kicker" style={{ color: "var(--paid)" }}>All paid up</p>
-            <p className="figure mt-3 text-[2.5rem]">Thank you.</p>
-            <p className="mt-2 text-[15px] text-ink-2">
-              Paid through {current?.label ?? s.periods[s.periods.length - 1]?.label}
-              {s.ahead > 0 ? <>, with {formatGhs(s.ahead)} paid ahead</> : null}.
-            </p>
-          </div>
-          <span className="stamp stamp-paid shrink-0">Paid up</span>
-        </div>
-      )}
-      <dl className="mt-6 grid grid-cols-2 gap-4 border-t border-line pt-4 text-[15px]">
-        <div><dt className="text-[13px] text-muted">Asked since {data.since ? new Date(data.since).getFullYear() : ""}</dt><dd className="mt-1 font-semibold tabular-nums">{formatGhs(s.owed)}</dd></div>
-        <div><dt className="text-[13px] text-muted">You have paid</dt><dd className="mt-1 font-semibold text-paid tabular-nums">{formatGhs(s.paid)}</dd></div>
-      </dl>
-    </div>
-  );
+  const owing = s.outstanding > 0;
+  const since = data.since ? new Date(data.since).getFullYear() : null;
 
   const pay = data.verified ? (
     <section className="rise rise-2" aria-labelledby="pay-dues">
-      <h2 id="pay-dues" className="display-sm">{s.outstanding > 0 ? "Pay your dues" : "Pay ahead"}</h2>
+      <p id="pay-dues" className="kicker">{owing ? "Settle your dues" : "Pay ahead"}</p>
       <div className="mt-4 space-y-2">
         {picks.map((p) => <Choice key={p.key} title={p.title} detail={p.detail} selected={choice === p.key} onClick={() => setChoice(p.key)} />)}
-        <Choice title="Another amount" detail="Pay part now; it goes to the oldest period first" selected={choice === "other"} onClick={() => setChoice("other")} />
+        <Choice title="Another amount" detail="Goes to the oldest year first" selected={choice === "other"} onClick={() => setChoice("other")} />
         {choice === "other" ? (
           <label className="relative block">
             <span className="sr-only">Amount in cedis</span>
@@ -103,16 +81,16 @@ function DuesBody({ slug, data, reload }: { slug: string; data: Dues; reload: ()
           </label>
         ) : null}
       </div>
-      <button type="button" className="btn btn-red btn-block mt-5" disabled={amount < 100} onClick={() => setOpen(true)}>
+      <button type="button" className={`btn btn-block mt-5 ${owing ? "btn-red" : "btn-primary"}`} disabled={amount < 100} onClick={() => setOpen(true)}>
         {amount >= 100 ? `Pay ${formatGhs(amount)}` : "Choose an amount"}
       </button>
-      <p className="mt-2.5 flex items-center justify-center gap-1.5 text-[12px] text-muted"><ShieldCheck className="size-3.5" /> Mobile money or card. The receipt comes straight back.</p>
+      <p className="mt-3 text-center font-display text-[1rem] italic text-muted">Mobile money or card. Your receipt comes back at once.</p>
     </section>
   ) : (
     <div className="space-y-3">
       <Callout tone="red">
         <p className="font-semibold">Paying opens once your place is confirmed.</p>
-        <p className="mt-1 text-muted">Two cot mates, or an executive, confirm that you are you. Your dues still show here.</p>
+        <p className="mt-1 text-muted">Two of your cot mates, or an executive, will vouch for you. Your ledger still shows here.</p>
       </Callout>
       <DemoConfirm slug={slug} onDone={reload} />
     </div>
@@ -120,57 +98,104 @@ function DuesBody({ slug, data, reload }: { slug: string; data: Dues; reload: ()
 
   return (
     <div>
-      <header className="rise mb-7 lg:mb-10">
-        <Kicker>Dues</Kicker>
-        <h1 className="display-lg mt-3">Your dues</h1>
-        <p className="mt-3 max-w-[52ch] text-[15px] text-muted">{data.story || "What keeps the year group able to meet, write and show up."}</p>
+      <header className="rise mb-9 lg:mb-12">
+        <p className="kicker">Dues{since ? ` · since ${since}` : ""}</p>
+        <h1 className="display-lg mt-4">Your dues</h1>
+        <p className="mt-4 max-w-[46ch] font-display text-[1.3rem] leading-snug italic text-ink-2">
+          {data.story || "What keeps the year group able to meet, to write and to turn up for one another."}
+        </p>
       </header>
 
-      <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14">
-        <div className="min-w-0 space-y-10">
-          {status}
+      <div className="lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
+        <div className="min-w-0 space-y-12">
+          {/* Where you stand, lettered on the board */}
+          <section className="board framed rise rise-1 border border-[#3a332a] px-6 pt-8 pb-7 sm:px-8" aria-label="Where you stand">
+            {owing ? (
+              <>
+                <p className="kicker" style={{ color: "#ec7e83" }}>Outstanding</p>
+                <p className="figure mt-4 text-[3.6rem] text-ink sm:text-[4.5rem]">{formatGhs(s.outstanding)}</p>
+                <p className="mt-3 text-[1rem] text-ink-2">For {behind.map((p) => p.label).join(" and ")}. Dues are {formatGhs(s.rate)} {per(s.period)}.</p>
+              </>
+            ) : (
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="kicker">Paid up</p>
+                  <p className="mt-4 font-display text-[2.6rem] leading-none italic text-ink">Thank you{org?.me?.nickname ? `, ${org.me.nickname}` : ""}.</p>
+                  <p className="mt-3 text-[1rem] text-ink-2">
+                    Your dues are settled through {current?.label ?? s.periods[s.periods.length - 1]?.label}
+                    {s.ahead > 0 ? <>, with {formatGhs(s.ahead)} paid ahead</> : null}.
+                  </p>
+                </div>
+                <span className="stamp shrink-0" style={{ color: "#c9a45c" }}>Settled</span>
+              </div>
+            )}
+          </section>
+
           <div className="lg:hidden">{pay}</div>
 
-          <Section title="Year by year">
-            <ul className="ruled-list border-b border-line">
-              {[...s.periods].reverse().map((p) => (
-                <li key={p.key} className="flex items-center gap-4 py-4">
-                  <span className={`grid size-11 shrink-0 place-items-center border ${p.state === "paid" ? "border-paid bg-paid-soft text-paid" : p.state === "part" ? "border-ink" : "border-crimson text-crimson-ink"}`}>
-                    <CalendarCheck className="size-5" strokeWidth={1.75} />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-[17px] font-semibold tracking-[-0.01em]">{p.label}{p.current ? <span className="ml-2 font-mono text-[10.5px] font-medium tracking-widest text-muted uppercase">This {s.period}</span> : null}</span>
-                    <span className="block text-[13px] text-muted tabular-nums">
-                      {p.state === "paid" ? `${formatGhs(p.due)} paid` : p.state === "part" ? `${formatGhs(p.paid)} of ${formatGhs(p.due)} paid` : `${formatGhs(p.due)} not yet paid`}
-                    </span>
-                  </span>
-                  <Pill tone={p.state === "paid" ? "paid" : p.state === "part" ? "ink" : "red"}>{p.state === "paid" ? "Paid" : p.state === "part" ? "Part paid" : "Due"}</Pill>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-3 text-[13px] text-muted">Payments go to the oldest period first. Only payments the gateway has confirmed are counted.</p>
-          </Section>
+          {/* The ledger, on paper */}
+          <section className="slip rise rise-2 px-5 pt-6 pb-5 shadow-[0_18px_40px_-24px_rgba(0,0,0,.5)] sm:px-7" aria-labelledby="ledger">
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 id="ledger" className="kicker text-ink-2">The ledger</h2>
+              <p className="font-display text-[1rem] italic text-muted">{org?.name}</p>
+            </div>
+            <table className="mt-4 w-full text-[0.98rem]">
+              <thead>
+                <tr className="border-y border-ink text-left">
+                  <th className="py-2 pr-2 text-[0.68rem] font-semibold tracking-[0.18em] uppercase">Year</th>
+                  <th className="py-2 pr-2 text-right text-[0.68rem] font-semibold tracking-[0.18em] uppercase">Asked</th>
+                  <th className="py-2 pr-2 text-right text-[0.68rem] font-semibold tracking-[0.18em] uppercase">Paid</th>
+                  <th className="py-2 text-right text-[0.68rem] font-semibold tracking-[0.18em] uppercase">Owed</th>
+                </tr>
+              </thead>
+              <tbody>
+                {s.periods.map((p) => (
+                  <tr key={p.key} className="border-b border-line">
+                    <td className="py-3 pr-2">
+                      <span className="font-display text-[1.25rem] font-semibold">{p.label}</span>
+                      {p.current ? <span className="ml-2 font-display text-[0.95rem] italic text-muted">this {s.period}</span> : null}
+                    </td>
+                    <td className="py-3 pr-2 text-right tabular-nums">{wholeCedis(p.due)}</td>
+                    <td className="py-3 pr-2 text-right tabular-nums">{p.paid ? wholeCedis(p.paid) : "–"}</td>
+                    <td className={`py-3 text-right font-semibold tabular-nums ${p.state === "paid" ? "text-paid" : "text-crimson-ink"}`}>
+                      {p.state === "paid" ? "Settled" : wholeCedis(p.due - p.paid)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr className="border-t-[3px] border-double border-ink">
+                  <td className="py-3 pr-2 text-[0.68rem] font-semibold tracking-[0.18em] uppercase">Total</td>
+                  <td className="py-3 pr-2 text-right font-semibold tabular-nums">{wholeCedis(s.owed)}</td>
+                  <td className="py-3 pr-2 text-right font-semibold tabular-nums">{wholeCedis(Math.min(s.paid, s.owed))}</td>
+                  <td className={`py-3 text-right font-semibold tabular-nums ${owing ? "text-crimson-ink" : "text-paid"}`}>{wholeCedis(s.outstanding)}</td>
+                </tr>
+              </tfoot>
+            </table>
+            <p className="mt-3 text-[0.88rem] text-muted">Each payment settles the oldest year first. Only payments the gateway has confirmed are entered.</p>
+          </section>
 
-          <Section title="Dues payments" id="dues-receipts">
-            {data.history.length === 0 ? <p className="py-4 text-muted">None yet. Your first dues receipt will appear here.</p> : null}
-            <ul className="ruled-list">
+          <section aria-labelledby="dues-receipts">
+            <div className="moulding" aria-hidden />
+            <h2 id="dues-receipts" className="kicker pt-3 text-ink-2">Your dues receipts</h2>
+            {data.history.length === 0 ? <p className="mt-4 font-display text-[1.2rem] italic text-muted">None yet. Your first dues receipt will be entered here.</p> : null}
+            <ul className="mt-3">
               {data.history.map((h) => (
                 <li key={h.id}>
-                  <Link href={h.receipt ? `/r/${h.receipt}` : "#"} className="flex items-center gap-4 py-3.5 hover:bg-sunk/40">
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[15px] font-medium">{new Date(h.at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</span>
-                      <span className="block font-mono text-[12px] text-muted">{h.receipt ?? "Receipt on its way"}</span>
-                    </span>
-                    <span className="text-[15px] font-semibold tabular-nums"><Money value={h.amount} /></span>
+                  <Link href={h.receipt ? `/r/${h.receipt}` : "#"} className="leader min-h-12 py-2 text-[1rem] hover:text-gilt">
+                    <span>{new Date(h.at).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}</span>
+                    <span className="dots" aria-hidden />
+                    <span className="hidden text-[0.85rem] tracking-[0.08em] text-muted sm:inline">{h.receipt ?? "receipt on its way"}</span>
+                    <span className="font-semibold tabular-nums"><Money value={h.amount} /></span>
                   </Link>
                 </li>
               ))}
             </ul>
-          </Section>
+          </section>
         </div>
 
         <aside className="hidden lg:block">
-          <div className="sticky top-12 border border-line bg-card p-7">{pay}</div>
+          <div className="sticky top-14">{pay}</div>
         </aside>
       </div>
 

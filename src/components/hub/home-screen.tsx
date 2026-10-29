@@ -1,15 +1,18 @@
 "use client";
-import { ArrowRight, ArrowUpRight, CalendarCheck, CalendarDays, Heart, Images, Share2 } from "lucide-react";
 import Link from "next/link";
 import { homeData } from "@/lib/hub/api";
 import { roleTitle } from "@/lib/hub/roles";
 import { timeAgo, wholeCedis } from "@/lib/hub/words-money";
 import { DemoConfirm } from "@/components/hub/demo-confirm";
-import { Shell } from "@/components/hub/shell";
-import { Avatar, Bar, Kicker, SampleTag, Section, SectionLink, State } from "@/components/hub/ui";
+import { useOrgFace } from "@/components/hub/org-context";
+import { roman, Shell } from "@/components/hub/shell";
+import { Avatar, Bar, SampleTag, State } from "@/components/hub/ui";
 import { useHub } from "@/components/hub/use-hub";
 
 type Home = Awaited<ReturnType<typeof homeData>>;
+
+const WORDS = ["", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "twenty-one", "twenty-two", "twenty-three", "twenty-four", "twenty-five"];
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 function attentionHref(slug: string, href: string) {
   if (href === "control") return `/o/${slug}/control/money`;
@@ -24,226 +27,285 @@ function greeting() {
   return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
 }
 
+/** The line under the name: how long since we left the hill, and what is coming. Only when the cohort year is known. */
+function yearsLine(cohort: string) {
+  const year = Number(cohort);
+  if (!year) return null;
+  const since = new Date().getFullYear() - year;
+  if (since <= 0) return null;
+  const words = WORDS[since] ?? String(since);
+  const tail = since === 19 ? " The twentieth is next year." : since === 20 ? " This is our twentieth year." : "";
+  return `${cap(words)} ${since === 1 ? "year" : "years"} since we left the hill.${tail}`;
+}
+
 /**
- * Home: where you stand, at a glance. What needs you, the appeal and how close it
- * is, what you have given, then what your circles are saying.
+ * Home, as an honours board: your name lettered on the board, the roll-call of who has
+ * answered, the appeal as a foundation stone, and the papers pinned beneath it: what
+ * needs you, your standing, the latest notice, the next date, and letters from your circles.
  */
 export function HomeScreen({ slug }: { slug: string }) {
   const { data, error, loading, reload } = useHub(`home-${slug}`, () => homeData({ data: slug }));
   return (
-    <Shell slug={slug} wide>
-      <State loading={loading} error={error} onRetry={reload}>
-        {data ? <HomeBody slug={slug} data={data} reload={reload} /> : null}
-      </State>
+    <Shell slug={slug} bleed>
+      {data ? (
+        <HomeBody slug={slug} data={data} reload={reload} />
+      ) : (
+        <div className="px-5 pt-8 lg:px-14 lg:pt-14">
+          <State loading={loading} error={error} onRetry={reload}>{null}</State>
+        </div>
+      )}
     </Shell>
   );
 }
 
 function HomeBody({ slug, data, reload }: { slug: string; data: Home; reload: () => void }) {
+  const org = useOrgFace();
   const first = data.member.nickname || data.member.displayName.split(" ")[0];
-  const today = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  const cohort = org?.cohort ?? "";
+  const line = yearsLine(cohort);
   return (
-    <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-14">
-      <div className="min-w-0">
-        <header className="rise">
-          <Kicker>{today}</Kicker>
-          <h1 className="display-lg mt-3">
-            {greeting()}, <span className="serif-italic">{first}</span>.
-          </h1>
-        </header>
-
-        {data.attention ? (
-          <Link href={attentionHref(slug, data.attention.href)} className="rise rise-1 group mt-6 flex items-center gap-4 border-l-[3px] border-crimson bg-card py-4 pr-4 pl-4 transition-colors hover:bg-sunk/50">
-            <span className="min-w-0 flex-1">
-              <span className="kicker kicker-red block">{data.attention.kicker}</span>
-              <span className="mt-1.5 block text-[17px] font-semibold tracking-[-0.01em]">{data.attention.title}</span>
-              <span className="mt-0.5 block text-sm text-muted">{data.attention.body}</span>
-            </span>
-            <ArrowRight className="size-5 shrink-0 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        ) : null}
-        {data.attention?.kicker === "Your place" ? <div className="mt-3"><DemoConfirm slug={slug} onDone={reload} /></div> : null}
-
-        {data.hero ? <AppealPoster slug={slug} hero={data.hero} org={data.org.name} /> : null}
-
-        <QuickActions slug={slug} />
-
-        <div className="lg:hidden">
-          {data.dues ? <YourDues slug={slug} dues={data.dues} /> : null}
-          <YourGiving slug={slug} given={data.given} />
-          {data.notice ? <Notice slug={slug} notice={data.notice} /> : null}
+    <>
+      {/* The board */}
+      <section className="board relative overflow-hidden px-5 pt-9 pb-10 lg:px-14 lg:pt-16 lg:pb-16" aria-labelledby="greeting">
+        <span aria-hidden className="pointer-events-none absolute -right-4 -bottom-16 font-display text-[16rem] leading-none text-[#1d1a16] italic select-none lg:-right-2 lg:-bottom-24 lg:text-[24rem]">
+          {cohort ? cohort.slice(2) : ""}
+        </span>
+        <div className="relative lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
+          <div className="rise">
+            <p className="kicker">{org?.place ? `${org.place} · ` : ""}{cohort ? `Class of ${roman(Number(cohort))}` : org?.name}</p>
+            <p className="mt-6 font-display text-[1.6rem] italic leading-none text-gilt lg:text-[2rem]">{greeting()},</p>
+            <h1 id="greeting" className="display-xl mt-2 break-words">{first}.</h1>
+            {line ? <p className="mt-6 max-w-[34ch] text-[1.05rem] leading-relaxed text-ink-2">{line}</p> : null}
+            <RollCall data={data} />
+          </div>
+          {data.hero ? <div className="mt-10 lg:mt-2"><Stone slug={slug} hero={data.hero} org={data.org.name} /></div> : null}
         </div>
+      </section>
 
-        <Section title="Latest from your circles" action={<SectionLink href={`/o/${slug}/feed`}>See all</SectionLink>} className="mt-12">
-          {data.feed.length === 0 ? <p className="py-6 text-muted">Your circles are quiet. The first note can be yours.</p> : null}
-          <ul className="ruled-list">
-            {data.feed.map((p) => (
-              <li key={p.id} className="flex gap-3.5 py-4">
-                <Avatar name={p.full} size={40} />
-                <div className="min-w-0 flex-1">
-                  <p className="flex items-baseline justify-between gap-3 text-sm">
-                    <span className="min-w-0 truncate">
-                      <span className="font-semibold">{p.author}</span>
-                      {p.sample ? <SampleTag /> : null}
-                      <span className="text-muted"> in {p.circle}</span>
-                    </span>
-                    <span className="shrink-0 font-mono text-[11px] text-muted">{timeAgo(p.at)}</span>
-                  </p>
-                  <p className="mt-1 text-[15px] leading-relaxed">{p.body}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </Section>
-      </div>
-
-      <aside className="hidden lg:block">
-        <div className="sticky top-12 space-y-0">
-          {data.dues ? <YourDues slug={slug} dues={data.dues} /> : null}
-          <YourGiving slug={slug} given={data.given} />
-          {data.notice ? <Notice slug={slug} notice={data.notice} /> : null}
-          <MyCircles slug={slug} circles={data.circles} />
+      {/* The papers */}
+      <div className="px-5 pt-10 lg:px-14 lg:pt-14">
+        <div className="lg:grid lg:grid-cols-[minmax(0,7fr)_minmax(0,5fr)] lg:gap-14">
+          <div className="min-w-0 space-y-12">
+            {data.attention ? <Pinned slug={slug} attention={data.attention} /> : null}
+            {data.attention?.kicker === "Your place" ? <DemoConfirm slug={slug} onDone={reload} /> : null}
+            {data.notice ? <Notice slug={slug} notice={data.notice} /> : <EmptyNotice />}
+            <Letters slug={slug} feed={data.feed} />
+          </div>
+          <aside className="mt-12 space-y-12 lg:mt-0">
+            <Standing slug={slug} data={data} />
+            <NextDate slug={slug} next={data.next} />
+            <Rooms slug={slug} circles={data.circles} />
+          </aside>
         </div>
-      </aside>
-
-      <div className="lg:hidden">
-        <MyCircles slug={slug} circles={data.circles} />
       </div>
-    </div>
+    </>
   );
 }
 
-/** The appeal, as a poster: what it is for, how close it is, and the two things to do. */
-function AppealPoster({ slug, hero, org }: { slug: string; hero: NonNullable<Home["hero"]>; org: string }) {
+/** Who has answered, counted from confirmed places and confirmed gifts. No invented totals. */
+function RollCall({ data }: { data: Home }) {
+  return (
+    <dl className="mt-9 max-w-md">
+      <div className="moulding" aria-hidden />
+      <div className="leader pt-4 text-[1rem]">
+        <dt className="text-ink-2">Have answered present</dt>
+        <span className="dots" aria-hidden />
+        <dd className="figure text-[1.6rem] text-gilt">{data.present}</dd>
+      </div>
+      {data.hero ? (
+        <div className="leader pt-2 text-[1rem]">
+          <dt className="text-ink-2">Have given to the appeal</dt>
+          <span className="dots" aria-hidden />
+          <dd className="figure text-[1.6rem] text-gilt">{data.hero.givers}</dd>
+        </div>
+      ) : null}
+    </dl>
+  );
+}
+
+/** The appeal as a foundation stone: lettered, framed, its progress drawn as one gilt line. */
+function Stone({ slug, hero, org }: { slug: string; hero: NonNullable<Home["hero"]>; org: string }) {
   const pct = hero.target > 0 ? Math.floor((hero.raised / hero.target) * 100) : 0;
   const link = typeof window !== "undefined" ? `${window.location.origin}/o/${slug}/give/${hero.id}` : "";
-  const share = `${hero.title} for ${org}: ${wholeCedis(hero.raised)} raised so far, ${pct}% of the way. Add yours: ${link}`;
+  const share = `${hero.title}, for ${org}: ${wholeCedis(hero.raised)} given so far by ${hero.givers} of us. Add your name: ${link}`;
   return (
-    <section className="poster rise rise-2 mt-6 -mx-5 px-5 pt-6 pb-6 sm:mx-0 sm:px-7 sm:pt-7" aria-labelledby="appeal-title">
-      <div className="flex items-center justify-between gap-3">
-        <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-white/80 uppercase">The appeal</span>
-        <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-white/80 uppercase">{pct}% there</span>
-      </div>
-      <h2 id="appeal-title" className="mt-8 font-display text-[3.25rem] leading-[0.92] tracking-[-0.02em] sm:text-[4rem]">{hero.title}</h2>
-      <div className="mt-8 flex items-end justify-between gap-4">
+    <article className="framed rise rise-2 border border-[#3a332a] bg-[#16130f] px-6 pt-8 pb-7 sm:px-8" aria-labelledby="appeal">
+      <p className="kicker text-center">The appeal</p>
+      <h2 id="appeal" className="lettered mt-4 text-center text-[1.7rem] leading-[1.1] sm:text-[2rem]">{hero.title}</h2>
+      <p className="mx-auto mt-4 max-w-[30ch] text-center font-display text-[1.15rem] leading-snug italic text-ink-2">{hero.story.split(".")[0]}.</p>
+      <div className="mt-7 flex items-end justify-between gap-4">
         <div>
-          <p className="figure text-[2.75rem] sm:text-[3.25rem]">{wholeCedis(hero.raised)}</p>
-          <p className="mt-2 text-sm text-white/80">raised of {wholeCedis(hero.target)}</p>
+          <p className="figure text-[2.6rem] text-ink">{wholeCedis(hero.raised)}</p>
+          <p className="mt-1.5 text-[0.9rem] text-muted">given of {wholeCedis(hero.target)}</p>
         </div>
-        <div className="text-right">
-          <p className="figure text-[1.75rem]">{hero.givers}</p>
-          <p className="mt-2 text-sm text-white/80">old boys have given</p>
-        </div>
+        <p className="figure text-[2.6rem] text-gilt">{pct}<span className="text-[1.4rem]">%</span></p>
       </div>
-      <div className="mt-5">
-        <Bar value={hero.raised} max={hero.target} tone="onDark" label="Raised so far" ticks={[25, 50, 75]} height={8} />
+      <div className="mt-4"><Bar value={hero.raised} max={hero.target} tone="onDark" label="Given so far" ticks={[25, 50, 75]} height={3} /></div>
+      <div className="mt-7 flex items-center justify-between gap-4">
+        <Link href={`/o/${slug}/give/${hero.id}`} className="btn btn-primary flex-1 sm:flex-none">Add your name</Link>
+        <a href={`https://wa.me/?text=${encodeURIComponent(share)}`} target="_blank" rel="noopener noreferrer" className="textlink inline-flex min-h-11 items-center">Share</a>
       </div>
-      <div className="mt-6 grid grid-cols-[1fr_auto] gap-2.5">
-        <Link href={`/o/${slug}/give/${hero.id}`} className="btn btn-white">
-          <Heart className="size-[18px]" strokeWidth={2.25} /> Give to the appeal
+    </article>
+  );
+}
+
+/** What needs you, as a paper slip pinned to the board. */
+function Pinned({ slug, attention }: { slug: string; attention: NonNullable<Home["attention"]> }) {
+  const pay = attention.kicker === "Dues";
+  return (
+    <article className="slip rise relative border-l-[3px] border-crimson px-5 py-6 shadow-[0_14px_30px_-18px_rgba(0,0,0,.45)] sm:px-7">
+      <p className="kicker kicker-red">{pay ? "A note on your dues" : attention.kicker}</p>
+      <h2 className="mt-3 font-display text-[2rem] leading-none font-semibold">{attention.title}</h2>
+      <p className="mt-3 max-w-[48ch] text-[1rem] leading-relaxed text-ink-2">{attention.body}</p>
+      <Link href={attentionHref(slug, attention.href)} className={`btn mt-5 ${pay ? "btn-red" : "btn-primary"}`}>
+        {pay ? "Settle it now" : "Open it"}
+      </Link>
+    </article>
+  );
+}
+
+/** The latest notice from an officer, set like a printed notice, signed with their office. */
+function Notice({ slug, notice }: { slug: string; notice: NonNullable<Home["notice"]> }) {
+  const office = notice.role ? roleTitle(notice.role) : "The executive";
+  return (
+    <section aria-labelledby="notice">
+      <div className="moulding" aria-hidden />
+      <h2 id="notice" className="kicker pt-3 text-ink-2">From the {office.toLowerCase() === "the executive" ? "executive" : office}</h2>
+      <Link href={`/o/${slug}/m/inbox`} className="group mt-4 block">
+        <p className="font-display text-[1.75rem] leading-[1.2] italic sm:text-[2.1rem]">
+          <span className="text-gilt">“</span>{notice.body}<span className="text-gilt">”</span>
+        </p>
+        <p className="mt-4 text-[0.95rem] text-muted">
+          <span className="text-ink">{notice.from}</span>, {office} · to {notice.audience} · {timeAgo(notice.at)}
+        </p>
+      </Link>
+    </section>
+  );
+}
+
+function EmptyNotice() {
+  return (
+    <section>
+      <div className="moulding" aria-hidden />
+      <h2 className="kicker pt-3 text-ink-2">Notices</h2>
+      <p className="mt-4 max-w-[40ch] font-display text-[1.4rem] leading-snug italic text-muted">The notice board is clear. When an officer writes to the year group, it is pinned here, signed.</p>
+    </section>
+  );
+}
+
+/** Your standing: dues and gifts, as two lines of a ledger. */
+function Standing({ slug, data }: { slug: string; data: Home }) {
+  const d = data.dues;
+  return (
+    <section aria-labelledby="standing">
+      <div className="moulding" aria-hidden />
+      <h2 id="standing" className="kicker pt-3 text-ink-2">Your standing</h2>
+      <dl className="mt-4 space-y-3 text-[1rem]">
+        {d ? (
+          <Link href={`/o/${slug}/dues`} className="leader group">
+            <dt>Dues{d.current ? `, ${d.current.label}` : ""}</dt>
+            <span className="dots" aria-hidden />
+            <dd className={`font-semibold tabular-nums ${d.outstanding > 0 ? "text-crimson-ink" : "text-paid"}`}>
+              {d.outstanding > 0 ? `${wholeCedis(d.outstanding)} due` : "Paid up"}
+            </dd>
+          </Link>
+        ) : null}
+        <Link href={`/o/${slug}/me#receipts`} className="leader">
+          <dt>Given, all confirmed</dt>
+          <span className="dots" aria-hidden />
+          <dd className="font-semibold tabular-nums">{wholeCedis(data.given.total)}</dd>
         </Link>
-        <a href={`https://wa.me/?text=${encodeURIComponent(share)}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost-light px-4" aria-label="Share on WhatsApp">
-          <Share2 className="size-[18px]" />
-          <span className="hidden sm:inline">Share</span>
-        </a>
+        <div className="leader text-muted">
+          <dt>Receipts</dt>
+          <span className="dots" aria-hidden />
+          <dd className="tabular-nums">{data.given.count}</dd>
+        </div>
+      </dl>
+      <div className="mt-5 flex gap-6">
+        {d ? <Link href={`/o/${slug}/dues`} className="textlink inline-flex min-h-11 items-center">Your dues</Link> : null}
+        <Link href={`/o/${slug}/me#receipts`} className="textlink inline-flex min-h-11 items-center">Receipts</Link>
       </div>
     </section>
   );
 }
 
-const QUICK = [
-  { href: "dues", label: "Dues", icon: CalendarCheck },
-  { href: "give", label: "Give", icon: Heart },
-  { href: "m/events", label: "Events", icon: CalendarDays },
-  { href: "m/photos", label: "Photos", icon: Images },
-] as const;
-
-function QuickActions({ slug }: { slug: string }) {
+/** The next date on the calendar, set large, the way a programme prints it. */
+function NextDate({ slug, next }: { slug: string; next: Home["next"] }) {
   return (
-    <nav aria-label="Shortcuts" className="rise rise-3 mt-6 grid grid-cols-4 gap-2 lg:hidden">
-      {QUICK.map(({ href, label, icon: Icon }) => (
-        <Link key={label} href={`/o/${slug}/${href}`} className="flex aspect-square flex-col items-center justify-center gap-2 border border-line bg-card text-[13px] font-medium transition-colors hover:border-ink active:bg-sunk">
-          <Icon className="size-[22px]" strokeWidth={1.75} />
-          {label}
+    <section aria-labelledby="next">
+      <div className="moulding" aria-hidden />
+      <h2 id="next" className="kicker pt-3 text-ink-2">Next on the calendar</h2>
+      {next ? (
+        <Link href={`/o/${slug}/m/events`} className="mt-4 grid grid-cols-[auto_1fr] items-start gap-5">
+          <span className="text-center leading-none">
+            <span className="figure block text-[3.6rem] text-gilt">{new Date(next.at).getDate()}</span>
+            <span className="kicker mt-1 block">{new Date(next.at).toLocaleDateString("en-GB", { month: "short" })}</span>
+          </span>
+          <span className="min-w-0 pt-1">
+            <span className="block font-display text-[1.5rem] leading-tight font-semibold">{next.title}</span>
+            <span className="mt-1 block text-[0.95rem] text-muted">
+              {new Date(next.at).toLocaleDateString("en-GB", { weekday: "long" })}, {new Date(next.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} · {next.place}
+            </span>
+            <span className="mt-2 block text-[0.95rem]">
+              {next.going} coming{next.mine ? <span className="text-muted"> · you said {next.mine === "no" ? "you can’t" : next.mine}</span> : <span className="text-gilt"> · will you come?</span>}
+            </span>
+          </span>
         </Link>
-      ))}
-    </nav>
+      ) : (
+        <p className="mt-4 font-display text-[1.25rem] italic text-muted">Nothing on the calendar yet. The organiser posts the year’s dates here.</p>
+      )}
+    </section>
   );
 }
 
-/** Dues at a glance: what is due now, or paid up; one tap to the statement and to pay. */
-function YourDues({ slug, dues }: { slug: string; dues: NonNullable<Home["dues"]> }) {
-  const due = dues.outstanding > 0;
-  return (
-    <Section title="Your dues" action={<SectionLink href={`/o/${slug}/dues`}>Statement</SectionLink>} className="mt-12 lg:mt-0 lg:mb-12">
-      <Link href={`/o/${slug}/dues`} className={`group mt-1 flex items-center gap-4 border-l-[3px] py-3 pl-4 transition-colors hover:bg-sunk/40 ${due ? "border-crimson" : "border-paid"}`}>
-        <span className="min-w-0 flex-1">
-          <span className="block text-[13px] text-muted">{due ? "Due now" : "All paid up"}</span>
-          <span className="figure mt-1 block text-[2rem]">{due ? wholeCedis(dues.outstanding) : dues.current?.label ?? "Thank you"}</span>
-          <span className="mt-1 block text-[13px] text-muted">{wholeCedis(dues.rate)} {dues.period === "month" ? "a month" : "a year"}{!due && dues.ahead > 0 ? ` · ${wholeCedis(dues.ahead)} paid ahead` : ""}</span>
-        </span>
-        <span className={`btn btn-sm shrink-0 ${due ? "btn-red" : "btn-quiet"}`}>{due ? "Pay" : "View"}</span>
-      </Link>
-    </Section>
-  );
-}
-
-function YourGiving({ slug, given }: { slug: string; given: Home["given"] }) {
-  return (
-    <Section title="Your giving" action={<SectionLink href={`/o/${slug}/me#receipts`}>Receipts</SectionLink>} className="mt-12 lg:mt-0">
-      <div className="grid grid-cols-2 gap-4 py-3">
-        <div>
-          <p className="figure text-[2rem]">{wholeCedis(given.total)}</p>
-          <p className="mt-1.5 text-[13px] text-muted">given, all confirmed</p>
-        </div>
-        <div>
-          <p className="figure text-[2rem]">{given.count}</p>
-          <p className="mt-1.5 text-[13px] text-muted">{given.count === 1 ? "gift" : "gifts"} with receipts</p>
-        </div>
-      </div>
-      <p className="border-t border-line pt-3 text-[13px] text-muted">Only the payment gateway marks a gift paid. Every one is on the ledger.</p>
-    </Section>
-  );
-}
-
-function Notice({ slug, notice }: { slug: string; notice: NonNullable<Home["notice"]> }) {
-  const role = notice.role ? roleTitle(notice.role) : "Executive";
-  return (
-    <Section title="From the executive" className="mt-12">
-      <Link href={`/o/${slug}/m/inbox`} className="group block py-3">
-        <p className="font-display text-[1.6rem] leading-[1.18] tracking-[-0.01em]">
-          <span className="text-crimson-ink">“</span>{notice.body}<span className="text-crimson-ink">”</span>
-        </p>
-        <div className="mt-4 flex items-center gap-3">
-          <Avatar name={notice.from} size={32} />
-          <p className="min-w-0 text-[13px] leading-tight">
-            <span className="block font-medium">{notice.from}</span>
-            <span className="block text-muted">{role} · to {notice.audience} · {timeAgo(notice.at)}</span>
-          </p>
-          <ArrowUpRight className="ml-auto size-4 text-muted transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-        </div>
-      </Link>
-    </Section>
-  );
-}
-
-function MyCircles({ slug, circles }: { slug: string; circles: Home["circles"] }) {
+/** Your houses and rooms, listed as a board lists them. */
+function Rooms({ slug, circles }: { slug: string; circles: Home["circles"] }) {
   if (!circles.length) return null;
   return (
-    <Section title="Your circles" action={<SectionLink href={`/o/${slug}/circles`}>All</SectionLink>} className="mt-12">
-      <ul className="ruled-list">
-        {circles.slice(0, 6).map((c) => (
+    <section aria-labelledby="rooms">
+      <div className="moulding" aria-hidden />
+      <h2 id="rooms" className="kicker pt-3 text-ink-2">Where you belong</h2>
+      <ul className="mt-3">
+        {circles.slice(0, 7).map((c) => (
           <li key={c.id}>
-            <Link href={`/o/${slug}/circles/${c.id}`} className="flex min-h-14 items-center justify-between gap-3 py-3 hover:bg-sunk/40">
-              <span className="min-w-0">
-                <span className="block truncate text-[15px] font-medium">{c.name}</span>
-                <span className="block truncate text-[13px] text-muted">{c.kind === "derived" ? "Where you sat" : "You joined"}</span>
-              </span>
-              <ArrowRight className="size-4 shrink-0 text-muted" />
+            <Link href={`/o/${slug}/circles/${c.id}`} className="leader min-h-11 py-1.5 text-[1rem] hover:text-gilt">
+              <span className="truncate">{c.name}</span>
+              <span className="dots" aria-hidden />
+              <span className="shrink-0 font-display text-[1rem] italic text-muted">{c.kind === "derived" ? "where you sat" : "joined"}</span>
             </Link>
           </li>
         ))}
       </ul>
-    </Section>
+    </section>
+  );
+}
+
+/** Letters from your circles: a column, the writer in small capitals. */
+function Letters({ slug, feed }: { slug: string; feed: Home["feed"] }) {
+  return (
+    <section aria-labelledby="letters">
+      <div className="moulding" aria-hidden />
+      <div className="flex items-baseline justify-between pt-3">
+        <h2 id="letters" className="kicker text-ink-2">Letters from your circles</h2>
+        <Link href={`/o/${slug}/feed`} className="textlink inline-flex min-h-11 items-center">All letters</Link>
+      </div>
+      {feed.length === 0 ? (
+        <p className="mt-4 font-display text-[1.25rem] italic text-muted">Your circles are quiet. The first letter can be yours.</p>
+      ) : null}
+      <ul className="mt-2 divide-y divide-line">
+        {feed.slice(0, 4).map((p) => (
+          <li key={p.id} className="grid grid-cols-[auto_1fr] gap-4 py-5">
+            <Avatar name={p.full} size={40} />
+            <div className="min-w-0">
+              <p className="text-[0.72rem] font-semibold tracking-[0.16em] uppercase">
+                {p.author}{p.sample ? <SampleTag /> : null}
+                <span className="ml-2 font-display text-[0.95rem] font-medium tracking-normal normal-case italic text-muted">{p.circle} · {timeAgo(p.at)}</span>
+              </p>
+              <p className="mt-1.5 text-[1.02rem] leading-relaxed">{p.body}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
   );
 }

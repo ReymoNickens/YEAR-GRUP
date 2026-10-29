@@ -1,7 +1,7 @@
 -- Mfantsipim 2007: generated from config/organisations/mfantsipim-2007.json by scripts/provision-sql.ts
 insert into organisation (id, slug, name, type, terminology, branding, verification_rule, min_givers, enabled_modules, payment_mode,
                               gateway_fee_bps, platform_fee_bps, reverse_platform_fee_on_refund, expense_two_approver_pesewas, listed, receipt_prefix)
-    values ('org_mfantsipim_2007', 'mfantsipim-2007', 'Mfantsipim 2007', 'school_year', '{"member":"old boy","members":"old boys","house":"House","dorm":"Dorm","cot":"Cot","programme":"Programme","class":"Class","year":"Year group"}'::jsonb, '{"motto":"Dwin Hwe Kan","crest":"/orgs/mfantsipim-2007/crest.png","shortName":"Mfantsipim 2007","place":"Cape Coast","founded":"1876","paper":"#F3EEE6","ink":"#1C1412","crimson":"#7A1C2E","gold":"#6F5424"}'::jsonb, 'two_cot_peers_or_executive',
+    values ('org_mfantsipim_2007', 'mfantsipim-2007', 'Mfantsipim 2007', 'school_year', '{"member":"old boy","members":"old boys","house":"House","dorm":"Dorm","cot":"Cot","programme":"Programme","class":"Class","year":"Year group"}'::jsonb, '{"motto":"Dwin Hwe Kan","crest":"/orgs/mfantsipim-2007/crest.png","shortName":"Mfantsipim 2007","place":"Cape Coast","founded":"1876","cohort":"2007","paper":"#F3EEE6","ink":"#1C1412","crimson":"#7A1C2E","gold":"#6F5424"}'::jsonb, 'two_cot_peers_or_executive',
             5, '["people","structure","circles","money","events","directory","governance","welfare","store","impact","photos","asks","polls","trivia","mentoring","capsules","elections"]'::jsonb, 'test', 195, 100,
             false, 200000, true, 'MF2007');
 insert into receipt_counter (organisation_id, n) values ('org_mfantsipim_2007', 0) on conflict do nothing;
