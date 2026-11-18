@@ -129,7 +129,7 @@ export function Shell({
       {/* Phones: the tab bar. A floating black plate; the page you are on gets a red-tinted pill. */}
       {nav && home ? (
         <nav aria-label="Main" className="pointer-events-none fixed inset-x-0 bottom-0 z-20 px-3 pb-[max(0.625rem,env(safe-area-inset-bottom))] lg:hidden">
-          <ul className="pointer-events-auto mx-auto flex max-w-md justify-between rounded-[26px] border border-line-2 bg-[#0e0e11]/90 px-1.5 py-1.5 shadow-[0_18px_40px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+          <ul className="pointer-events-auto mx-auto flex max-w-md justify-between rounded-[26px] border border-line bg-card/90 px-1.5 py-1.5 shadow-[var(--shadow-nav)] backdrop-blur-xl">
             {tabs.map((t) => {
               const on = isOn(t.suffix);
               const Icon = t.icon;
@@ -138,7 +138,7 @@ export function Shell({
                   <Link
                     href={`${base}${t.suffix}`}
                     aria-current={on ? "page" : undefined}
-                    className={`flex h-[54px] flex-col items-center justify-center gap-0.5 rounded-[20px] text-[11px] font-medium tracking-[0.01em] transition-colors ${on ? "bg-crimson-fill/20 text-ink" : "text-muted active:bg-sunk"}`}
+                    className={`flex h-[54px] flex-col items-center justify-center gap-0.5 rounded-[20px] text-[11px] font-medium tracking-[0.01em] transition-colors ${on ? "bg-crimson/10 text-ink" : "text-muted active:bg-sunk"}`}
                   >
                     <Icon className={`size-[21px] ${on ? "text-crimson" : ""}`} strokeWidth={on ? 2.2 : 1.6} fill={on && t.label === "Give" ? "currentColor" : "none"} />
                     {t.label}

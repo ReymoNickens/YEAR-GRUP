@@ -28,8 +28,8 @@ export function Crest({ src, className = "h-11 w-10", label }: { src?: string; c
   }
   return (
     <svg viewBox="0 0 40 46" className={className} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
-      <path d="M3 3h34v17c0 12-8 19-17 23C11 39 3 32 3 20z" fill="#d9102f" stroke="#f4f4f5" strokeWidth="2.2" strokeLinejoin="round" />
-      <path d="M20 3v40M3 20h34" stroke="#f4f4f5" strokeWidth="2.2" />
+      <path d="M3 3h34v17c0 12-8 19-17 23C11 39 3 32 3 20z" className="stroke-ink" fill="#c8102e" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M20 3v40M3 20h34" className="stroke-ink" strokeWidth="2.2" />
     </svg>
   );
 }
@@ -47,14 +47,7 @@ export function Wordmark({ name, motto, crest, size = "md" }: { name: string; mo
   );
 }
 
-const AVATAR_TONES = [
-  "bg-[#2a2622] text-[#eadfcf]",
-  "bg-[#222826] text-[#cfe3d9]",
-  "bg-[#2b2226] text-[#efd3dc]",
-  "bg-[#22262e] text-[#d3deef]",
-  "bg-[#2d2621] text-[#efd9c4]",
-  "bg-[#27242e] text-[#dcd7ef]",
-];
+const AVATAR_TONES = ["av-0", "av-1", "av-2", "av-3", "av-4", "av-5"];
 
 export function initialsOf(name: string) {
   const parts = name.replace(/[“”"'][^“”"']*[“”"']/g, "").trim().split(/\s+/).filter(Boolean);
@@ -311,7 +304,7 @@ export function Sheet({ open, onClose, title, children, label }: { open: boolean
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center lg:items-center" role="dialog" aria-modal="true" aria-label={label}>
       <button type="button" aria-label="Close" className="absolute inset-0 animate-[fade_.2s_ease-out_both] bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative max-h-[92dvh] w-full max-w-xl animate-[sheet_.32s_cubic-bezier(.2,.8,.2,1)_both] overflow-y-auto rounded-t-3xl border border-line-2 bg-card px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(0,0,0,.6)] lg:rounded-3xl lg:animate-[rise_.25s_ease-out_both] lg:p-8">
+      <div className="relative max-h-[92dvh] w-full max-w-xl animate-[sheet_.32s_cubic-bezier(.2,.8,.2,1)_both] overflow-y-auto rounded-t-3xl border border-line-2 bg-card px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-[var(--shadow-sheet)] lg:rounded-3xl lg:animate-[rise_.25s_ease-out_both] lg:p-8">
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line-2 lg:hidden" aria-hidden />
         {title ? (
           <div className="mb-5 flex items-start justify-between gap-4">
@@ -344,10 +337,10 @@ export function Stat({ value, label, tone }: { value: ReactNode; label: ReactNod
 }
 
 /** Progress: a thin, square bar in the school's red, with optional milestone ticks. */
-export function Bar({ value, max, tone = "light", label, ticks, height = 6 }: { value: number; max: number; tone?: "light" | "onDark"; label?: string; ticks?: number[]; height?: number }) {
+export function Bar({ value, max, tone = "light", label, ticks, height = 6 }: { value: number; max: number; tone?: "light" | "onDark" | "onInk"; label?: string; ticks?: number[]; height?: number }) {
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   const shown = pct > 0 ? Math.max(1.5, pct) : 0;
-  const track = tone === "onDark" ? "bg-white/25" : "bg-sunk";
+  const track = tone === "onDark" ? "bg-white/25" : tone === "onInk" ? "bg-white/15" : "bg-sunk";
   const fill = tone === "onDark" ? "bg-white" : "bg-gradient-to-r from-crimson-fill to-crimson";
   return (
     <div role="progressbar" aria-label={label ?? "Progress"} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} className={`relative overflow-hidden rounded-full ${track}`} style={{ height }}>

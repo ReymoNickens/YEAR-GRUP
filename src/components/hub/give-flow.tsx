@@ -31,15 +31,15 @@ export function GiveList({ slug }: { slug: string }) {
       ) : (
         <State loading={loading} error={error} onRetry={reload}>
           {hero ? (
-            <Link href={`/o/${slug}/give/${hero.id}`} className="poster rise group block px-5 pt-6 pb-6 sm:px-7">
+            <Link href={`/o/${slug}/give/${hero.id}`} className="poster poster-ink rise group block px-5 pt-6 pb-6 sm:px-7">
               <div className="flex items-center justify-between">
-                <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-white/80 uppercase">The appeal</span>
+                <span className="text-[11px] font-semibold tracking-[0.12em] text-white/70 uppercase">The appeal</span>
                 <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
               </div>
-              <h2 className="mt-8 font-display text-[3rem] leading-[0.92] tracking-[-0.02em]">{hero.title}</h2>
+              <h2 className="mt-7 font-display text-[2.5rem] leading-[1] font-semibold tracking-[-0.025em]">{hero.title}</h2>
               <p className="figure mt-6 text-[2.25rem]">{wholeCedis(hero.raised)}</p>
-              <p className="mt-1.5 mb-4 text-sm text-white/80">raised of {wholeCedis(hero.target)} · {hero.target > 0 ? Math.floor((hero.raised / hero.target) * 100) : 0}%</p>
-              <Bar value={hero.raised} max={hero.target} tone="onDark" label={`${hero.title}: raised so far`} />
+              <p className="mt-1.5 mb-4 text-sm text-white/70">raised of {wholeCedis(hero.target)} · {hero.target > 0 ? Math.floor((hero.raised / hero.target) * 100) : 0}%</p>
+              <Bar value={hero.raised} max={hero.target} tone="onInk" label={`${hero.title}: raised so far`} />
             </Link>
           ) : null}
 
@@ -50,7 +50,7 @@ export function GiveList({ slug }: { slug: string }) {
                   <Link href={p.type === "dues" ? `/o/${slug}/dues` : `/o/${slug}/give/${p.id}`} className="group flex items-center gap-4 py-5 hover:bg-sunk/40">
                     <span className="min-w-0 flex-1">
                       <span className="kicker block">{KIND[p.type] ?? p.type}</span>
-                      <span className="mt-2 block font-display text-[1.75rem] leading-[1.02] tracking-[-0.01em]">{p.title}</span>
+                      <span className="mt-2 block font-display text-[1.5rem] leading-[1.08] font-semibold tracking-[-0.02em]">{p.title}</span>
                       {p.type === "dues" ? (
                         <span className="mt-1.5 block text-[13px] text-muted">See what you owe, what you have paid, and pay what is due.</span>
                       ) : p.target > 0 ? (

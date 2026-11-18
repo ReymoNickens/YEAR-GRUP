@@ -2,6 +2,26 @@
 
 Update this at the end of every session.
 
+## 18 Nov 2026: redesign round 3, light by default, honours-board identity
+
+Round 2 forced everything dark, which shuts out people who dislike dark screens. Rebuilt as a
+designed light and dark pair. **No URLs changed.**
+- **Light by default**: near-white page (`#fbfaf8`), black ink, white cards with soft shadows, crest
+  crimson (`#c8102e`) only for things you can act on (buttons, progress, active tab). Red primary buttons.
+- **Dark is a choice**: Me → Appearance: Light / Dark / Match my phone (`theme-switch.tsx`). Stored in
+  `localStorage` (`hub-theme`) and applied by a tiny script in `layout.tsx` before first paint, so
+  nothing flashes. Tokens live in `globals.css` under `:root`, `[data-theme="dark"]`, and
+  `[data-theme="system"]` inside `prefers-color-scheme`.
+- **Fonts**: Fraunces (headlines, the member's name, the greeting) and Plus Jakarta Sans (UI and all
+  money). Both carry the cedi sign (needs the `latin-ext` subset). Fraunces has no tabular figures, so
+  money is never set in it. Geist Mono remains only for receipt numbers.
+- **The appeal** is a black card (`poster poster-ink`) on Home and Give with a red progress bar and a red
+  Give button; the appeal page itself keeps the crimson header. Receipts stay paper in both themes.
+- Avatar tints come from theme variables (`.av-0` to `.av-5`); no `dark:` classes remain.
+- Checked at 390 and 1280 wide, light and dark: landing, Home, Give, Dues, Me, Money desk.
+  Not yet re-checked: Circles, People, join flow, the other control-room desks, module screens.
+- Lint, typecheck clean; 113 tests pass.
+
 ## 18 Nov 2026: black and red redesign (round 2)
 
 The executives still found it amateurish. Cream paper, a condensed serif and hairline boxes read as

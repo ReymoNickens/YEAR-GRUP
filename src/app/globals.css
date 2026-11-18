@@ -2,32 +2,124 @@
 
 /* ═══════════════════════════════════════════════════════════════════
    YEAR GROUP HUB
-   Black and one red. Near-black canvas, graphite surfaces, white type,
-   and the crest's crimson used only where something can be done or
-   something has been raised. One sharp sans family throughout; the serif
-   appears once per screen, in italic, for a human voice. Receipts stay on
-   paper: the one light object in a dark app.
+   The honours board, made modern. Light by default: a clean near-white
+   page, black ink, and the crest's crimson used only where something can
+   be done or something has been raised. Fraunces (a warm, high-contrast
+   serif) carries the words that matter; Plus Jakarta Sans carries
+   everything you tap, read or add up. Dark is a designed pair, chosen in
+   Me: Light, Dark, or Match my phone. Receipts stay on paper in both.
    ═══════════════════════════════════════════════════════════════════ */
 :root {
-  --paper: #09090b;          /* the canvas */
-  --card: #131316;           /* raised surfaces */
-  --sunk: #1b1b1f;           /* wells, tracks, skeletons, hover */
-  --ink: #fafaf9;
+  --paper: #fbfaf8;
+  --card: #ffffff;
+  --sunk: #f2f0ec;
+  --ink: #0e0e10;
+  --ink-2: #3a3a42;
+  --muted: #6a6a73;
+  --line: #e9e7e2;
+  --line-2: #d4d1ca;
+  --crimson: #c8102e;
+  --crimson-ink: #b10e29;
+  --crimson-fill: #c8102e;
+  --on-crimson: #ffffff;
+  --gold: #8a6a1f;
+  --gold-soft: #f4ecd8;
+  --paid: #0f7a47;
+  --paid-soft: #e5f3ec;
+  --stamp: #b3261e;
+  --glow: rgba(200, 16, 46, 0.06);
+  --shadow-card: 0 1px 2px rgba(14, 14, 16, 0.04), 0 10px 28px -16px rgba(14, 14, 16, 0.16);
+  --shadow-nav: 0 14px 34px -12px rgba(14, 14, 16, 0.28);
+  --shadow-sheet: 0 -20px 60px rgba(14, 14, 16, 0.22);
+  --av0b: #efe9dc;
+  --av0f: #4a3d26;
+  --av1b: #e2eae4;
+  --av1f: #27402f;
+  --av2b: #f0e1e5;
+  --av2f: #5a2634;
+  --av3b: #e0e6f0;
+  --av3f: #26365a;
+  --av4b: #f0e5d8;
+  --av4f: #58381f;
+  --av5b: #e7e3f0;
+  --av5f: #38305a;
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --paper: #0a0a0c;
+  --card: #141417;
+  --sunk: #1c1c20;
+  --ink: #f7f6f3;
   --ink-2: #d6d6da;
-  --muted: #9b9ba4;          /* AA on canvas and card */
-  --line: #232328;
-  --line-2: #36363d;
-  --crimson: #ef2b4c;        /* marks, progress, links */
-  --crimson-ink: #ff6a7e;    /* red for small text: AA on canvas */
-  --crimson-fill: #d9102f;   /* red surfaces carrying white text */
+  --muted: #9b9ba4;
+  --line: #242428;
+  --line-2: #37373e;
+  --crimson: #ef2b4c;
+  --crimson-ink: #ff6a7e;
+  --crimson-fill: #d9102f;
   --on-crimson: #ffffff;
   --gold: #e6c36e;
   --gold-soft: #2a2416;
   --paid: #4fd18d;
   --paid-soft: #10261b;
   --stamp: #ff6b5e;
-  --shadow: 0 0 0;
+  --glow: rgba(239, 43, 76, 0.13);
+  --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.035);
+  --shadow-nav: 0 18px 40px -12px rgba(0, 0, 0, 0.9);
+  --shadow-sheet: 0 -20px 60px rgba(0, 0, 0, 0.6);
+  --av0b: #2a2622;
+  --av0f: #eadfcf;
+  --av1b: #222826;
+  --av1f: #cfe3d9;
+  --av2b: #2b2226;
+  --av2f: #efd3dc;
+  --av3b: #22262e;
+  --av3f: #d3deef;
+  --av4b: #2d2621;
+  --av4f: #efd9c4;
+  --av5b: #27242e;
+  --av5f: #dcd7ef;
   color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root[data-theme="system"] {
+    --paper: #0a0a0c;
+    --card: #141417;
+    --sunk: #1c1c20;
+    --ink: #f7f6f3;
+    --ink-2: #d6d6da;
+    --muted: #9b9ba4;
+    --line: #242428;
+    --line-2: #37373e;
+    --crimson: #ef2b4c;
+    --crimson-ink: #ff6a7e;
+    --crimson-fill: #d9102f;
+    --on-crimson: #ffffff;
+    --gold: #e6c36e;
+    --gold-soft: #2a2416;
+    --paid: #4fd18d;
+    --paid-soft: #10261b;
+    --stamp: #ff6b5e;
+    --glow: rgba(239, 43, 76, 0.13);
+    --shadow-card: inset 0 1px 0 rgb(255 255 255 / 0.035);
+    --shadow-nav: 0 18px 40px -12px rgba(0, 0, 0, 0.9);
+    --shadow-sheet: 0 -20px 60px rgba(0, 0, 0, 0.6);
+    --av0b: #2a2622;
+    --av0f: #eadfcf;
+    --av1b: #222826;
+    --av1f: #cfe3d9;
+    --av2b: #2b2226;
+    --av2f: #efd3dc;
+    --av3b: #22262e;
+    --av3f: #d3deef;
+    --av4b: #2d2621;
+    --av4f: #efd9c4;
+    --av5b: #27242e;
+    --av5f: #dcd7ef;
+    color-scheme: dark;
+}
 }
 
 @theme inline {
@@ -49,7 +141,7 @@
   --color-paid-soft: var(--paid-soft);
   --color-stamp: var(--stamp);
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-serif), Georgia, "Times New Roman", serif;
   --font-mono: var(--font-mono-face), ui-monospace, "SFMono-Regular", Menlo, monospace;
   --font-stencil: var(--font-mono-face), ui-monospace, monospace;
   --font-note: var(--font-serif), Georgia, serif;
@@ -65,14 +157,13 @@
 @layer base {
   html { -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
   body {
-    background: var(--paper) radial-gradient(70% 38% at 50% -8%, rgba(239,43,76,0.13), transparent 70%) no-repeat;
+    background: var(--paper) radial-gradient(70% 36% at 50% -8%, var(--glow), transparent 70%) no-repeat;
     color: var(--ink);
     font-family: var(--font-sans);
-    font-size: 16px;
+    font-size: 17px;
     line-height: 1.5;
-    font-feature-settings: "ss01", "cv11";
   }
-  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; text-wrap: balance; }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.08; text-wrap: balance; }
   p { text-wrap: pretty; }
   button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
   button { -webkit-tap-highlight-color: transparent; }
@@ -88,23 +179,23 @@
 }
 
 /* ── Type ─────────────────────────────────────────────────────────── */
-.font-display { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.03em; line-height: 1.02; }
-.display-xl { font-family: var(--font-display); font-weight: 650; font-size: clamp(2.75rem, 11.5vw, 5.75rem); line-height: 0.96; letter-spacing: -0.045em; }
-.display-lg { font-family: var(--font-display); font-weight: 650; font-size: clamp(2.2rem, 8.5vw, 3.5rem); line-height: 1; letter-spacing: -0.04em; }
-.display-md { font-family: var(--font-display); font-weight: 650; font-size: clamp(1.75rem, 6vw, 2.5rem); line-height: 1.04; letter-spacing: -0.035em; }
-.display-sm { font-family: var(--font-display); font-weight: 600; font-size: 1.3125rem; line-height: 1.15; letter-spacing: -0.025em; }
+.font-display { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.04; }
+.display-xl { font-family: var(--font-display); font-weight: 600; font-size: clamp(2.9rem, 12vw, 6rem); line-height: 0.98; letter-spacing: -0.03em; }
+.display-lg { font-family: var(--font-display); font-weight: 600; font-size: clamp(2.25rem, 8.5vw, 3.5rem); line-height: 1.02; letter-spacing: -0.028em; }
+.display-md { font-family: var(--font-display); font-weight: 600; font-size: clamp(1.75rem, 6vw, 2.5rem); line-height: 1.06; letter-spacing: -0.025em; }
+.display-sm { font-family: var(--font-display); font-weight: 600; font-size: 1.375rem; line-height: 1.15; letter-spacing: -0.015em; }
 /* Kicker: small capitals that label a section, never decorate it. */
 .kicker { font-family: var(--font-sans); font-size: 0.6875rem; line-height: 1.2; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .kicker-red { color: var(--crimson-ink); }
 /* Big money: the number is the headline. */
-.figure { font-family: var(--font-sans); font-weight: 600; letter-spacing: -0.035em; line-height: 0.95; font-variant-numeric: tabular-nums; }
+.figure { font-family: var(--font-sans); font-weight: 700; letter-spacing: -0.04em; line-height: 0.95; font-variant-numeric: tabular-nums; }
 .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .stencil { font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.02em; }
 .note-hand { font-family: var(--font-serif), Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: 0; }
-.serif-italic { font-family: var(--font-serif), Georgia, serif; font-size: 1.06em; font-style: italic; }
+.serif-italic { font-family: var(--font-serif), Georgia, serif; font-weight: 500; font-style: italic; }
 
 /* ── Surfaces ─────────────────────────────────────────────────────── */
-.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.035); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow-card); }
 .hairline { border-color: var(--line); }
 /* Ruled list: rows divided by hairlines, no boxes. */
 .ruled-list > * + * { border-top: 1px solid var(--line); }
@@ -114,22 +205,27 @@
 @layer base {
   [class~="border"], [class*="border-l-["] { border-radius: 14px; }
   [class~="border"][class~="grid"], [class~="border"][class~="overflow-hidden"] { overflow: hidden; }
-  [class~="bg-card"][class~="border"] { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.035); }
+  [class~="bg-card"][class~="border"] { box-shadow: var(--shadow-card); }
 }
 
 /* The poster: an appeal's cover when there is no photograph. Crimson with light falling from the top right. */
 .poster {
   position: relative; isolation: isolate; color: #fff; overflow: hidden; border-radius: 22px;
   background: radial-gradient(90% 80% at 100% 0%, rgba(255, 92, 118, 0.55) 0%, rgba(255, 92, 118, 0) 60%), linear-gradient(160deg, #d9102f 0%, #8d0a22 100%);
-  box-shadow: 0 24px 48px -24px rgba(217, 16, 47, 0.55), inset 0 1px 0 rgb(255 255 255 / 0.18);
+  box-shadow: 0 24px 44px -26px rgba(200, 16, 46, 0.6), inset 0 1px 0 rgb(255 255 255 / 0.18);
 }
 .poster::before { content: none; }
 .poster::after {
   content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
   background: radial-gradient(70% 60% at 0% 100%, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
 }
-.poster-ink { background: linear-gradient(160deg, #17171b 0%, #0e0e11 100%); border: 1px solid var(--line-2); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05); }
-.poster-ink::after { background: radial-gradient(80% 70% at 0% 100%, rgba(239, 43, 76, 0.28) 0%, rgba(0, 0, 0, 0) 65%); }
+.poster-ink { background: linear-gradient(165deg, #1b1b20 0%, #0b0b0d 100%); border: 1px solid rgb(255 255 255 / 0.08); box-shadow: 0 24px 48px -28px rgba(14, 14, 16, 0.55), inset 0 1px 0 rgb(255 255 255 / 0.07); }
+.poster-ink::after { background: radial-gradient(70% 60% at 100% 0%, rgba(239, 43, 76, 0.30) 0%, rgba(0, 0, 0, 0) 60%); }
+
+/* ── Avatars: a steady tint per person, drawn from the theme ───── */
+.av-0 { background: var(--av0b); color: var(--av0f); } .av-1 { background: var(--av1b); color: var(--av1f); }
+.av-2 { background: var(--av2b); color: var(--av2f); } .av-3 { background: var(--av3b); color: var(--av3f); }
+.av-4 { background: var(--av4b); color: var(--av4f); } .av-5 { background: var(--av5b); color: var(--av5f); }
 
 /* ── Buttons ──────────────────────────────────────────────────────── */
 .btn {
@@ -141,10 +237,10 @@
 .btn:active:not(:disabled) { transform: scale(0.985); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.4; pointer-events: none; }
 .btn-block { width: 100%; }
-.btn-primary { background: var(--crimson-fill); color: #fff; box-shadow: 0 10px 24px -12px rgba(217, 16, 47, 0.8), inset 0 1px 0 rgb(255 255 255 / 0.22); }
-.btn-primary:hover { background: #e9163a; }
+.btn-primary { background: var(--crimson-fill); color: #fff; box-shadow: 0 8px 20px -10px rgba(200, 16, 46, 0.7), inset 0 1px 0 rgb(255 255 255 / 0.22); }
+.btn-primary:hover { background: #dc1334; }
 .btn-red { background: var(--crimson-fill); color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2); }
-.btn-red:hover { background: #e9163a; }
+.btn-red:hover { background: #dc1334; }
 .btn-quiet { background: var(--card); color: var(--ink); border-color: var(--line-2); }
 .btn-quiet:hover { border-color: var(--muted); background: var(--sunk); }
 .btn-white { background: #fff; color: #0b0b0d; }
@@ -215,7 +311,7 @@
 
 @media print {
   body { background: #fff !important; }
-  :root { --paper: #fff; }
+  :root, :root[data-theme] { --paper: #fff; --ink: #111; }
   body::before, nav, header, .no-print { display: none !important; }
   .receipt { box-shadow: none; }
 }

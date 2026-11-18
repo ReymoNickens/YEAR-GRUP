@@ -9,6 +9,7 @@ import { signOut } from "@/lib/auth/client";
 import { orgEntry, peersWaiting } from "@/lib/hub/api";
 import { hubAct } from "@/lib/hub/act";
 import { Shell } from "@/components/hub/shell";
+import { ThemeSwitch } from "@/components/hub/theme-switch";
 import { Avatar, Button, Note, Pill, Section, State } from "@/components/hub/ui";
 import { useHub } from "@/components/hub/use-hub";
 
@@ -132,6 +133,9 @@ export function MeScreen({ slug }: { slug: string }) {
                     </li>
                   ))}
                 </ul>
+              </Section>
+              <Section title="Appearance" className="mt-10">
+                <div className="pt-3"><ThemeSwitch /></div>
               </Section>
               {msg ? <p role="status" className="mt-4 text-sm text-muted">{msg}</p> : null}
               {entry.data?.roles.includes("organisation_admin") ? (

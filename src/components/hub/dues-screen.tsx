@@ -62,7 +62,7 @@ function DuesBody({ slug, data, reload }: { slug: string; data: Dues; reload: ()
   }
 
   const status = (
-    <div className={`rise rise-1 border p-6 sm:p-7 ${s.outstanding > 0 ? "border-ink bg-card" : "border-paid bg-paid-soft"}`}>
+    <div className={`rise rise-1 border p-6 sm:p-7 ${s.outstanding > 0 ? "border-line bg-card" : "border-paid bg-paid-soft"}`}>
       {s.outstanding > 0 ? (
         <>
           <p className="kicker kicker-red">Due now</p>

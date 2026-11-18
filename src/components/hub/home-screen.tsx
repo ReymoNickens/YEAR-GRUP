@@ -119,12 +119,12 @@ function AppealPoster({ slug, hero, org }: { slug: string; hero: NonNullable<Hom
   const link = typeof window !== "undefined" ? `${window.location.origin}/o/${slug}/give/${hero.id}` : "";
   const share = `${hero.title} for ${org}: ${wholeCedis(hero.raised)} raised so far, ${pct}% of the way. Add yours: ${link}`;
   return (
-    <section className="poster rise rise-2 mt-6 px-5 pt-6 pb-6 sm:px-7 sm:pt-7" aria-labelledby="appeal-title">
+    <section className="poster poster-ink rise rise-2 mt-6 px-5 pt-6 pb-6 sm:px-7 sm:pt-7" aria-labelledby="appeal-title">
       <div className="flex items-center justify-between gap-3">
-        <span className="text-[11px] font-semibold tracking-[0.12em] text-white/85 uppercase">The appeal</span>
-        <span className="rounded-full bg-black/25 px-2.5 py-1 text-[11px] font-semibold tracking-[0.08em] text-white uppercase">{pct}% there</span>
+        <span className="text-[11px] font-semibold tracking-[0.12em] text-white/70 uppercase">The appeal</span>
+        <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold tracking-[0.08em] text-white uppercase">{pct}% there</span>
       </div>
-      <h2 id="appeal-title" className="mt-7 font-display text-[2.5rem] leading-[0.98] font-semibold tracking-[-0.04em] sm:text-[3.5rem]">{hero.title}</h2>
+      <h2 id="appeal-title" className="mt-7 font-display text-[2.5rem] leading-[1] font-semibold tracking-[-0.025em] sm:text-[3.5rem]">{hero.title}</h2>
       <div className="mt-8 flex items-end justify-between gap-4">
         <div>
           <p className="figure text-[2.75rem] sm:text-[3.25rem]">{wholeCedis(hero.raised)}</p>
@@ -136,10 +136,10 @@ function AppealPoster({ slug, hero, org }: { slug: string; hero: NonNullable<Hom
         </div>
       </div>
       <div className="mt-5">
-        <Bar value={hero.raised} max={hero.target} tone="onDark" label="Raised so far" ticks={[25, 50, 75]} height={8} />
+        <Bar value={hero.raised} max={hero.target} tone="onInk" label="Raised so far" ticks={[25, 50, 75]} height={8} />
       </div>
       <div className="mt-6 grid grid-cols-[1fr_auto] gap-2.5">
-        <Link href={`/o/${slug}/give/${hero.id}`} className="btn btn-white">
+        <Link href={`/o/${slug}/give/${hero.id}`} className="btn btn-primary">
           <Heart className="size-[18px]" strokeWidth={2.25} /> Give to the appeal
         </Link>
         <a href={`https://wa.me/?text=${encodeURIComponent(share)}`} target="_blank" rel="noopener noreferrer" className="btn btn-ghost-light px-4" aria-label="Share on WhatsApp">
