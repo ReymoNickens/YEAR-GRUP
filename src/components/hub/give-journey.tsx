@@ -91,7 +91,7 @@ export function GivePurpose({ slug, purposeId }: { slug: string; purposeId: stri
                   <p className="text-[13px] text-muted">{inBits ? "Today, the first of three parts" : "Your gift"}</p>
                   <p className="figure mt-2 text-[2.75rem]">{formatGhs(quote.gift)}</p>
                 </div>
-                <span className="grid size-11 shrink-0 place-items-center bg-crimson-fill text-white"><Heart className="size-5" strokeWidth={2.25} /></span>
+                <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-crimson-fill text-white"><Heart className="size-5" strokeWidth={2.25} /></span>
               </div>
               <dl className="space-y-2.5 border-t border-dashed border-line-2 px-5 py-4 text-[15px]">
                 <Line label="Gateway fee" value={quote.gatewayFee} muted />

@@ -25,6 +25,14 @@ designed light and dark pair. **No URLs changed.**
   classes now sit in `@layer components` so utilities like `pl-12` win), photo album strip snapping flush
   to the edge, poll vote outline, square date tiles, wrapping buttons in the People review list, and
   disabled red buttons now read as inactive (grey), not washed-out pink.
+- Second pass, the gaps I first left unchecked: walked the whole 10-step join flow, the full payment
+  path (give, check, checkout, approval prompt with PIN, thank-you receipt), Governance, and every other
+  screen in dark. Fixed: Control room card was a white slab in dark with unreadable text (now an ink
+  card in both themes), a modal backdrop that would have been a white veil in dark, the square heart
+  tile on "Check your gift". Confirmed in an iPhone-sized emulation at 3x that Fraunces and Plus Jakarta
+  Sans load with their latin-ext faces (cedi sign) and money is set in Plus Jakarta Sans.
+- Still not done: a real phone (all checks were in Chromium), and sample events dated in the past
+  (25 Oct, 2 Nov) still show Going/Maybe buttons.
 - Lint, typecheck clean; 113 tests pass.
 
 ## 18 Nov 2026: black and red redesign (round 2)

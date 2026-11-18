@@ -68,11 +68,11 @@ export function MeScreen({ slug }: { slug: string }) {
               </div>
 
               {entry.data?.control ? (
-                <Link href={`/o/${slug}/control/people`} className="group mt-8 flex items-center gap-4 bg-ink px-5 py-5 text-paper">
-                  <span className="grid size-11 shrink-0 place-items-center border border-paper/30"><LayoutDashboard className="size-5" strokeWidth={1.75} /></span>
+                <Link href={`/o/${slug}/control/people`} className="poster poster-ink group mt-8 flex items-center gap-4 px-5 py-5">
+                  <span className="grid size-11 shrink-0 place-items-center border border-white/25"><LayoutDashboard className="size-5" strokeWidth={1.75} /></span>
                   <span className="min-w-0 flex-1">
                     <span className="block text-[17px] font-semibold">Control room</span>
-                    <span className="block text-sm text-paper/70">Money, people, messages and the audit trail</span>
+                    <span className="block text-sm text-white/70">Money, people, messages and the audit trail</span>
                   </span>
                   <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
                 </Link>

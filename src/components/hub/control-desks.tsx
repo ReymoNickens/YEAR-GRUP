@@ -76,7 +76,7 @@ function useStepUp(slug: string, testMode: boolean) {
 
   const close = () => { setPending(null); setSent(null); setCode(""); };
   const panel: ReactNode = pending ? (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 backdrop-blur-[2px]" role="dialog" aria-modal="true" aria-labelledby="stepup-title">
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/55 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="stepup-title">
       <div className="w-full max-w-lg animate-[sheet_260ms_ease-out_both] space-y-3 bg-card p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl">
         <div className="mx-auto h-1.5 w-10 rounded-full bg-line" aria-hidden />
         <p id="stepup-title" className="display-sm">A fresh code first</p>
