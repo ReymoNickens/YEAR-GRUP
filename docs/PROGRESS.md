@@ -2,6 +2,16 @@
 
 Update this at the end of every session.
 
+## 18 Nov 2026: Me screen split
+
+The Me screen was too long (details form, receipts and the year group's modules on one page).
+- `/o/<slug>/me` is now the hub: who you are, Control room (officers), My dues, people waiting for
+  you to confirm, **Your account** (two rows), the year group's modules, and Sign out.
+- `/o/<slug>/me/details`: nickname, city, work, birthday, phone change (`me-details.tsx`).
+- `/o/<slug>/me/receipts`: every receipt (`me-receipts.tsx`). Home's "Receipts" link points here.
+- No server functions changed. 113 tests, lint and typecheck pass. Not yet looked at in a browser
+  at 390px in light and dark.
+
 ## 29 Oct 2026: the preview's officers, by name
 
 The executives asked for their own names and offices in the preview:

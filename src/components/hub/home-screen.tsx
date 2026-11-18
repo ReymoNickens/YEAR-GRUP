@@ -190,7 +190,7 @@ function YourDues({ slug, dues }: { slug: string; dues: NonNullable<Home["dues"]
 
 function YourGiving({ slug, given }: { slug: string; given: Home["given"] }) {
   return (
-    <Section title="Your giving" action={<SectionLink href={`/o/${slug}/me#receipts`}>Receipts</SectionLink>} className="mt-12 lg:mt-0">
+    <Section title="Your giving" action={<SectionLink href={`/o/${slug}/me/receipts`}>Receipts</SectionLink>} className="mt-12 lg:mt-0">
       <div className="grid grid-cols-2 gap-4 py-3">
         <div>
           <p className="figure text-[2rem]">{wholeCedis(given.total)}</p>
