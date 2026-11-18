@@ -9,20 +9,6 @@ import { wholeCedis } from "@/lib/hub/words-money";
 
 export const metadata = { title: "Executive preview" };
 
-const PROMISES = [
-  { title: "Everyone in their place", body: "House, dorm, cot and class, the way we lived it. Cot mates confirm each other, so every member is a real old boy." },
-  { title: "Every cedi in the open", body: "Each gift goes through the gateway onto a ledger. Fees on their own line. Nothing is typed in by hand." },
-  { title: "Made for our phones", body: "One task per screen, light on data, quick on a weak signal. The chat stays on WhatsApp." },
-];
-
-const TRY = [
-  ["As Kwame, pay your 2026 dues", "and give to the library; watch the house cup move."],
-  ["As Amable, the President,", "approve names from the uploaded member list, co-sign the bus expense and approve the refund."],
-  ["As Charles Armah, Financial Secretary,", "see who has paid their dues, sign the bus expense, and download the ledger."],
-  ["As Stephen Tawiah, the Organiser,", "put an event on the calendar, see who is coming by house, and remind the rest."],
-  ["Join as a new old boy", "and find your cot."],
-];
-
 /** The front page of the executive demo: what this is, who you can be, and what to try. */
 export default async function DemoHome() {
   if (!demoMode()) notFound();
@@ -72,7 +58,7 @@ export default async function DemoHome() {
             <p className="kicker kicker-red">A preview for the executives</p>
             <h1 className="display-xl mt-5">The year group, <span className="serif-italic">in one place.</span></h1>
             <p className="mt-6 max-w-[34ch] text-lg leading-relaxed text-ink-2">
-              Tap through it as a member would. The classmates and the money here are made up, so press anything.
+              Made-up classmates and money. Press anything.
             </p>
 
             <dl className="mt-10 grid grid-cols-3 gap-2.5">
@@ -90,23 +76,12 @@ export default async function DemoHome() {
               </div>
             </dl>
 
-            <ol className="mt-12 hidden space-y-8 lg:block">
-              {PROMISES.map((p, i) => (
-                <li key={p.title} className="grid grid-cols-[3rem_1fr] gap-2">
-                  <span className="text-[13px] font-semibold text-crimson-ink">{String(i + 1).padStart(2, "0")}</span>
-                  <span>
-                    <span className="block text-[17px] font-semibold tracking-[-0.01em]">{p.title}</span>
-                    <span className="mt-1 block text-[15px] leading-relaxed text-muted">{p.body}</span>
-                  </span>
-                </li>
-              ))}
-            </ol>
           </section>
 
           <section className="rise rise-2 pt-12 lg:pt-16" aria-labelledby="who">
             <div className="rule-top pt-3">
-              <h2 id="who" className="display-sm">Who would you like to be?</h2>
-              <p className="mt-2 text-[15px] text-muted">Pick one. You can switch any time from the bar at the top.</p>
+              <h2 id="who" className="display-sm">Enter as</h2>
+              
             </div>
             <ul className="mt-5 space-y-3">
               {PERSONAS.map((p, i) => (
@@ -129,33 +104,10 @@ export default async function DemoHome() {
               ))}
             </ul>
 
-            <div className="mt-12">
-              <div className="rule-top pt-3"><h2 className="display-sm">Things to try</h2></div>
-              <ol className="mt-3 ruled-list">
-                {TRY.map(([a, b], i) => (
-                  <li key={a} className="grid grid-cols-[2.5rem_1fr] py-3.5 text-[15px] leading-snug">
-                    <span className="text-[13px] font-semibold text-muted">{String(i + 1).padStart(2, "0")}</span>
-                    <span><span className="font-medium">{a}</span> <span className="text-muted">{b}</span></span>
-                  </li>
-                ))}
-              </ol>
-            </div>
           </section>
         </div>
 
-        <ol className="mt-14 space-y-6 lg:hidden">
-          {PROMISES.map((p, i) => (
-            <li key={p.title} className="grid grid-cols-[2.5rem_1fr] gap-1 border-t border-line pt-4">
-              <span className="text-[13px] font-semibold text-crimson-ink">{String(i + 1).padStart(2, "0")}</span>
-              <span>
-                <span className="block text-[17px] font-semibold tracking-[-0.01em]">{p.title}</span>
-                <span className="mt-1 block text-[15px] leading-relaxed text-muted">{p.body}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-
-        <p className="mt-16 border-t border-line pt-6 text-sm text-muted">A preview, not the finished hub. Your comments decide what we build next.</p>
+        <p className="mt-16 border-t border-line pt-6 text-sm text-muted">A preview. Your comments decide what we build next.</p>
       </div>
     </div>
   );

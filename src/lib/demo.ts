@@ -30,7 +30,7 @@ export const PERSONAS: Persona[] = [
     memberId: null,
     name: "A new old boy",
     role: "Joining for the first time",
-    blurb: "Sign up the way every member will: phone code, programme, class, house, dorm and cot. About two minutes.",
+    blurb: "Join and find your cot. Two minutes.",
     start: "/join",
   },
   {
@@ -38,7 +38,7 @@ export const PERSONAS: Persona[] = [
     memberId: "mem_01",
     name: "Kwame “Wayo” Mensah",
     role: "House captain, Balmer-Acquaah",
-    blurb: "A confirmed member: his circles, his cot mates, the library appeal, giving and receipts.",
+    blurb: "Pay dues, give, see your circles.",
     start: "/home",
   },
   {
@@ -46,7 +46,7 @@ export const PERSONAS: Persona[] = [
     memberId: "mem_19",
     name: "Amable",
     role: "President",
-    blurb: "Leads the executive: decides who belongs on the roll, co-signs the large expenses, approves refunds, sets the dues and speaks to the whole year group.",
+    blurb: "Approve members, expenses and refunds.",
     start: "/control/people",
   },
   {
@@ -54,7 +54,7 @@ export const PERSONAS: Persona[] = [
     memberId: "mem_11",
     name: "Charles Armah",
     role: "Financial Secretary",
-    blurb: "Keeps the money: every cedi in and out, who has paid their dues, expenses to sign and pay, refunds, and the ledger download.",
+    blurb: "Dues, expenses, refunds, the ledger.",
     start: "/control/money",
   },
   {
@@ -62,7 +62,7 @@ export const PERSONAS: Persona[] = [
     memberId: "mem_17",
     name: "Stephen Tawiah",
     role: "Organiser",
-    blurb: "Runs the calendar: puts events on, sees who is coming by house, and reminds the ones who have not answered.",
+    blurb: "Events and who is coming.",
     start: "/control/events",
   },
 ];

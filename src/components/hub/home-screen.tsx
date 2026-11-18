@@ -201,7 +201,6 @@ function YourGiving({ slug, given }: { slug: string; given: Home["given"] }) {
           <p className="mt-1.5 text-[13px] text-muted">{given.count === 1 ? "gift" : "gifts"} with receipts</p>
         </div>
       </div>
-      <p className="border-t border-line pt-3 text-[13px] text-muted">Only the payment gateway marks a gift paid. Every one is on the ledger.</p>
     </Section>
   );
 }

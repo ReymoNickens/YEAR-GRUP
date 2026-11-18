@@ -123,7 +123,6 @@ function DuesBody({ slug, data, reload }: { slug: string; data: Dues; reload: ()
       <header className="rise mb-7 lg:mb-10">
         <Kicker>Dues</Kicker>
         <h1 className="display-lg mt-3">Your dues</h1>
-        <p className="mt-3 max-w-[52ch] text-[15px] text-muted">{data.story || "What keeps the year group able to meet, write and show up."}</p>
       </header>
 
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14">

@@ -486,7 +486,7 @@ export const homeData = createServerFn({ method: "POST" }).validator(slugOf).mid
     attention = {
       kicker: "Dues",
       title: `${(dues.outstanding / 100).toLocaleString("en-GH", { style: "currency", currency: "GHS", maximumFractionDigits: 0 })} due`,
-      body: `For ${behind.join(" and ")}. Two taps to pay, and the receipt comes straight back.`,
+      body: `For ${behind.join(" and ")}. Two taps to pay.`,
       href: "dues",
     };
   } else if (num(expense[0]?.n) > 0) {

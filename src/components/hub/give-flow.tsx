@@ -19,7 +19,7 @@ export function GiveList({ slug }: { slug: string }) {
   const rest = purposes.filter((p) => p !== hero);
   return (
     <Shell slug={slug}>
-      <PageHead kicker="Give" title="Where the money goes" sub="Every gift goes through the gateway and onto the ledger, with its fees on their own line." />
+      <PageHead kicker="Give" title="Where the money goes" />
       {waiting ? (
         <div className="space-y-4">
           <Callout tone="red">
@@ -71,7 +71,7 @@ export function GiveList({ slug }: { slug: string }) {
 
           <p className="mt-8 flex items-start gap-2 text-[13px] text-muted">
             <ShieldCheck className="mt-0.5 size-4 shrink-0" />
-            Only the payment gateway can mark a gift as paid, never this screen. Card and mobile money details go straight to the gateway.
+            Every gift is confirmed by the payment gateway.
           </p>
         </State>
       )}

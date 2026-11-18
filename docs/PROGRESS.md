@@ -19,6 +19,9 @@ already sent to the executives still works).
   card; blurred top bar; slim preview ribbon with a red dot.
 - **Landing (`/demo`):** stat tiles and persona cards instead of flat rows.
 - Only CSS tokens, `ui.tsx`, `shell.tsx` and a few class lists changed. 113 tests, typecheck pass.
+- **Less text.** Landing page: one line per persona, no "Things to try" or "promises" (about 400 words
+  down to about 60). Removed the explanatory captions under Give, Dues and Home, and shortened the
+  dues nudge. Rule from now on: if the screen already shows it, do not also say it.
 - Checked at 390 and 1280 wide: landing, home, give, appeal, dues, money desk, receipt.
   Not yet re-checked: Circles, People, the join flow, the control-room desks other than Money.
 
