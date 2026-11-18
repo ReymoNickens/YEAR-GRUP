@@ -19,7 +19,12 @@ designed light and dark pair. **No URLs changed.**
   Give button; the appeal page itself keeps the crimson header. Receipts stay paper in both themes.
 - Avatar tints come from theme variables (`.av-0` to `.av-5`); no `dark:` classes remain.
 - Checked at 390 and 1280 wide, light and dark: landing, Home, Give, Dues, Me, Money desk.
-  Not yet re-checked: Circles, People, join flow, the other control-room desks, module screens.
+  Then checked every other screen (Circles, a circle, People, a member, Latest, Events, Photos, Polls,
+  Messages, Businesses, Welfare, join, control-room People/Community/Messages/Events/Reports) at 390 wide
+  in light, and several in dark, plus Money at 1280. Fixed: search icon over the placeholder (component
+  classes now sit in `@layer components` so utilities like `pl-12` win), photo album strip snapping flush
+  to the edge, poll vote outline, square date tiles, wrapping buttons in the People review list, and
+  disabled red buttons now read as inactive (grey), not washed-out pink.
 - Lint, typecheck clean; 113 tests pass.
 
 ## 18 Nov 2026: black and red redesign (round 2)

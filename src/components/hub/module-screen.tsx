@@ -197,7 +197,7 @@ function Events({ slug, bag, reload }: { slug: string; bag: Record<string, unkno
         const d = new Date(e.startsAt);
         return (
           <li key={e.id} className="grid grid-cols-[4.5rem_1fr] gap-4 py-6 sm:grid-cols-[5.5rem_1fr] sm:gap-6">
-            <div className="flex h-fit flex-col items-center border-[1.5px] border-ink px-1 pt-2 pb-1.5 text-center leading-none">
+            <div className="flex h-fit flex-col items-center rounded-xl border-[1.5px] border-ink px-1 pt-2 pb-1.5 text-center leading-none">
               <span className="font-mono text-[10px] font-medium tracking-[0.18em] uppercase">{d.toLocaleDateString("en-GB", { weekday: "short" })}</span>
               <span className="font-display text-[2.6rem] leading-[0.95]">{d.getDate()}</span>
               <span className="font-mono text-[10px] font-medium tracking-[0.18em] text-crimson-ink uppercase">{d.toLocaleDateString("en-GB", { month: "short" })}</span>
@@ -257,7 +257,7 @@ function Photos({ bag, slug, reload }: { bag: Record<string, unknown>; slug: str
   return (
     <div className="space-y-4">
       <Note>Pictures are made smaller on this phone before they upload, to save your data.</Note>
-      <div className="-mx-5 flex snap-x gap-3 overflow-x-auto px-5 pb-1">
+      <div className="-mx-5 flex snap-x scroll-px-5 gap-3 overflow-x-auto px-5 pb-1">
         {albums.map((a) => (
           <button
             key={a.id}
@@ -345,7 +345,7 @@ function Polls({ slug, bag, reload }: { slug: string; bag: Record<string, unknow
                 const mine = p.mine === o.id;
                 return (
                   <button key={o.id} type="button" disabled={voted} onClick={async () => { await hubAct({ data: { type: "vote", slug, optionId: o.id } }); reload(); }}
-                    className={`relative flex min-h-14 w-full items-center justify-between gap-3 overflow-hidden border px-4 text-left transition-colors ${mine ? "border-ink" : "border-line-2"} ${voted ? "" : "bg-card hover:border-ink"}`}>
+                    className={`relative flex min-h-14 w-full items-center justify-between gap-3 overflow-hidden border px-4 text-left transition-colors ${mine ? "border-crimson" : "border-line-2"} ${voted ? "" : "bg-card hover:border-muted"}`}>
                     {voted ? <span aria-hidden className={`absolute inset-y-0 left-0 ${mine ? "bg-crimson-fill/15" : "bg-sunk"}`} style={{ width: `${pct}%` }} /> : null}
                     <span className="relative text-[15px] font-medium">{o.label}{mine ? <span className="ml-2 font-mono text-[10.5px] tracking-widest text-crimson-ink uppercase">Yours</span> : null}</span>
                     {voted ? <span className="relative font-mono text-sm tabular-nums">{pct}%</span> : null}

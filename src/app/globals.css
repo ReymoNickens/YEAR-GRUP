@@ -222,6 +222,7 @@
 .poster-ink { background: linear-gradient(165deg, #1b1b20 0%, #0b0b0d 100%); border: 1px solid rgb(255 255 255 / 0.08); box-shadow: 0 24px 48px -28px rgba(14, 14, 16, 0.55), inset 0 1px 0 rgb(255 255 255 / 0.07); }
 .poster-ink::after { background: radial-gradient(70% 60% at 100% 0%, rgba(239, 43, 76, 0.30) 0%, rgba(0, 0, 0, 0) 60%); }
 
+@layer components {
 /* ── Avatars: a steady tint per person, drawn from the theme ───── */
 .av-0 { background: var(--av0b); color: var(--av0f); } .av-1 { background: var(--av1b); color: var(--av1f); }
 .av-2 { background: var(--av2b); color: var(--av2f); } .av-3 { background: var(--av3b); color: var(--av3f); }
@@ -235,7 +236,8 @@
   user-select: none;
 }
 .btn:active:not(:disabled) { transform: scale(0.985); }
-.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.4; pointer-events: none; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.55; pointer-events: none; }
+.btn-primary:disabled, .btn-red:disabled { background: var(--sunk); color: var(--muted); box-shadow: none; opacity: 1; border-color: var(--line); }
 .btn-block { width: 100%; }
 .btn-primary { background: var(--crimson-fill); color: #fff; box-shadow: 0 8px 20px -10px rgba(200, 16, 46, 0.7), inset 0 1px 0 rgb(255 255 255 / 0.22); }
 .btn-primary:hover { background: #dc1334; }
@@ -249,8 +251,8 @@
 .btn-ghost-light:hover { border-color: #fff; background: rgba(255, 255, 255, 0.14); }
 .btn-sm { min-height: 2.75rem; padding: 0 1.125rem; font-size: 0.9375rem; border-radius: 12px; }
 /* Old names still used by a few screens. */
-.btn-primary:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.5rem; padding: 0 1.5rem; font-weight: 600; border-radius: 14px; }
-.btn-quiet:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.25rem; padding: 0 1.25rem; font-weight: 600; border-radius: 14px; border-width: 1px; }
+.btn-primary:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.5rem; padding: 0 0.875rem; white-space: nowrap; font-weight: 600; border-radius: 14px; }
+.btn-quiet:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.25rem; padding: 0 0.875rem; white-space: nowrap; font-weight: 600; border-radius: 14px; border-width: 1px; }
 
 .link-red { color: var(--crimson-ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 
@@ -261,6 +263,7 @@
 }
 .input::placeholder { color: color-mix(in srgb, var(--muted) 70%, transparent); }
 .input:focus { border-color: var(--crimson); box-shadow: 0 0 0 3px rgba(239, 43, 76, 0.22); }
+}
 
 /* ── Stamps and receipts: the signature object ───────────────────── */
 .stamp {
