@@ -31,7 +31,7 @@ export function ControlScreen({ slug, area }: { slug: string; area: string }) {
       </header>
       <nav aria-label="Control room" className="rail -mx-5 mt-6 flex gap-1.5 overflow-x-auto px-5 sm:mx-0 sm:px-0">
         {shown.map((a) => (
-          <Link key={a} href={`/o/${slug}/control/${a}`} className={`flex h-10 shrink-0 items-center border px-3.5 text-sm transition-colors ${a === safe ? "border-ink bg-ink font-medium text-paper" : "border-line-2 text-ink-2 hover:border-ink"}`} aria-current={a === safe ? "page" : undefined}>{areaName(a)}</Link>
+          <Link key={a} href={`/o/${slug}/control/${a}`} className={`flex h-10 shrink-0 items-center rounded-full border px-4 text-sm transition-colors ${a === safe ? "border-crimson-fill bg-crimson-fill font-semibold text-white" : "border-line-2 text-ink-2 hover:border-muted hover:text-ink"}`} aria-current={a === safe ? "page" : undefined}>{areaName(a)}</Link>
         ))}
       </nav>
       <div className="mt-8">

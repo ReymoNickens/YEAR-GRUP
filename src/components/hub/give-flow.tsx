@@ -31,7 +31,7 @@ export function GiveList({ slug }: { slug: string }) {
       ) : (
         <State loading={loading} error={error} onRetry={reload}>
           {hero ? (
-            <Link href={`/o/${slug}/give/${hero.id}`} className="poster rise group -mx-5 block px-5 pt-6 pb-6 sm:mx-0 sm:px-7">
+            <Link href={`/o/${slug}/give/${hero.id}`} className="poster rise group block px-5 pt-6 pb-6 sm:px-7">
               <div className="flex items-center justify-between">
                 <span className="font-mono text-[11px] font-medium tracking-[0.16em] text-white/80 uppercase">The appeal</span>
                 <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />

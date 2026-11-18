@@ -182,7 +182,7 @@ function Story({ slug, data, onGive }: { slug: string; data: Detail; onGive: () 
   return (
     <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-14">
       <article className="min-w-0">
-        <header className="poster rise -mx-5 px-5 pt-6 pb-8 sm:mx-0 sm:px-8 sm:pt-8 sm:pb-10">
+        <header className="poster rise px-5 pt-6 pb-8 sm:px-8 sm:pt-8 sm:pb-10">
           <p className="font-mono text-[11px] font-medium tracking-[0.16em] text-white/80 uppercase">{KIND[data.type] ?? "Give"} · {org?.name}</p>
           <h1 className="mt-10 font-display text-[3.5rem] leading-[0.9] tracking-[-0.025em] sm:text-[5rem]">{data.title}</h1>
         </header>

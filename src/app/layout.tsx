@@ -16,17 +16,15 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   icons: { icon: "/favicon.svg", apple: "/icon-180.png" },
   openGraph: { images: ["/og.jpg"] },
-  appleWebApp: { capable: true, title: "Year Hub", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "Year Hub", statusBarStyle: "black-translucent" },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#F5F3EE" },
-    { media: "(prefers-color-scheme: dark)", color: "#0D0D0E" },
-  ],
+  themeColor: "#09090B",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

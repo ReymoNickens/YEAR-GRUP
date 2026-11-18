@@ -2,6 +2,26 @@
 
 Update this at the end of every session.
 
+## 18 Nov 2026: black and red redesign (round 2)
+
+The executives still found it amateurish. Cream paper, a condensed serif and hairline boxes read as
+a template. Rebuilt the look as black, one red, one sharp sans family. **No URLs changed** (the link
+already sent to the executives still works).
+- **Dark only.** Near-black canvas (`#09090b`), graphite surfaces, white type. The crest's crimson
+  is used only for actions, progress and the active tab. The light theme is gone; receipts stay on
+  warm paper, the one light object in the app, and print stays white.
+- **Type:** Geist for everything (headlines 650 weight, tight tracking). Instrument Serif survives only
+  as an italic accent (the member's nickname, "in one place"). Mono labels became small sans caps.
+- **Shape:** soft corners (14 to 22px). Any `border` box is rounded in `globals.css` (base layer, so an
+  explicit `rounded-*` still wins). Buttons: crimson primary with a soft glow, graphite quiet.
+- **Appeal poster** is an inset crimson card with a light falling from the corner, not a full-bleed grid.
+- **Frame:** floating black tab bar with a red-tinted active pill; sidebar active state is a raised
+  card; blurred top bar; slim preview ribbon with a red dot.
+- **Landing (`/demo`):** stat tiles and persona cards instead of flat rows.
+- Only CSS tokens, `ui.tsx`, `shell.tsx` and a few class lists changed. 113 tests, typecheck pass.
+- Checked at 390 and 1280 wide: landing, home, give, appeal, dues, money desk, receipt.
+  Not yet re-checked: Circles, People, the join flow, the control-room desks other than Money.
+
 ## 18 Nov 2026: Me screen split
 
 The Me screen was too long (details form, receipts and the year group's modules on one page).

@@ -75,25 +75,25 @@ export default async function DemoHome() {
               Tap through it as a member would. The classmates and the money here are made up, so press anything.
             </p>
 
-            <dl className="mt-10 grid grid-cols-3 border-y border-line">
-              <div className="py-4 pr-3">
+            <dl className="mt-10 grid grid-cols-3 gap-2.5">
+              <div className="card px-4 py-4">
                 <dt className="kicker">On the roll</dt>
                 <dd className="figure mt-2 text-[1.75rem]">{numbers.members}</dd>
               </div>
-              <div className="border-l border-line px-3 py-4">
+              <div className="card px-4 py-4">
                 <dt className="kicker">Confirmed</dt>
                 <dd className="figure mt-2 text-[1.75rem]">{numbers.verified}</dd>
               </div>
-              <div className="border-l border-line py-4 pl-3">
+              <div className="card px-4 py-4">
                 <dt className="kicker">Appeal</dt>
-                <dd className="figure mt-2 text-[1.75rem]">{numbers.target ? `${Math.floor((numbers.raised / numbers.target) * 100)}%` : wholeCedis(numbers.raised)}</dd>
+                <dd className="figure mt-2 text-[1.75rem] text-crimson-ink">{numbers.target ? `${Math.floor((numbers.raised / numbers.target) * 100)}%` : wholeCedis(numbers.raised)}</dd>
               </div>
             </dl>
 
             <ol className="mt-12 hidden space-y-8 lg:block">
               {PROMISES.map((p, i) => (
                 <li key={p.title} className="grid grid-cols-[3rem_1fr] gap-2">
-                  <span className="font-mono text-[13px] text-crimson-ink">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="text-[13px] font-semibold text-crimson-ink">{String(i + 1).padStart(2, "0")}</span>
                   <span>
                     <span className="block text-[17px] font-semibold tracking-[-0.01em]">{p.title}</span>
                     <span className="mt-1 block text-[15px] leading-relaxed text-muted">{p.body}</span>
@@ -108,22 +108,22 @@ export default async function DemoHome() {
               <h2 id="who" className="display-sm">Who would you like to be?</h2>
               <p className="mt-2 text-[15px] text-muted">Pick one. You can switch any time from the bar at the top.</p>
             </div>
-            <ul className="mt-4 ruled-list border-b border-line">
+            <ul className="mt-5 space-y-3">
               {PERSONAS.map((p, i) => (
                 <li key={p.key}>
                   {/* A full page load, so the cookie and the ribbon change together. */}
-                  <a href={`/demo/enter?as=${p.key}`} className="group flex items-center gap-4 py-5 transition-colors hover:bg-sunk/50">
+                  <a href={`/demo/enter?as=${p.key}`} className="card group flex items-center gap-4 p-4 transition-all hover:border-crimson/60 hover:bg-sunk active:scale-[0.99] sm:p-5">
                     {i === 0 ? (
-                      <span className="grid size-14 shrink-0 place-items-center rounded-full border-[1.5px] border-dashed border-crimson text-2xl text-crimson">+</span>
+                      <span className="grid size-[52px] shrink-0 place-items-center rounded-full border-[1.5px] border-dashed border-crimson text-2xl text-crimson">+</span>
                     ) : (
-                      <Avatar name={p.name} size={56} />
+                      <Avatar name={p.name} size={52} />
                     )}
                     <span className="min-w-0 flex-1">
                       <span className={`kicker block ${i === 0 ? "kicker-red" : ""}`}>{p.role}</span>
-                      <span className="mt-1.5 block font-display text-[1.75rem] leading-[1.02] tracking-[-0.01em]">{p.name}</span>
+                      <span className="mt-1.5 block font-display text-[1.375rem] leading-[1.1] font-semibold tracking-[-0.03em]">{p.name}</span>
                       <span className="mt-1.5 block text-sm leading-snug text-muted">{p.blurb}</span>
                     </span>
-                    <ArrowRight className="size-5 shrink-0 transition-transform group-hover:translate-x-1" />
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-sunk text-ink-2 transition-colors group-hover:bg-crimson-fill group-hover:text-white"><ArrowRight className="size-[18px]" /></span>
                   </a>
                 </li>
               ))}
@@ -134,7 +134,7 @@ export default async function DemoHome() {
               <ol className="mt-3 ruled-list">
                 {TRY.map(([a, b], i) => (
                   <li key={a} className="grid grid-cols-[2.5rem_1fr] py-3.5 text-[15px] leading-snug">
-                    <span className="font-mono text-[13px] text-muted">{String(i + 1).padStart(2, "0")}</span>
+                    <span className="text-[13px] font-semibold text-muted">{String(i + 1).padStart(2, "0")}</span>
                     <span><span className="font-medium">{a}</span> <span className="text-muted">{b}</span></span>
                   </li>
                 ))}
@@ -146,7 +146,7 @@ export default async function DemoHome() {
         <ol className="mt-14 space-y-6 lg:hidden">
           {PROMISES.map((p, i) => (
             <li key={p.title} className="grid grid-cols-[2.5rem_1fr] gap-1 border-t border-line pt-4">
-              <span className="font-mono text-[13px] text-crimson-ink">{String(i + 1).padStart(2, "0")}</span>
+              <span className="text-[13px] font-semibold text-crimson-ink">{String(i + 1).padStart(2, "0")}</span>
               <span>
                 <span className="block text-[17px] font-semibold tracking-[-0.01em]">{p.title}</span>
                 <span className="mt-1 block text-[15px] leading-relaxed text-muted">{p.body}</span>

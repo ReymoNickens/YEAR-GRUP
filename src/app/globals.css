@@ -2,54 +2,32 @@
 
 /* ═══════════════════════════════════════════════════════════════════
    YEAR GROUP HUB
-   Paper, black ink and the school's red, taken from the crest.
-   Editorial serif for what we say, a crisp grotesk for what you do,
-   mono for numbers on paper (receipts, the ledger). Square corners.
+   Black and one red. Near-black canvas, graphite surfaces, white type,
+   and the crest's crimson used only where something can be done or
+   something has been raised. One sharp sans family throughout; the serif
+   appears once per screen, in italic, for a human voice. Receipts stay on
+   paper: the one light object in a dark app.
    ═══════════════════════════════════════════════════════════════════ */
 :root {
-  --paper: #f5f3ee;          /* the page */
-  --card: #ffffff;           /* raised surfaces */
-  --sunk: #ebe8e1;           /* wells, tracks, skeletons */
-  --ink: #111111;
-  --ink-2: #3a3936;
-  --muted: #6b675f;          /* AA on paper and card */
-  --line: #dedad1;
-  --line-2: #c9c4b8;
-  --crimson: #c8102e;        /* the crest's red: marks, progress, links */
-  --crimson-ink: #a50d26;    /* red for small text: AA on paper */
-  --crimson-fill: #c8102e;   /* red surfaces carrying white text */
+  --paper: #09090b;          /* the canvas */
+  --card: #131316;           /* raised surfaces */
+  --sunk: #1b1b1f;           /* wells, tracks, skeletons, hover */
+  --ink: #fafaf9;
+  --ink-2: #d6d6da;
+  --muted: #9b9ba4;          /* AA on canvas and card */
+  --line: #232328;
+  --line-2: #36363d;
+  --crimson: #ef2b4c;        /* marks, progress, links */
+  --crimson-ink: #ff6a7e;    /* red for small text: AA on canvas */
+  --crimson-fill: #d9102f;   /* red surfaces carrying white text */
   --on-crimson: #ffffff;
-  --gold: #8a6a1f;
-  --gold-soft: #f2ead6;
-  --paid: #137a48;
-  --paid-soft: #e3f1e9;
-  --stamp: #b3261e;
-  --shadow: 17 17 17;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #0d0d0e;
-    --card: #17171a;
-    --sunk: #222226;
-    --ink: #f3f1ec;
-    --ink-2: #cfccc4;
-    --muted: #9d998f;
-    --line: #2a2a2e;
-    --line-2: #3b3b40;
-    --crimson: #ff4757;
-    --crimson-ink: #ff6b78;
-    --crimson-fill: #c8102e;
-    --on-crimson: #ffffff;
-    --gold: #e0bd67;
-    --gold-soft: #2a2416;
-    --paid: #4fd18d;
-    --paid-soft: #12261b;
-    --stamp: #ff6b5e;
-    --shadow: 0 0 0;
-    color-scheme: dark;
-  }
+  --gold: #e6c36e;
+  --gold-soft: #2a2416;
+  --paid: #4fd18d;
+  --paid-soft: #10261b;
+  --stamp: #ff6b5e;
+  --shadow: 0 0 0;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -71,37 +49,37 @@
   --color-paid-soft: var(--paid-soft);
   --color-stamp: var(--stamp);
   --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-serif), Georgia, "Times New Roman", serif;
+  --font-display: var(--font-body), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-mono-face), ui-monospace, "SFMono-Regular", Menlo, monospace;
   --font-stencil: var(--font-mono-face), ui-monospace, monospace;
   --font-note: var(--font-serif), Georgia, serif;
-  /* Square, like print. Only avatars and switches are round. */
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-3xl: 28px;
   --ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
 @layer base {
   html { -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; }
   body {
-    background: var(--paper);
+    background: var(--paper) radial-gradient(70% 38% at 50% -8%, rgba(239,43,76,0.13), transparent 70%) no-repeat;
     color: var(--ink);
     font-family: var(--font-sans);
     font-size: 16px;
     line-height: 1.5;
     font-feature-settings: "ss01", "cv11";
   }
-  h1, h2, h3 { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.01em; line-height: 1; text-wrap: balance; }
+  h1, h2, h3 { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; text-wrap: balance; }
   p { text-wrap: pretty; }
   button:not(:disabled), [role="button"]:not(:disabled) { cursor: pointer; }
   button { -webkit-tap-highlight-color: transparent; }
   a { -webkit-tap-highlight-color: transparent; }
   :focus-visible { outline: 2px solid var(--crimson); outline-offset: 3px; }
   ::selection { background: var(--crimson-fill); color: #fff; }
+  html { background: var(--paper); }
   input, textarea, select { font: inherit; color: inherit; }
 }
 
@@ -109,86 +87,84 @@
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
 }
 
-/* Paper grain, barely there, so flat colour does not look machine-made. */
-body::before {
-  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 80; opacity: 0.04; mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-@media (prefers-color-scheme: dark) { body::before { mix-blend-mode: screen; opacity: 0.03; } }
-
 /* ── Type ─────────────────────────────────────────────────────────── */
-.font-display { font-family: var(--font-display); font-weight: 400; letter-spacing: -0.015em; line-height: 0.98; }
-.display-xl { font-family: var(--font-display); font-size: clamp(3.25rem, 13vw, 7.5rem); line-height: 0.9; letter-spacing: -0.025em; }
-.display-lg { font-family: var(--font-display); font-size: clamp(2.6rem, 9vw, 4.5rem); line-height: 0.95; letter-spacing: -0.02em; }
-.display-md { font-family: var(--font-display); font-size: clamp(2rem, 6.5vw, 3rem); line-height: 1; letter-spacing: -0.015em; }
-.display-sm { font-family: var(--font-display); font-size: 1.625rem; line-height: 1.05; letter-spacing: -0.01em; }
-/* Kicker: mono, small capitals, wide. Labels a section, never decorates it. */
-.kicker { font-family: var(--font-mono); font-size: 0.6875rem; line-height: 1.2; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+.font-display { font-family: var(--font-display); font-weight: 600; letter-spacing: -0.03em; line-height: 1.02; }
+.display-xl { font-family: var(--font-display); font-weight: 650; font-size: clamp(2.75rem, 11.5vw, 5.75rem); line-height: 0.96; letter-spacing: -0.045em; }
+.display-lg { font-family: var(--font-display); font-weight: 650; font-size: clamp(2.2rem, 8.5vw, 3.5rem); line-height: 1; letter-spacing: -0.04em; }
+.display-md { font-family: var(--font-display); font-weight: 650; font-size: clamp(1.75rem, 6vw, 2.5rem); line-height: 1.04; letter-spacing: -0.035em; }
+.display-sm { font-family: var(--font-display); font-weight: 600; font-size: 1.3125rem; line-height: 1.15; letter-spacing: -0.025em; }
+/* Kicker: small capitals that label a section, never decorate it. */
+.kicker { font-family: var(--font-sans); font-size: 0.6875rem; line-height: 1.2; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
 .kicker-red { color: var(--crimson-ink); }
 /* Big money: the number is the headline. */
 .figure { font-family: var(--font-sans); font-weight: 600; letter-spacing: -0.035em; line-height: 0.95; font-variant-numeric: tabular-nums; }
 .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 .stencil { font-family: var(--font-mono); font-weight: 600; letter-spacing: 0.02em; }
-.note-hand { font-family: var(--font-display); font-style: italic; font-weight: 400; letter-spacing: 0; }
-.serif-italic { font-family: var(--font-display); font-style: italic; }
+.note-hand { font-family: var(--font-serif), Georgia, serif; font-style: italic; font-weight: 400; letter-spacing: 0; }
+.serif-italic { font-family: var(--font-serif), Georgia, serif; font-size: 1.06em; font-style: italic; }
 
 /* ── Surfaces ─────────────────────────────────────────────────────── */
-.card { background: var(--card); border: 1px solid var(--line); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.035); }
 .hairline { border-color: var(--line); }
 /* Ruled list: rows divided by hairlines, no boxes. */
 .ruled-list > * + * { border-top: 1px solid var(--line); }
-.rule-top { border-top: 1.5px solid var(--ink); }
+.rule-top { border-top: 1px solid var(--line-2); }
+/* Anything drawn as a bordered box gets the same soft corner; clip its divided cells to it.
+   In the base layer so an explicit rounded-* on an element still wins. */
+@layer base {
+  [class~="border"], [class*="border-l-["] { border-radius: 14px; }
+  [class~="border"][class~="grid"], [class~="border"][class~="overflow-hidden"] { overflow: hidden; }
+  [class~="bg-card"][class~="border"] { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.035); }
+}
 
-/* The poster: an appeal's cover when there is no photograph. */
+/* The poster: an appeal's cover when there is no photograph. Crimson with light falling from the top right. */
 .poster {
-  position: relative; isolation: isolate; color: #fff; background: var(--crimson-fill); overflow: hidden;
+  position: relative; isolation: isolate; color: #fff; overflow: hidden; border-radius: 22px;
+  background: radial-gradient(90% 80% at 100% 0%, rgba(255, 92, 118, 0.55) 0%, rgba(255, 92, 118, 0) 60%), linear-gradient(160deg, #d9102f 0%, #8d0a22 100%);
+  box-shadow: 0 24px 48px -24px rgba(217, 16, 47, 0.55), inset 0 1px 0 rgb(255 255 255 / 0.18);
 }
-.poster::before {
-  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.16;
-  background:
-    repeating-linear-gradient(90deg, rgba(0,0,0,.55) 0 1px, transparent 1px 28px),
-    repeating-linear-gradient(0deg, rgba(0,0,0,.55) 0 1px, transparent 1px 28px);
-}
+.poster::before { content: none; }
 .poster::after {
-  content: ""; position: absolute; inset: 0; z-index: -1;
-  background: radial-gradient(120% 90% at 100% 0%, rgba(0,0,0,0) 0%, rgba(0,0,0,.38) 100%);
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(70% 60% at 0% 100%, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 70%);
 }
-.poster-ink { background: #111; }
-.poster-ink::after { background: radial-gradient(120% 90% at 0% 0%, rgba(200,16,46,.35) 0%, rgba(0,0,0,0) 60%); }
+.poster-ink { background: linear-gradient(160deg, #17171b 0%, #0e0e11 100%); border: 1px solid var(--line-2); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.05); }
+.poster-ink::after { background: radial-gradient(80% 70% at 0% 100%, rgba(239, 43, 76, 0.28) 0%, rgba(0, 0, 0, 0) 65%); }
 
 /* ── Buttons ──────────────────────────────────────────────────────── */
 .btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 3.5rem; padding: 0 1.5rem;
-  font-family: var(--font-sans); font-weight: 600; font-size: 1rem; letter-spacing: -0.005em; text-decoration: none; white-space: nowrap;
-  border: 1.5px solid transparent; transition: transform 0.12s var(--ease-out), background 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; min-height: 3.5rem; padding: 0 1.5rem; border-radius: 14px;
+  font-family: var(--font-sans); font-weight: 600; font-size: 1rem; letter-spacing: -0.01em; text-decoration: none; white-space: nowrap;
+  border: 1px solid transparent; transition: transform 0.12s var(--ease-out), background 0.15s ease, color 0.15s ease, border-color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease;
   user-select: none;
 }
 .btn:active:not(:disabled) { transform: scale(0.985); }
 .btn:disabled, .btn[aria-disabled="true"] { opacity: 0.4; pointer-events: none; }
 .btn-block { width: 100%; }
-.btn-primary { background: var(--ink); color: var(--paper); }
-.btn-primary:hover { background: var(--ink-2); }
-.btn-red { background: var(--crimson-fill); color: #fff; }
-.btn-red:hover { background: #a50d26; }
-.btn-quiet { background: transparent; color: var(--ink); border-color: var(--line-2); }
-.btn-quiet:hover { border-color: var(--ink); }
-.btn-white { background: #fff; color: #111; }
-.btn-ghost-light { background: transparent; color: #fff; border-color: rgba(255,255,255,.45); }
-.btn-ghost-light:hover { border-color: #fff; }
-.btn-sm { min-height: 2.75rem; padding: 0 1rem; font-size: 0.9375rem; }
+.btn-primary { background: var(--crimson-fill); color: #fff; box-shadow: 0 10px 24px -12px rgba(217, 16, 47, 0.8), inset 0 1px 0 rgb(255 255 255 / 0.22); }
+.btn-primary:hover { background: #e9163a; }
+.btn-red { background: var(--crimson-fill); color: #fff; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.2); }
+.btn-red:hover { background: #e9163a; }
+.btn-quiet { background: var(--card); color: var(--ink); border-color: var(--line-2); }
+.btn-quiet:hover { border-color: var(--muted); background: var(--sunk); }
+.btn-white { background: #fff; color: #0b0b0d; }
+.btn-white:hover { background: #f1f1f2; }
+.btn-ghost-light { background: rgba(255, 255, 255, 0.08); color: #fff; border-color: rgba(255, 255, 255, 0.35); }
+.btn-ghost-light:hover { border-color: #fff; background: rgba(255, 255, 255, 0.14); }
+.btn-sm { min-height: 2.75rem; padding: 0 1.125rem; font-size: 0.9375rem; border-radius: 12px; }
 /* Old names still used by a few screens. */
-.btn-primary:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.5rem; padding: 0 1.5rem; font-weight: 600; }
-.btn-quiet:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.25rem; padding: 0 1.25rem; font-weight: 600; border-width: 1.5px; }
+.btn-primary:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.5rem; padding: 0 1.5rem; font-weight: 600; border-radius: 14px; }
+.btn-quiet:not(.btn) { display: flex; width: 100%; align-items: center; justify-content: center; gap: .5rem; min-height: 3.25rem; padding: 0 1.25rem; font-weight: 600; border-radius: 14px; border-width: 1px; }
 
 .link-red { color: var(--crimson-ink); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
 
 /* ── Fields ───────────────────────────────────────────────────────── */
 .input {
-  width: 100%; min-height: 3.5rem; padding: 0.875rem 1rem; font-size: 1.0625rem; background: var(--card); color: var(--ink);
+  width: 100%; min-height: 3.5rem; padding: 0.875rem 1rem; font-size: 1.0625rem; background: var(--card); color: var(--ink); border-radius: 14px;
   border: 1px solid var(--line-2); outline: none; appearance: none; transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 .input::placeholder { color: color-mix(in srgb, var(--muted) 70%, transparent); }
-.input:focus { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.input:focus { border-color: var(--crimson); box-shadow: 0 0 0 3px rgba(239, 43, 76, 0.22); }
 
 /* ── Stamps and receipts: the signature object ───────────────────── */
 .stamp {
@@ -203,7 +179,7 @@ body::before {
 .perf { height: 14px; background: radial-gradient(circle at 7px 7px, var(--paper) 4px, transparent 4.5px) 0 0 / 18px 14px repeat-x; }
 /* Receipt paper: warm, ruled, never pure white. */
 .receipt {
-  position: relative; background: #fbf8f1; color: #1a1712;
+  position: relative; border-radius: 6px 6px 0 0; background: #fbf8f1; color: #1a1712;
   box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 18px 40px -18px rgba(0,0,0,.35);
 }
 .receipt::before {
@@ -225,7 +201,7 @@ body::before {
 @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 200% 0; } }
 .rise { animation: rise .45s var(--ease-out) both; }
 .rise-1 { animation-delay: .05s; } .rise-2 { animation-delay: .1s; } .rise-3 { animation-delay: .15s; } .rise-4 { animation-delay: .2s; }
-.skeleton { background: linear-gradient(90deg, var(--sunk) 0%, color-mix(in srgb, var(--sunk) 55%, var(--paper)) 50%, var(--sunk) 100%) 0 0 / 200% 100%; animation: shimmer 1.4s linear infinite; }
+.skeleton { border-radius: 10px; background: linear-gradient(90deg, var(--sunk) 0%, color-mix(in srgb, var(--sunk) 55%, var(--paper)) 50%, var(--sunk) 100%) 0 0 / 200% 100%; animation: shimmer 1.4s linear infinite; }
 
 /* In the executive demo every classmate is made up, and the ribbon says so once. */
 [data-demo] .demo-hide { display: none !important; }
@@ -235,10 +211,11 @@ body::before {
 .rail::-webkit-scrollbar { display: none; }
 
 /* Legacy photo motifs (photo albums in the sample data). */
-.motif { background: linear-gradient(160deg, #1a1a1a, #c8102e); color: #fff; }
+.motif { background: linear-gradient(160deg, #1a1a1a, #d9102f); color: #fff; }
 
 @media print {
-  body { background: #fff; }
+  body { background: #fff !important; }
+  :root { --paper: #fff; }
   body::before, nav, header, .no-print { display: none !important; }
   .receipt { box-shadow: none; }
 }

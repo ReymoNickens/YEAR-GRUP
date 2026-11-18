@@ -28,8 +28,8 @@ export function Crest({ src, className = "h-11 w-10", label }: { src?: string; c
   }
   return (
     <svg viewBox="0 0 40 46" className={className} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
-      <path d="M3 3h34v17c0 12-8 19-17 23C11 39 3 32 3 20z" fill="#c8102e" stroke="#111" strokeWidth="2.2" strokeLinejoin="round" />
-      <path d="M20 3v40M3 20h34" stroke="#111" strokeWidth="2.2" />
+      <path d="M3 3h34v17c0 12-8 19-17 23C11 39 3 32 3 20z" fill="#d9102f" stroke="#f4f4f5" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M20 3v40M3 20h34" stroke="#f4f4f5" strokeWidth="2.2" />
     </svg>
   );
 }
@@ -48,20 +48,12 @@ export function Wordmark({ name, motto, crest, size = "md" }: { name: string; mo
 }
 
 const AVATAR_TONES = [
-  "bg-[#e9e2d3] text-[#3d3424]",
-  "bg-[#dfe5e0] text-[#25382c]",
-  "bg-[#e6dde0] text-[#4a2430]",
-  "bg-[#dde2ea] text-[#26324a]",
-  "bg-[#ece4d9] text-[#4a3420]",
-  "bg-[#e2e0ea] text-[#35304a]",
-];
-const AVATAR_TONES_DARK = [
-  "dark:bg-[#2c271d] dark:text-[#e8dcc2]",
-  "dark:bg-[#1f2a23] dark:text-[#cfe3d5]",
-  "dark:bg-[#2c1f24] dark:text-[#ecd2da]",
-  "dark:bg-[#1f2530] dark:text-[#d2dcec]",
-  "dark:bg-[#2e251b] dark:text-[#ecdac5]",
-  "dark:bg-[#24222e] dark:text-[#dad6ec]",
+  "bg-[#2a2622] text-[#eadfcf]",
+  "bg-[#222826] text-[#cfe3d9]",
+  "bg-[#2b2226] text-[#efd3dc]",
+  "bg-[#22262e] text-[#d3deef]",
+  "bg-[#2d2621] text-[#efd9c4]",
+  "bg-[#27242e] text-[#dcd7ef]",
 ];
 
 export function initialsOf(name: string) {
@@ -74,7 +66,7 @@ export function initialsOf(name: string) {
 export function Avatar({ name, size = 40, me = false, className = "" }: { name: string; size?: number; me?: boolean; className?: string }) {
   let h = 0;
   for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  const tone = me ? "bg-crimson-fill text-white" : `${AVATAR_TONES[h % 6]} ${AVATAR_TONES_DARK[h % 6]}`;
+  const tone = me ? "bg-crimson-fill text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.25)]" : AVATAR_TONES[h % 6];
   return (
     <span
       aria-hidden
@@ -276,14 +268,14 @@ export function Choice({ title, detail, onClick, selected }: { title: string; de
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`relative flex min-h-16 w-full items-center justify-between gap-3 border px-4 py-3.5 text-left transition-colors ${selected ? "border-ink bg-ink text-paper" : "border-line-2 bg-card hover:border-ink"}`}
+      className={`relative flex min-h-16 w-full items-center justify-between gap-3 rounded-2xl border px-4 py-3.5 text-left transition-colors ${selected ? "border-crimson bg-crimson/10 shadow-[0_0_0_1px_var(--crimson)]" : "border-line-2 bg-card hover:border-muted"}`}
     >
       <span className="min-w-0">
         <span className="block text-[17px] font-semibold leading-tight tracking-[-0.01em]">{title}</span>
-        {detail ? <span className={`mt-1 block text-sm ${selected ? "text-paper/70" : "text-muted"}`}>{detail}</span> : null}
+        {detail ? <span className={`mt-1 block text-sm text-muted`}>{detail}</span> : null}
       </span>
-      <span aria-hidden className={`grid size-5 shrink-0 place-items-center rounded-full border-[1.5px] ${selected ? "border-paper" : "border-line-2"}`}>
-        {selected ? <span className="size-2.5 rounded-full bg-paper" /> : null}
+      <span aria-hidden className={`grid size-5 shrink-0 place-items-center rounded-full border-[1.5px] ${selected ? "border-crimson" : "border-line-2"}`}>
+        {selected ? <span className="size-2.5 rounded-full bg-crimson" /> : null}
       </span>
     </button>
   );
@@ -296,7 +288,7 @@ export function Toggle({ on, set, title, detail }: { on: boolean; set: (v: boole
         <span className="block text-[15px] font-medium">{title}</span>
         {detail ? <span className="mt-0.5 block text-sm text-muted">{detail}</span> : null}
       </span>
-      <span className={`relative h-[30px] w-[50px] shrink-0 rounded-full transition-colors duration-200 ${on ? "bg-paid" : "bg-line-2"}`}>
+      <span className={`relative h-[30px] w-[50px] shrink-0 rounded-full transition-colors duration-200 ${on ? "bg-crimson-fill" : "bg-line-2"}`}>
         <span className={`absolute top-[3px] size-6 rounded-full bg-white shadow-[0_2px_4px_rgba(0,0,0,.2)] transition-all duration-200 ${on ? "left-[23px]" : "left-[3px]"}`} />
       </span>
     </button>
@@ -318,8 +310,8 @@ export function Sheet({ open, onClose, title, children, label }: { open: boolean
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center lg:items-center" role="dialog" aria-modal="true" aria-label={label}>
-      <button type="button" aria-label="Close" className="absolute inset-0 animate-[fade_.2s_ease-out_both] bg-black/45 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative max-h-[92dvh] w-full max-w-xl animate-[sheet_.32s_cubic-bezier(.2,.8,.2,1)_both] overflow-y-auto bg-card px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(0,0,0,.25)] lg:animate-[rise_.25s_ease-out_both] lg:p-8">
+      <button type="button" aria-label="Close" className="absolute inset-0 animate-[fade_.2s_ease-out_both] bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative max-h-[92dvh] w-full max-w-xl animate-[sheet_.32s_cubic-bezier(.2,.8,.2,1)_both] overflow-y-auto rounded-t-3xl border border-line-2 bg-card px-5 pt-3 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-[0_-20px_60px_rgba(0,0,0,.6)] lg:rounded-3xl lg:animate-[rise_.25s_ease-out_both] lg:p-8">
         <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-line-2 lg:hidden" aria-hidden />
         {title ? (
           <div className="mb-5 flex items-start justify-between gap-4">
@@ -356,10 +348,10 @@ export function Bar({ value, max, tone = "light", label, ticks, height = 6 }: { 
   const pct = max > 0 ? Math.min(100, (value / max) * 100) : 0;
   const shown = pct > 0 ? Math.max(1.5, pct) : 0;
   const track = tone === "onDark" ? "bg-white/25" : "bg-sunk";
-  const fill = tone === "onDark" ? "bg-white" : "bg-crimson";
+  const fill = tone === "onDark" ? "bg-white" : "bg-gradient-to-r from-crimson-fill to-crimson";
   return (
-    <div role="progressbar" aria-label={label ?? "Progress"} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} className={`relative overflow-hidden ${track}`} style={{ height }}>
-      <div className={`h-full ${fill} transition-[width] duration-1000 ease-out`} style={{ width: `${shown}%` }} />
+    <div role="progressbar" aria-label={label ?? "Progress"} aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)} className={`relative overflow-hidden rounded-full ${track}`} style={{ height }}>
+      <div className={`h-full rounded-full ${fill} transition-[width] duration-1000 ease-out`} style={{ width: `${shown}%` }} />
       {ticks?.map((t) => <span key={t} aria-hidden className={`absolute top-0 h-full w-0.5 ${tone === "onDark" ? "bg-black/20" : "bg-paper"}`} style={{ left: `${t}%` }} />)}
     </div>
   );
@@ -372,22 +364,22 @@ export function Note({ children }: { children: ReactNode }) {
 }
 
 export function Callout({ children, tone = "plain" }: { children: ReactNode; tone?: "plain" | "red" | "paid" }) {
-  const bar = tone === "red" ? "border-crimson" : tone === "paid" ? "border-paid" : "border-ink";
-  return <div className={`border-l-[3px] ${bar} bg-card px-4 py-3.5 text-[15px] leading-relaxed`}>{children}</div>;
+  const bar = tone === "red" ? "border-crimson" : tone === "paid" ? "border-paid" : "border-line-2";
+  return <div className={`rounded-xl border-l-[3px] ${bar} bg-card px-4 py-3.5 text-[15px] leading-relaxed`}>{children}</div>;
 }
 
 export function SampleTag() {
-  return <span className="demo-hide ml-1 inline-block border border-line-2 px-1.5 py-0.5 align-middle font-mono text-[10px] tracking-widest text-muted uppercase">Sample</span>;
+  return <span className="demo-hide ml-1 inline-block rounded-full border border-line-2 px-2 py-0.5 align-middle text-[10px] font-semibold tracking-widest text-muted uppercase">Sample</span>;
 }
 
 export function Pill({ children, tone = "plain" }: { children: ReactNode; tone?: "plain" | "red" | "paid" | "ink" }) {
   const cls = {
     plain: "border-line-2 text-ink-2",
-    red: "border-crimson text-crimson-ink",
-    paid: "border-paid text-paid",
-    ink: "border-ink bg-ink text-paper",
+    red: "border-crimson/50 bg-crimson/10 text-crimson-ink",
+    paid: "border-paid/40 bg-paid-soft text-paid",
+    ink: "border-transparent bg-ink text-paper",
   }[tone];
-  return <span className={`inline-flex h-6 items-center border px-2 font-mono text-[10.5px] font-medium tracking-[0.1em] whitespace-nowrap uppercase ${cls}`}>{children}</span>;
+  return <span className={`inline-flex h-6 items-center rounded-full border px-2.5 text-[11px] font-semibold tracking-[0.04em] whitespace-nowrap uppercase ${cls}`}>{children}</span>;
 }
 
 export function State({
@@ -422,7 +414,7 @@ export function State({
   }
   if (error) {
     return (
-      <div className="rise border-l-[3px] border-crimson bg-card p-5">
+      <div className="rise rounded-2xl border-l-[3px] border-crimson bg-card p-5">
         <p className="kicker kicker-red">Not this time</p>
         <h2 className="display-sm mt-2">That did not go through</h2>
         <p className="mt-2 text-muted">{error}</p>
@@ -433,7 +425,7 @@ export function State({
       </div>
     );
   }
-  if (empty) return <p className="border border-dashed border-line-2 p-6 text-center text-muted">{empty}</p>;
+  if (empty) return <p className="rounded-2xl border border-dashed border-line-2 p-6 text-center text-muted">{empty}</p>;
   return children;
 }
 
